@@ -11,27 +11,39 @@
 
 typedef struct tile {
     bool state;
-    double loc[2];
+    int q, r, s; // Col, row, 3rd cube coordinate
 } Tile;
 
-struct tile *createTile(struct tile *t, double *pos) {
-    t->state = true;
-    for (int i = 0; i < 2; i++) {
-        t->loc[i] = pos[i];
-    }
+Tile *createTile(Tile *t, int col, int row, bool side) {
+    t->state = side;
+    t->q = col;
+    t->r = row;
+    t->s = -t->q - t->r;
 
     return t;
 }
 
-void printTile(struct tile *t) {
-    printf("Tile %.1f,%.1f: Color: %s\n", t->loc[0], t->loc[1], (t->state) ? "black" : "white");
+void printTile(Tile *t) {
+    printf("Tile %d,%d: Color: %s\n", t->q, t->r, (t->state) ? "black" : "white");
     return;
 }
 
+int countBlack(int *tiles, int numTiles) {
+    int count = 0;
 
-int readData() {
+    for (int i = 0; i < numTiles; i++) {
+        Tile *t = tiles[i];
+        count += (int)(t->state);
+    }
+
+    return count;
+}
+
+
+int *readData(int *numT) {
 	char textRead[dataLine], fileName[20];
-	int sum = 0, *tiles = (int*)calloc(1, sizeof(int)), numTiles = 0;
+	int *tiles = (int*)calloc(1, sizeof(int));
+	int numTiles = 0;
 
 	#ifdef test
         strcpy(fileName, test);
@@ -46,40 +58,42 @@ int readData() {
 
 	// Check if the file exists or not
     if (inFile == NULL) {
-        return -1;
+        return NULL;
     }
 
 	while(fgets(textRead, dataLine, inFile)) {
-        char *p = &textRead[0], past = 'e';
-        double pos[2] = {0, 0};
+        char *p = &textRead[0];
+        int col = 0, row = 0;
 
         while (strlen(p) > 1) {
             switch (p[0]) {
                 case 'n':
-                    pos[0]++;
+                    row++;
+                    col += (int)(p[1] == 'e');
+                    p++;
                     break;
                 case 's':
-                    pos[0]--;
+                    row--;
+                    col -= (int)(p[1] == 'w');
+                    p++;
                     break;
                 case 'e':
-                    pos[1]+= (past == 'e' || past == 'w') ? 1 : 0.5;
+                    col++;
                     break;
                 case 'w':
-                    pos[1]-= (past == 'e' || past == 'w') ? 1 : 0.5;
+                    col--;
                     break;
             }
-
-            past = p[0];
 
             p++;
         }
 
         bool inTiles = false;
-        struct tile *t;
+        Tile *t;
 
         for (int i = 0; i < numTiles; i++) {
             t = tiles[i];
-            if (t->loc[0] == pos[0] && t->loc[1] == pos[1]) {
+            if (t->q == col && t->r == row) {
                 inTiles = true;
                 break;
             }
@@ -88,8 +102,8 @@ int readData() {
         if (inTiles) {
             t->state = !t->state;
         } else {
-            t = (struct tile*)calloc(1, sizeof(struct tile));
-            t = createTile(t, &pos[0]);
+            t = (Tile*)calloc(1, sizeof(Tile));
+            t = createTile(t, col, row, true);
             tiles = realloc(tiles, (numTiles + 1) * sizeof(int));
             tiles[numTiles] = t;
             numTiles++;
@@ -98,19 +112,17 @@ int readData() {
 
 	fclose(inFile);
 
-	for (int i = 0; i < numTiles; i++) {
-        struct tile *t = tiles[i];
-        printTile(t);
-        if (t->state) {
-            sum++;
-        }
-	}
+	*(numT) = numTiles;
 
-	return sum;
+	return tiles;
 }
 
+
 int main() {
-    printf("# of black tiles: %d\n", readData());
+    int numTiles;
+    int *tiles = readData(&numTiles);
+
+    printf("# of black tiles: %d\n", countBlack(tiles, numTiles));
 
     return 1;
 }

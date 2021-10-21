@@ -7,33 +7,57 @@
 #include <math.h>
 #define dataLine 100
 #define data "input.txt"
-#define test "input1.txt"
+//#define test "input1.txt"
 
 typedef struct tile {
     bool state;
-    int loc[2];
+    int q, r, s; // Col, row, 3rd cube coordinate
 } Tile;
 
-Tile *createTile(Tile *t, int *pos, bool side) {
+Tile *createTile(Tile *t, int col, int row, bool side) {
     t->state = side;
-    for (int i = 0; i < 2; i++) {
-        t->loc[i] = pos[i];
-    }
+    t->q = col;
+    t->r = row;
+    t->s = -t->q - t->r;
 
     return t;
 }
 
 void printTile(Tile *t) {
-    printf("Tile %d,%d: Color: %s\n", t->loc[0], t->loc[1], (t->state) ? "black" : "white");
+    printf("Tile %d,%d: Color: %s\n", t->q, t->r, (t->state) ? "black" : "white");
     return;
 }
 
+int getIndex(int col, int row, int max) {
+    col += max;
+    row += max;
 
-int *readData(int *results) {
+    return (row * ((2 * max) + 1)) + col;
+}
+
+int countBlack(bool *tiles, int max) {
+    int count = 0;
+
+    for (int r = -max; r <= max; r++) {
+        for (int c = -max; c <= max; c++) {
+            int index = getIndex(c, r, max);
+            if (tiles[index]) {
+                //printf("Tile %d,%d: Color: black\n", c, r);
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+
+int *readData(int *numT, int *maxVal) {
 	char textRead[dataLine], fileName[20];
 	int *tiles = (int*)calloc(1, sizeof(int));
+	int numTiles = 0, max = 0;
 
-	#ifdef test
+	# ifdef test
         strcpy(fileName, test);
 	#endif // test
 
@@ -50,50 +74,47 @@ int *readData(int *results) {
     }
 
 	while(fgets(textRead, dataLine, inFile)) {
-        char *p = &textRead[0], past = 'e';
-        int pos[2] = {0, 0};
+        char *p = &textRead[0];
+        int col = 0, row = 0;
 
         while (strlen(p) > 1) {
             switch (p[0]) {
                 case 'n':
-                    pos[0] += 2;
+                    row++;
+                    col += (int)(p[1] == 'e');
+                    p++;
                     break;
                 case 's':
-                    pos[0] -= 2;
+                    row--;
+                    col -= (int)(p[1] == 'w');
+                    p++;
                     break;
                 case 'e':
-                    pos[1] += (past == 'e' || past == 'w') ? 2 : 1;
+                    col++;
                     break;
                 case 'w':
-                    pos[1] -= (past == 'e' || past == 'w') ? 2 : 1;
+                    col--;
                     break;
             }
-
-            past = p[0];
 
             p++;
         }
 
-        //x-Range
-        if (pos[0] < results[2]) {
-            results[2] = pos[0];
-        } else if (pos[0] > results[3]) {
-            results[3] = pos[0];
-        }
+        if (abs(col) > max)
+            max = abs(col);
 
-        //y-Range
-        if (pos[1] < results[4]) {
-            results[4] = pos[1];
-        } else if (pos[1] > results[5]) {
-            results[5] = pos[1];
-        }
+        if (abs(row) > max)
+            max = abs(row);
+
+        if (abs(-col - row) > max)
+            max = abs(-col - row);
 
         bool inTiles = false;
         Tile *t;
 
-        for (int i = 0; i < results[1]; i++) {
+        for (int i = 0; i < numTiles; i++) {
             t = tiles[i];
-            if (t->loc[0] == pos[0] && t->loc[1] == pos[1]) {
+            if (t->q == col && t->r == row) {
                 inTiles = true;
                 break;
             }
@@ -103,145 +124,141 @@ int *readData(int *results) {
             t->state = !t->state;
         } else {
             t = (Tile*)calloc(1, sizeof(Tile));
-            t = createTile(t, &pos[0], true);
-            tiles = realloc(tiles, (results[1] + 1) * sizeof(int));
-            tiles[results[1]] = t;
-            results[1]++;
+            t = createTile(t, col, row, true);
+            tiles = realloc(tiles, (numTiles + 1) * sizeof(int));
+            tiles[numTiles] = t;
+            numTiles++;
         }
 	}
 
 	fclose(inFile);
 
-	for (int i = 0; i < results[1]; i++) {
-        Tile *t = tiles[i];
-        printTile(t);
-        if (t->state) {
-            results[0]++;
-        }
-	}
+	*(numT) = numTiles;
+	*(maxVal) = max;
 
 	return tiles;
 }
 
-int countTiles(int *tiles, int numTiles) {
-    int sum = 0;
+int countNeighbors(int col, int row, bool *states, int max) {
+    int count = 0;
+    int axial_directions[6][2] = {
+        {1, 0}, {0, -1}, {-1, -1},
+        {-1, 0}, {0, 1}, {1, 1}
+    };
 
-    for (int i = 0; i < numTiles; i++) {
-        Tile *t = tiles[i];
-        if (t->state) {
-            sum++;
-        }
-	}
+    for (int i = 0; i < 6; i++) {
+        int c1 = col + axial_directions[i][0];
+        int r1 = row + axial_directions[i][1];
+        int s1 = -c1 - r1;
 
-    return sum;
-}
+        if (abs(c1) > max || abs(r1) > max || abs(s1) > max)
+            continue;
 
-int indexFrom2D(int *pos, int side) {
-    return (pos[0] * side) + pos[1];
-}
-
-bool validPos(int x) {
-    return (x % 2) == 0;
-}
-
-int countNeighbors(int *lut, int *pos, int xRange, int yRange) {
-    int blCount = 0;
-
-    for (int x = -1; x <= 1; x++) {
-        for (int num = -1; num <= 1; num += 2) {
-            int y = num * (x == 0) ? 2 : 1, tpos[2] = {pos[0] + x, pos[1] + y};
-
-            if (tpos[0] < 0 || tpos[0] > xRange || tpos[1] < 0 || tpos[1] > yRange) {
-                continue;
-            }
-
-            int index = indexFrom2D(&tpos[0], yRange);
-            if (lut[index] != 0) {
-                Tile *n = lut[index];
-                blCount += (n->state) ? 1 : 0;
-            }
-        }
+        int index = getIndex(c1, r1, max);
+        count += (int)(states[index]);
     }
 
-    return blCount;
+
+    return count;
 }
 
-int main() {
-    int results[6] = {0, 0, 0, 0, 0, 0}; // {# of black tiles, total tiles, xMin, xMax, yMin, yMax}
-    int numTiles, day = 0, *tiles = readData(&results[0]);
 
-    printf("\n");
+int main() {
+    int numTiles, max, day = 0;
+    int *tiles = readData(&numTiles, &max);
+    int size = ((2 * max) + 1) * ((2 * max) + 1);
+    bool *states = (bool*)calloc(size, sizeof(bool)), resize = true;
 
     while (day <= 100) {
-        printf("Day %d: %d\n", day, results[0]);
+        // Resize if necessary
+        if (resize) {
+            if (day != 0) {
+                numTiles = 0;
+                tiles = (int*)calloc(1, sizeof(int));
 
+                for (int r = -max; r <= max; r++) {
+                    for (int c = -max; c <= max; c++) {
+                        int index = getIndex(c, r, max);
 
-        // Set up LUT table
-        numTiles = results[1];
+                        if (states[index]) {
+                            Tile *t = (Tile*)calloc(1, sizeof(Tile));
+                            t = createTile(t, c, r, true);
+                            tiles = realloc(tiles, (numTiles + 1) * sizeof(int));
+                            tiles[numTiles] = t;
+                            numTiles++;
+                        }
+                    }
+                }
 
-        int mult = -1;
-        for (int i = 2; i < 6; i++) {
-            results[i] += mult * 2;
-            mult *= -1;
+                max++;
+                size = ((2 * max) + 1) * ((2 * max) + 1);
+                free(states);
+                states = (bool*)calloc(size, sizeof(bool));
+            }
+
+            for (int i = 0; i < numTiles; i++) {
+                Tile *t = tiles[i];
+                int index = getIndex(t->q, t->r, max);
+
+                states[index] = t->state;
+            }
+
+            free(tiles);
         }
 
-        int xRange = results[3] - results[2] + 1, yRange = results[5] - results[4] + 1, xOff = -results[2], yOff = -results[4];
-        int *lut = (int*)calloc(xRange * yRange, sizeof(int));
+        resize = false;
 
-        results[2] = 0, results[3] = xRange, results[4] = 0, results[5] = yRange;
+        // Print day's results
+        if (day < 10 || day % 10 == 0)
+            printf("Day #%d: %d\n", day, countBlack(states, max));
 
-        for (int i = 0; i < numTiles; i++) {
-            Tile *t = tiles[i];
-            t->loc[0] += xOff;
-            t->loc[1] += yOff;
-
-            int index = indexFrom2D(t->loc, yRange);
-            lut[index] = t;
-        }
 
         // Iteration of Game of Life Rules
-        bool *newStates = (bool*)calloc(xRange * yRange, sizeof(bool));
+        bool *newStates = (bool*)calloc(size, sizeof(bool));
 
-        for (int j = 0; j <= xRange; j++) {
-            for (int i = 0; i < yRange; i++) {
-                int pos[2] = {j, i}, index = indexFrom2D(&pos[0], yRange), blCount = countNeighbors(lut, &pos[0], xRange, yRange);
+        for (int r = -max; r <= max; r++) {
+            for (int c = -max; c <= max; c++) {
+                int index = getIndex(c, r, max);
+                int count = countNeighbors(c, r, states, max);
 
-                Tile *t = lut[index];
-
-                if (t == 0 || !t->state) {
-                    newStates[index] = (blCount == 2);
-                } else {
-                    newStates[index] = !(blCount == 0 || blCount > 2);
-                }
-            }
-        }
-
-
-        for (int j = 0; j <= xRange; j++) {
-            for (int i = 0; i < yRange; i++) {
-                int pos[2] = {j, i}, index = indexFrom2D(&pos[0], yRange);
-
-                if (lut[index] == 0) {
-                    if (newStates[index]) {
-                        Tile *t = (Tile*)calloc(1, sizeof(Tile));
-                        t = createTile(t, &pos[0], newStates[index]);
-
-                        tiles = realloc(tiles, (numTiles + 1) * sizeof(int));
-                        tiles[numTiles] = t;
-                        lut[index] = t;
-
-                        numTiles++;
+                if (states[index]) {
+                    // Black Tile Rules
+                    if (count == 1 || count == 2) {
+                        // Tile should be black
+                        newStates[index] = true;
+                    } else {
+                        // Tile should be white
+                        newStates[index] = false;
                     }
                 } else {
-                    Tile *t = lut[index];
-                    t->state = newStates[index];
+                    // White Tile Rules
+                    if (count == 2) {
+                        // Tile should be black
+                        newStates[index] = true;
+                    } else {
+                        // Tile should be white
+                        newStates[index] = false;
+                    }
                 }
             }
         }
 
 
+        // Determine quantities for next iteration
+        for (int r = -max; r <= max; r++) {
+            for (int c = -max; c <= max; c++) {
+                int index = getIndex(c, r, max), s = -c - r;
+
+                if (newStates[index] && (abs(r) == max || abs(c) == max || abs(s) == max)) {
+                    resize = true;
+                }
+
+                states[index] = newStates[index];
+            }
+        }
+
+        free(newStates);
         day++;
-        free(lut);
     }
 
     return 1;
