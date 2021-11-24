@@ -52,6 +52,15 @@ class linkedList:
             curr = curr.next
 
         return curr
+    
+    def count(self):
+        total = 0
+        curr = self.head
+        while curr != 0:
+            total += 1
+            curr = curr.next
+        
+        return total
 
     def print(self):
         if self.head == 0:
@@ -128,6 +137,52 @@ class hashTable:
 
         return nextStates
 
+    def count(self):
+        total = 0
+        for i in self.linkedLists:
+            total += i.count()
+
+        return total
+
+    def printCubes(self):
+        pastExtraDims = [self.maxCoord + 1] * (self.dim - 2)
+        for i in range(self.size):
+            base = self.maxCoord * 2 + 1
+            arr = [0] * self.dim
+            temp = i
+            for j in range(self.dim):
+                arr[j] = (temp % base) - self.maxCoord
+                temp = int(temp / base)
+
+            extraDims = arr[2:]
+
+            for (a, b) in zip(extraDims, pastExtraDims):
+                if a != b:
+                    string = ""
+                    letter = "z"
+                    for j in extraDims:
+                        string = string + letter + " = " + str(j) + ", "
+                        while True:
+                            letter = chr(ord(letter) - 1)
+                            if not (letter == "x" or letter == "y"):
+                                break
+                    
+                    string = string[0:-2] + ":"
+                    print("\n" + string)
+                    pastExtraDims = extraDims[:]
+                    break
+
+
+            
+            c = self.search(arr)
+            p = '.'
+            if c != 0:
+                p = '#'
+
+            print(p, end='')
+
+            if self.maxCoord == arr[0]:
+                print(" ")
 
 
     def print(self):
@@ -141,27 +196,23 @@ def main():
     with open('input1.txt', encoding='UTF-8') as f:
         lines = f.readlines()
 
-    finalStates = hashTable(len(lines), 3)
+    finalStates3d = hashTable(len(lines), 3)
+    finalStates4d = hashTable(len(lines), 4)
 
     for (i, line) in enumerate(lines):
-        y = i - finalStates.maxCoord
+        y = i - finalStates3d.maxCoord
         for (j, c) in enumerate(line):
             if c == '#':
-                x = j - finalStates.maxCoord
-                cube(finalStates, [x, y, 0])
+                x = j - finalStates3d.maxCoord
+                cube(finalStates3d, [x, y, 0])
+                cube(finalStates4d, [x, y, 0, 0])
 
-    finalStates = finalStates.iterate()
+    for i in range(1):
+        finalStates3d = finalStates3d.iterate()
+        #finalStates4d = finalStates4d.iterate()
 
-    for i in range(-finalStates.maxCoord, finalStates.maxCoord + 1):
-        for j in range(-finalStates.maxCoord, finalStates.maxCoord + 1):
-            c = finalStates.search([j, i, 0])
-            p = '.'
-            if c != 0:
-                p = '#'                    
-                
-            print(p, end='')
-        print(" ")
-    
-    print("\nDone")
+    finalStates3d.printCubes()
+    #finalStates4d.printCubes()
+    print("\nPart 1: " + str(finalStates3d.count()) + "\nPart 2: " + str(finalStates4d.count()) + "\nDone")
         
 main()
