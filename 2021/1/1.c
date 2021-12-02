@@ -68,7 +68,24 @@ int main () {
         count += (nums[i] < nums[i + 1]) ? 1 : 0;
     }
 
-    printf("# of increases: %d\n", count);
+    printf("Part 1:\n# of increases: %d\n", count);
+
+    count = 0;
+    int frame1[3], frame2[3];
+    for (int i = 0; i < numLines - 3; i++) {
+        memcpy(&frame1[0], &nums[i], 3 * sizeof(int));
+        memcpy(&frame2[0], &nums[i + 1], 3 * sizeof(int));
+
+        int sums[2] = {0, 0};
+        for (int j = 0; j < 3; j++) {
+            sums[0] += frame1[j];
+            sums[1] += frame2[j];
+        }
+
+        count += (sums[0] < sums[1]) ? 1 : 0;
+    }
+
+    printf("Part 2:\n# of increases: %d\n", count);
 
 	printf("\nProgram Done");
 
