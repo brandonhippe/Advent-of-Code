@@ -6,4 +6,4 @@ Years with completed project(s) and languages:
       1-2, 25 in Python
 
 2021: 1 in C\
-      1-6 in Python
+      1-7 in Python
