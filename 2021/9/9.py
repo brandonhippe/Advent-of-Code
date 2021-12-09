@@ -1,52 +1,26 @@
-import math
-
-def minNeighbor(x, y, floorMap):
-    min = 10
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            if (i + j) % 2 == 0:
-                continue
-
-            nX = x + j
-            nY = y + i
-            if nX < 0 or nY < 0:
-                continue
-
-            try:
-                if min > floorMap[nY][nX]:
-                    min = floorMap[nY][nX]
-            except:
-                continue
-    
-    return min
-
+def get_adjacent_cells(data, x_coord, y_coord):
+    result = []
+    for x,y in [(x_coord+i,y_coord+j) for i in (-1,0,1) for j in (-1,0,1) if i == 0 or j == 0]:
+        if 0 <= y < len(data) and 0 <= x < len(data[0]) and ((x,y) != (x_coord, y_coord)):
+            result.append(data[y][x])
+    return result
 
 def main():
     with open('input.txt',encoding='UTF-8') as f:
-        lines = f.readlines()
-
-    floorMap = []
-    lineLen = len(lines[-1])
-
-    for (i, line) in enumerate(lines):
-        lines[i] = int(line)
-        temp = lines[i]
-        mapLine = [0] * lineLen
-
-        j = -1
-        while temp != 0:
-            mapLine[j] = (temp % 10) + 1
-            temp = int(temp / 10)
-            j -= 1
-
-        floorMap.append(mapLine)
+        data = [[int(x) for x in line.strip()] for line in f.readlines()]
 
     print("Part 1:")
     count = 0
-    for (i, line) in enumerate(floorMap):
-        for (j, p) in enumerate(line):           
-            if p < minNeighbor(j, i, floorMap):
-                count += p
+    for (i, line) in enumerate(data):
+        for (j, p) in enumerate(line):
+            neighbors = get_adjacent_cells(data, j, i)
+            low = True
+            for n in neighbors:
+                if p >= n:
+                    low = False
+
+            if low:
+                count += p + 1
 
     print("Sum of risk levels of low points: " + str(count))
 
