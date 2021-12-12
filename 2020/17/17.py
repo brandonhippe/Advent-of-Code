@@ -86,7 +86,7 @@ class conwayCells:
 
         return count   
 
-    def iterate(self, neighborFunction = 0, dist = 1):
+    def iterate(self, aliveFunction, neighborFunction = 0, dist = 1):
         dictItem = self.cells.popitem()
         dim = len(dictItem[1].loc)
         self.addCell(dictItem[1].loc)
@@ -102,10 +102,13 @@ class conwayCells:
             
             numNeighbors = self.countNeighbors(cell, neighborFunction, dist)
 
-            if numNeighbors == 3 or (numNeighbors == 2 and self.dictString(cell) in self.cells):
+            if aliveFunction(numNeighbors, self.dictString(cell) in self.cells):
                 nextCells.addCell(cell)
 
         return nextCells
+
+def determineAlive(numNeighbors, alive):
+    return numNeighbors == 3 or (numNeighbors == 2 and alive)
 
 def main():
     with open('input.txt', encoding='UTF-8') as f:
@@ -120,8 +123,8 @@ def main():
                 cubes4d.addCell([j, i, 0, 0])
 
     for day in range(6):
-        cubes3d = cubes3d.iterate()
-        cubes4d = cubes4d.iterate()
+        cubes3d = cubes3d.iterate(determineAlive)
+        cubes4d = cubes4d.iterate(determineAlive)
 
     print("Part 1: " + str(len(cubes3d.cells)) + "\nPart 2: " + str(len(cubes4d.cells)))    
         
