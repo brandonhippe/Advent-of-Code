@@ -1,218 +1,128 @@
-class cube:
-    def __init__(self, table, coords):
-        self.c = coords[:]
-        self.hash = table.hash(self.c)
-        table.linkedLists[self.hash].addNode(self)
+class conwayCell:
+    def __init__(self, locArr, dictString):
+        self.loc = locArr[:]
+        self.index = dictString
 
-    def countNeighbors(self, table):
-        count = 0
-        neighbors = []
-        for i in range(3 ** table.dim):
-            val = i
-            arr = [0] * table.dim
-            for j in range(table.dim):
-                arr[j] = (val % 3) - 1
-                val = int(val / 3)
-            
-            neighbors.append(arr)
-
-        for o in neighbors:
-            n = []
-            for (a, b) in zip(self.c, o):
-                n.append(a + b)
-            
-            nCube = table.search(n)
-            if nCube != 0 and nCube != self:
-                count += 1
-
-        return count
-
-class linkedList:
+class conwayCells:
     def __init__(self):
-        self.head = 0
+        self.cells = {}
+        self.min = float('inf')
+        self.max = float('-inf')
+        self.mins = 0
+        self.maxs = 0
+        self.side = 0
+
+    def addCell(self, loc):
+        if self.mins == 0:
+            self.mins = [float('inf')] * len(loc)
+
+        if self.maxs == 0:
+            self.maxs = [float('-inf')] * len(loc)
+        
+        for i in range(len(loc)):
+            if loc[i] > self.maxs[i]:
+                self.maxs[i] = loc[i]
+
+            if loc[i] < self.mins[i]:
+                self.mins[i] = loc[i]
+
+        self.updateMinMax()
+
+        string = self.dictString(loc)
+        self.cells[string] = conwayCell(loc, string)
+
+    def updateMinMax(self):
+        for m in self.maxs:
+            if m >= self.max:
+                self.max = m + 1
+
+        for m in self.mins:
+            if m <= self.min:
+                self.min = m - 1
+
+        self.side = self.max - self.min + 1
     
-    def addNode(self, n):
-        if self.head == 0:
-            self.head = n
-            n.next = 0
+    def dictString(self, loc):
+        s = str(loc[0])
+        for l in loc[1:]:
+            s += ',' + str(l)
+
+        return s      
+
+    def getNeighbors(self, loc, dist):
+        sideLen = dist * 2 + 1
+
+        neighbors = []
+        for i in range(sideLen ** len(loc)):
+            temp = [-dist] * len(loc)
+            num = i
+            for j in range(len(loc)):
+                temp[j] += num % sideLen
+                num = int(num / sideLen)
+            
+            neighbors.append(temp)
+
+        output = []
+        for neighbor in neighbors:
+            temp = []
+            for (l, n) in zip(loc, neighbor):
+                temp.append(l + n)
+
+            output.append(temp)
+
+        return output
+
+    def countNeighbors(self, loc, neighborFunction= 0, dist= 1):
+        if neighborFunction == 0:
+            neighbors = self.getNeighbors(loc, dist)
         else:
-            curr = self.head
-            while curr.next != 0:
-                curr = curr.next
-            
-            curr.next = n
-            n.next = 0
+            neighbors = neighborFunction(loc, dist)
 
-    def search(self, loc):
-        curr = self.head
-        while curr != 0:
-            if loc == curr.c:
-                break
-            
-            curr = curr.next
-
-        return curr
-    
-    def count(self):
-        total = 0
-        curr = self.head
-        while curr != 0:
-            total += 1
-            curr = curr.next
-        
-        return total
-
-    def print(self):
-        if self.head == 0:
-            print("Nothing in list")
-            return
-
-        curr = self.head
-        while curr != 0:
-            print("Coords:", end=' ')
-            print(curr.c, end=' ')
-            print("State: True")
-
-            curr = curr.next
-
-class hashTable:
-    def __init__(self, side, dim):
-        self.dim = dim
-        self.size = side ** self.dim
-        self.maxCoord = int((side - 1) / 2.0)
-
-        self.linkedLists = [0] * self.size
-        for i in range(self.size):
-            self.linkedLists[i] = linkedList()
-    
-    def hash(self, c):
         count = 0
-        for val in c:
-            count += abs(val)
-        
-        return count % self.size
+        for n in neighbors:
+            if n != loc:
+                if self.dictString(n) in self.cells:
+                    count += 1                    
 
-    def search(self, c):
-        h = self.hash(c)
-        return self.linkedLists[h].search(c)
+        return count   
 
-    def iterate(self):
-        offset = self.maxCoord + 1
-        base = offset * 2 + 1
-        allCubes = []
+    def iterate(self, neighborFunction = 0, dist = 1):
+        dictItem = self.cells.popitem()
+        dim = len(dictItem[1].loc)
+        self.addCell(dictItem[1].loc)
 
-        for i in range(base ** self.dim):
-            val = i
-            arr = [0] * self.dim
-            for j in range(self.dim):
-                arr[j] = (val % base) - offset
-                val = int(val / base)
+        nextCells = conwayCells()
+
+        for i in range(self.side ** dim):
+            cell = [self.min] * dim
+            num = i
+            for j in range(dim):
+                cell[j] += num % self.side
+                num = int(num / self.side)
             
-            allCubes.append(arr)
+            numNeighbors = self.countNeighbors(cell, neighborFunction, dist)
 
-        
-        aliveNext = []
+            if numNeighbors == 3 or (numNeighbors == 2 and self.dictString(cell) in self.cells):
+                nextCells.addCell(cell)
 
-        for loc in allCubes:
-            c = self.search(loc)
-            alive = True
-            if c == 0:
-                c = cube(self, loc)
-                alive = False
-                
-            count = c.countNeighbors(self)
-
-            if count == 3 or (alive and count == 2):
-                aliveNext.append(loc)
-
-        nextSide = base - 2
-        for loc in aliveNext:
-            if offset in loc or -offset in loc:
-                nextSide += 2
-                break
-
-        nextStates = hashTable(nextSide, self.dim)
-        for loc in aliveNext:
-            cube(nextStates, loc)
-
-        return nextStates
-
-    def count(self):
-        total = 0
-        for i in self.linkedLists:
-            total += i.count()
-
-        return total
-
-    def printCubes(self):
-        pastExtraDims = [self.maxCoord + 1] * (self.dim - 2)
-        for i in range(self.size):
-            base = self.maxCoord * 2 + 1
-            arr = [0] * self.dim
-            temp = i
-            for j in range(self.dim):
-                arr[j] = (temp % base) - self.maxCoord
-                temp = int(temp / base)
-
-            extraDims = arr[2:]
-
-            for (a, b) in zip(extraDims, pastExtraDims):
-                if a != b:
-                    string = ""
-                    letter = "z"
-                    for j in extraDims:
-                        string = string + letter + " = " + str(j) + ", "
-                        while True:
-                            letter = chr(ord(letter) - 1)
-                            if not (letter == "x" or letter == "y"):
-                                break
-                    
-                    string = string[0:-2] + ":"
-                    print("\n" + string)
-                    pastExtraDims = extraDims[:]
-                    break
-
-
-            
-            c = self.search(arr)
-            p = '.'
-            if c != 0:
-                p = '#'
-
-            print(p, end='')
-
-            if self.maxCoord == arr[0]:
-                print(" ")
-
-
-    def print(self):
-        for (i, l) in enumerate(self.linkedLists):
-            print("Hash: " + str(i) + "\nCubes:")
-            l.print()
-            print(" ")
-
+        return nextCells
 
 def main():
-    with open('input1.txt', encoding='UTF-8') as f:
+    with open('input.txt', encoding='UTF-8') as f:
         lines = f.readlines()
 
-    finalStates3d = hashTable(len(lines), 3)
-    finalStates4d = hashTable(len(lines), 4)
-
+    cubes3d = conwayCells()
+    cubes4d = conwayCells()
     for (i, line) in enumerate(lines):
-        y = i - finalStates3d.maxCoord
-        for (j, c) in enumerate(line):
-            if c == '#':
-                x = j - finalStates3d.maxCoord
-                cube(finalStates3d, [x, y, 0])
-                cube(finalStates4d, [x, y, 0, 0])
+        for (j, l) in enumerate(line):
+            if l == '#':
+                cubes3d.addCell([j, i, 0])
+                cubes4d.addCell([j, i, 0, 0])
 
-    for i in range(1):
-        finalStates3d = finalStates3d.iterate()
-        #finalStates4d = finalStates4d.iterate()
+    for day in range(6):
+        cubes3d = cubes3d.iterate()
+        cubes4d = cubes4d.iterate()
 
-    finalStates3d.printCubes()
-    #finalStates4d.printCubes()
-    print("\nPart 1: " + str(finalStates3d.count()) + "\nPart 2: " + str(finalStates4d.count()) + "\nDone")
+    print("Part 1: " + str(len(cubes3d.cells)) + "\nPart 2: " + str(len(cubes4d.cells)))    
         
 main()
