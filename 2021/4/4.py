@@ -34,7 +34,7 @@ class bingoBoard:
 
         return count
 
-    def print(self):
+    def printBoard(self):
         for row in self.board:
             print(row)
 
@@ -73,7 +73,7 @@ def main():
             won = board.mark(num)
             if won == 1:
                 print("\nWinning board:")
-                board.print()
+                board.printBoard()
                 print("\nScore: " + str(board.score(num)))
                 finished = True
                 break
@@ -89,7 +89,7 @@ def main():
             if won == 1:
                 if len(boards) == 1:
                     print("\nLast board:")
-                    boards[i].print()
+                    boards[i].printBoard()
                     print("\nScore: " + str(boards[i].score(num)))
                 
                 boards.pop(i)
