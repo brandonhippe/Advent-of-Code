@@ -54,7 +54,7 @@ def main():
         for x in range(mins[0], maxs[0] + 1):
             c = ' '
             if [x, y] in points:
-                c = '.'
+                c = '#'
 
             print(c, end='')
 
