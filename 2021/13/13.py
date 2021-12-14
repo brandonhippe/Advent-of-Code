@@ -1,6 +1,6 @@
 def main():
     with open('input.txt', encoding='UTF-8') as f:
-        lines = [line[0:-1] for line in f.readlines()]
+        lines = [line.strip() for line in f.readlines()]
 
     points = []
     folds = 0

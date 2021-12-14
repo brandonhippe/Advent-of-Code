@@ -1,6 +1,6 @@
 def main():
     with open('input.txt', encoding='UTF-8') as f:
-        lines = f.readlines()
+        lines = [line.strip() for line in f.readlines()]
 
     # 0 is horizontal position, 1 is depth
     pos = [0] * 2

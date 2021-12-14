@@ -42,7 +42,7 @@ def co2_rating(data, bit):
 
 def main():
     with open('input.txt', encoding='UTF-8') as f:
-        lines = f.readlines()
+        lines = [line.strip() for line in f.readlines()]
 
     gamma = ""
     epsilon = ""

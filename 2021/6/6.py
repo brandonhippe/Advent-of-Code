@@ -1,6 +1,6 @@
 def main():
     with open('input.txt',encoding='UTF-8') as f:
-        lines = f.readlines()
+        lines = [line.strip() for line in f.readlines()]
 
     data = lines[0].split(',')
 

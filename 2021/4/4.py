@@ -41,7 +41,7 @@ class bingoBoard:
 
 def main():
     with open('input.txt',encoding='UTF-8') as f:
-        lines = f.readlines()
+        lines = [line.strip() for line in f.readlines()]
 
     calls = lines.pop(0).split(',')
     lines.pop(0)
@@ -52,7 +52,7 @@ def main():
     boards = []
     values = []
     for line in lines:
-        if line[0] == '\n':
+        if len(line) == 0:
             boards.append(bingoBoard(values))
             values = []
         else:
