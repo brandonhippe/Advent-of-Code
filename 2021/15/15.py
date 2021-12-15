@@ -34,7 +34,6 @@ def aStar(data):
     riskLevels = {}
     h = {}
     g = {}
-    parents = {}
     for (y, line) in enumerate(data):
         for (x, r) in enumerate(line):
             locStr = dictString([x, y])
@@ -42,11 +41,10 @@ def aStar(data):
             h[locStr] = heuristic([x, y], [len(data[-1]) - 1, len(data) - 1])
             g[locStr] = float('inf')
 
-    g['0,0'] = 0
-
     openList = {}
     closedList = {}
     openList['0,0'] = 0
+    g['0,0'] = 0
 
     while len(openList) != 0:
         q = ''
@@ -61,9 +59,7 @@ def aStar(data):
         neighbors = getNeighbors([int(x) for x in q.split(',')])
 
         if [len(data[-1]) - 1, len(data) - 1] in neighbors:
-            parents[dictString([len(data[-1]) - 1, len(data) - 1])] = q
-            closedList[dictString([len(data[-1]) - 1, len(data) - 1])] = riskLevels[dictString([len(data[-1]) - 1, len(data) - 1])]
-            break
+            return g[q] + riskLevels[dictString([len(data[-1]) - 1, len(data) - 1])]\
 
         for n in neighbors:
             locStr = dictString(n)
@@ -83,18 +79,9 @@ def aStar(data):
                 if closedList[locStr] <= newF:
                     continue
             
-            parents[locStr] = q
             openList[locStr] = newF
         
         closedList[q] = minF
-
-    totalRisk = riskLevels[dictString([len(data[-1]) - 1, len(data) - 1])]
-    parent = parents[dictString([len(data[-1]) - 1, len(data) - 1])]
-    while parent != '0,0':
-        totalRisk += riskLevels[parent]
-        parent = parents[parent]
-
-    return totalRisk
 
 def main():
     with open('input.txt', encoding='UTF-8') as f:
