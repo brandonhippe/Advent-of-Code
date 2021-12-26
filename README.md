@@ -8,4 +8,4 @@ Years with completed project(s) and languages:
       1-2, 17, 24-25 in Python
 
 2021: 1 in C\
-      1-20 in Python
+      1-22, 24-25 in Python
