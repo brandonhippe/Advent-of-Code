@@ -1,6 +1,3 @@
-import re
-
-
 def volume(box):
     vol = 1
     for i in range(0, len(box), 2):
@@ -28,7 +25,6 @@ def countLit(data):
         if op == "on":
             intersections = []
             for other in finished:
-                otherOp = other[0]
                 otherBox = other[1]
 
                 intersection = findIntersection(box, otherBox)
