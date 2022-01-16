@@ -1,214 +1,244 @@
-class room:
-    def __init__(self, index):
-        self.index = index
-        self.target = 10 ** self.index
-        self.occupants = []
+import math
 
-    def filled(self):
-        for i in self.occupants:
-            if i != self.target:
-                return False
+def getEnergy(s_, indexes):
+    state = list(s_)
+    energy = 0
+    start, end = indexes
 
-        return True
-
-    def fillable(self):
-        for i in self.occupants:
-            if i != self.target and i != 0:
-                return False
-        
-        return True
-
-def energyUsed(startPos, endPos, rooms, hallway):
-    # Pos index 0 ranges from 0-4, 0-3 are rooms and 4 is hallway
-    if startPos[0] < 4:
-        val = rooms[startPos[0]].occupants[startPos[1]]
-        if val == rooms[startPos[0]].target and rooms[startPos[0]].fillable():
-            return -1
-    else:
-        val = hallway[startPos[1]]
-
-    if val == 0:
-        return -1
-
-    if endPos[0] < 4:
-        if rooms[endPos[0]].occupants[endPos[1]] != 0:
-            return -1
-    else:
-        if hallway[endPos[1]] != 0:
-            return -1
-
-    if startPos[0] < 4:
-        if rooms[startPos[0]].filled():
-            # Room is already in final state
-            return -1
-
-        if endPos[0] < 4:
-            if val != rooms[endPos[0]].target:
-                # Not the correct room
-                return -1
-
-            if not rooms[endPos[0]].fillable():
-                # Target room isn't fillable yet
-                return -1
-    else:
-        if endPos[0] < 4:
-            if val != rooms[endPos[0]].target:
-                # Not the correct room
-                return -1
-
-            if rooms[endPos[0]].fillable():
-                endIndex = 0
-                while endIndex < len(rooms[endPos[0]].occupants) and rooms[endPos[0]].occupants[endIndex] == 0:
-                    endIndex += 1
-
-                endIndex -= 1
-
-                if endIndex != endPos[1]:
-                    # Final position isn't all the way down
-                    return -1
-            else:
-                # Target room isn't fillable yet
-                return -1
+    for (i, s) in enumerate(state):
+        if s == ".":
+            state[i] = 0
         else:
-            # Starting in hallway, finishing in hallway. Not valid
-            return -1
+            state[i] = 10 ** (ord(s) - ord('A'))
 
-    total = 0
-    first = True
-    while startPos != endPos:
-        if startPos[0] < 4:
-            if not first and rooms[startPos[0]].occupants[startPos[1]] != 0:
-                return -1
+    if state[start] == 0:
+        # Start isn't occupied
+        return [0, 0]
 
-            if startPos[0] != endPos[0]:
-                if startPos[1] == 0:
-                    startPos[1] = 2 + startPos[0] * 2
-                    startPos[0] = 4
+    val = state[start]
+
+    if state[end] != 0:
+        # End is occupied
+        return [0, 0]
+
+    if end % 2 == 0 and 2 <= end <= 8:
+        # End is outside a hallway
+        return [0, 0]
+
+    if end < 11:
+        # End is in the hallway
+        if start < 11:
+            # Start is also in the hallway
+            return [0, 0]
+    else:
+        # End is in a room
+        room = (end - 11) % 4
+        if val != 10 ** room:
+            # Value shouldn't go into the room
+            return [0, 0]
+
+        bottom = -1
+        for (i, spot) in enumerate(state[11 + room::4]):
+            if spot != 0:
+                if spot != val:
+                    # End room is not fillable
+                    return [0, 0]
+            else:
+                bottom = i
+
+        if bottom >= 0 and bottom != (end - 11) // 4:
+            # End isn't at bottom of room
+            return [0, 0]
+
+        if start >= 11:
+            # Start is also in a room
+            if (start - 11) % 4 == (end - 11) % 4:
+                # Start and End are in the same room
+                return [0, 0]
+
+            room = (start - 11) % 4
+            if val == 10 ** room:
+                fillable = True
+                for spot in state[11 + room::4]:
+                    if spot != 0 and spot != val:
+                        fillable = False
+
+                if fillable:
+                    # Start room is fillable. Don't remove from room
+                    return [0, 0]
+
+    sStart = start
+    while start != end:
+        energy += val
+        if start != sStart and state[start] != 0:
+            # Something in the way
+            return [0, 0]
+
+        if start < 11:
+            # Start is in hallway
+            if end < 11:
+                # End is also in hallway
+                goalIndex = end
+            else:
+                # End is in a room
+                goalIndex = 2 + 2 * ((end - 11) % 4)
+
+                if start == goalIndex:
+                    # Enter the room
+                    start = 11 + (end - 11) % 4
+                    continue
+
+            if start < goalIndex:
+                start += 1
+            else:
+                start -= 1
+        else:
+            # Start is in room
+            if end >= 11 and (start - 11) % 4 == (end - 11) % 4:
+                # Start and end are in the same room
+                start += 4
+            else:
+                level = (start - 11) // 4
+                if level > 0:
+                    # Staying in same room
+                    start -= 4
                 else:
-                    startPos[1] -= 1
+                    # Moving into hallway
+                    start = 2 + 2 * ((start - 11) % 4)
+
+    state[sStart] = 0
+    state[end] = val
+
+    stateStr = ""
+    for e in state:
+        c = "."
+        if e > 0:
+            c = chr(int(math.log10(e)) + ord('A'))
+
+        stateStr += c
+
+    return [stateStr, energy]
+
+def getNext(state):
+    posIndexes = [i for i in range(2)]
+    for i in range(3, 9, 2):
+        posIndexes.append(i)
+
+    for i in range(9, len(state)):
+        posIndexes.append(i)
+
+    nextStates = []
+    for p1 in posIndexes:
+        for p2 in posIndexes:
+            if p1 == p2:
+                continue
+
+            energyCost = getEnergy(state, [p1, p2])
+            if energyCost[1] > 0:
+                nextStates.append(energyCost)
+
+    return nextStates
+
+def fSort(e):
+    return e[1]
+
+def heuristic(state):
+    energy = 0
+    counts = [(len(state) - 10) // 4] * 4
+    move = [True] * len(state)
+    for (i, s) in enumerate(state[-1:10:-1]):
+        level = ((len(state) - 11) // 4) - (i // 4)
+        room = 3 - (i % 4)
+
+        if ord(s) - ord('A') == room and level == counts[room]:
+            move[11 + 4 * (level - 1) + room] = False
+            counts[room] -= 1
+
+    for (i, s) in enumerate(state):
+        if s == "." or not move[i]:
+            continue
+
+        goalRoom = ord(s) - ord('A')
+        goalIndex = 2 * (goalRoom + 1)
+        val = 10 ** goalRoom
+
+        if i < 11:
+            # In hallway
+            energy += 10 * (abs(i - goalIndex) + counts[goalRoom])
+        else:
+            # In a room
+            level = (i - 11) // 4 + 1
+            room = (i - 11) % 4
+
+            if room == goalRoom:
+                # In correct room, move out of Room first, then back in
+                energy += val * (level + 2 + counts[goalRoom])
             else:
-                startPos[1] += 1
-        else:
-            if not first and hallway[startPos[1]] != 0:
-                return -1
+                # In wrong room
+                hallIndex = 2 * (room + 1)
+                energy += val * (level + abs(hallIndex - goalIndex) + counts[goalRoom])
 
-            if endPos[0] < 4:
-                goalIndex = 2 + endPos[0] * 2
-                if startPos[1] == goalIndex:
-                    startPos[0] = endPos[0]
-                    startPos[1] = 0
-                    total += val
-                    continue
-            else:
-                goalIndex = endPos[1]
+        counts[goalRoom] -= 1
 
-            direction = (goalIndex - startPos[1]) // abs(goalIndex - startPos[1])
-            startPos[1] += direction
+    return energy
 
-        first = False
-        total += val
+def aStar(start):
+    end = "..........."
+    while len(end) < len(start):
+        end += "ABCD"
 
-    return total
+    openList = {}
+    closedList = {}
 
-def inFinal(rooms, hallway):
-    if sum(hallway) != 0:
-        return False
+    openList[start] = [heuristic(start), 0]
 
-    for r in rooms:
-        if not r.filled():
-            return False
+    while len(openList) != 0:
+        openList = dict(sorted(openList.items(), key=lambda item: item[1][0]))
 
-    return True
+        for state in openList:
+            q = state
+            break
 
-def lowestEnergy(rooms, hallway, allowance=float('inf')):
-    if inFinal(rooms, hallway):
-        return 0
-    
-    validPos = [[r, i] for i in range(len(rooms[0].occupants)) for r in range(4)] 
-    for i in (0, 1, 3, 5, 7, 9, 10):
-        validPos.append([4, i])
+        qF, qG = openList[q]
+        openList.pop(q)
 
-    validMoves = []
-    for s in validPos:
-        if (s[0] < 4 and rooms[s[0]].occupants[s[1]] != 0) or (s[0] == 4 and hallway[s[1]] != 0):
-            for o in validPos:
-                if o == s:
-                    continue
+        nextStates = getNext(q)
 
-                energyCount = energyUsed(s[:], o[:], rooms[:], hallway[:])
-                if 0 < energyCount < allowance:
-                    validMoves.append([s, o, energyCount])
-    
-    validMoves.sort(key=moveSort)
-    
-    lowEnergy = allowance
-    for move in validMoves:
-        newRooms = []
-        for r in rooms:
-            newRooms.append(room(r.index))
-            newRooms[-1].occupants = r.occupants[:]
+        for n in nextStates:
+            state, nG = n
+            nG += qG
 
-        newHall = hallway[:]
-        start = move[0]
-        end = move[1]
-        
-        if start[0] < 4:
-            startVal = newRooms[start[0]].occupants[start[1]]
-            newRooms[start[0]].occupants[start[1]] = 0
-        else:
-            startVal = newHall[start[1]]
-            newHall[start[1]] = 0
+            if state == end:
+                return nG
 
-        if end[0] < 4:
-            newRooms[end[0]].occupants[end[1]] = startVal
-        else:
-            newHall[end[1]] = startVal
-        
-        energy = move[2] + lowestEnergy(newRooms, newHall, lowEnergy - move[2])
-        if energy < lowEnergy:
-            lowEnergy = energy
-    
-    return lowEnergy
+            nF = nG + heuristic(state)
 
-def moveSort(e):
-    return e[2]
+            if state in openList and openList[state][0] <= nF:
+                continue
+
+            if state in closedList and closedList[state][0] <= nF:
+                continue
+
+            openList[state] = [nF, nG]
+
+        closedList[q] = [qF, qG]
 
 def main():
-    with open('input.txt', encoding='UTF-8') as f:
-        lines = [line.strip() for line in f.readlines()]
+    with open('input1.txt', encoding='UTF-8') as f:
+        lines = [line.strip('\n') for line in f.readlines()]
 
-    roomsP1 = []
-    roomsP2 = []
-    for i in range(4):
-        roomsP1.append(room(i))
-        roomsP2.append(room(i))
+    for i in range(len(lines)):
+        while len(lines[i]) != len(lines[0]):
+            lines[i] += " "
 
-    hallway = [0] * len(lines[1][1:-1])
+    roomsP1 = lines[1][1:-1]
 
-    for line in lines[2:4]:
-        line = line.split("#")
-        while len(line[0]) == 0:
-            line = line[1:-1]
+    for i in lines[2:-1]:
+        roomsP1 += i[3:-3:2]
 
-        for (i, o) in enumerate(line):
-            num = 10 ** (ord(o) - ord("A"))
-            roomsP1[i].occupants.append(num)
-            roomsP2[i].occupants.append(num)
+    roomsP2 = roomsP1[:15] + 'DCBADBAC' + roomsP1[15:]
 
-    appendLines = ["#D#C#B#A#", "#D#B#A#C#"]
-    for line in appendLines:
-        line = line.split("#")
-        while len(line[0]) == 0:
-            line = line[1:-1]
-        
-        for (i, o) in enumerate(line):
-            num = 10 ** (ord(o) - ord("A"))
-            last = roomsP2[i].occupants[-1]
-            roomsP2[i].occupants = roomsP2[i].occupants[:-1]
-            roomsP2[i].occupants.append(num)
-            roomsP2[i].occupants.append(last)
-    
-    print("\nPart 1:\nLowest Possible Energy: " + str(lowestEnergy(roomsP1, hallway)))
-    print("\nPart 2:\nLowest Possible Energy: " + str(lowestEnergy(roomsP2, hallway)))
+    print("Part 1\nThe lowest possible energy required is: " + str(aStar(roomsP1)))
+    print("Part 2\nThe lowest possible energy required is: " + str(aStar(roomsP2)))
 
 main()
