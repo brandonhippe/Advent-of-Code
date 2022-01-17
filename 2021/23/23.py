@@ -1,4 +1,7 @@
 import math
+from re import T
+import time
+import heapq
 
 def getEnergy(s_, indexes):
     state = list(s_)
@@ -183,24 +186,18 @@ def heuristic(state):
     return energy
 
 def aStar(start):
-    end = "..........."
-    while len(end) < len(start):
-        end += "ABCD"
+    startTime = time.perf_counter()
+    end = '.' * 11 + 'ABCD' * ((len(start) - 11) // 4)
 
-    openList = {}
+    openList_heap = [[heuristic(start), 0, start]]
     closedList = {}
+    heuristics = {}
 
-    openList[start] = [heuristic(start), 0]
+    heuristics[start] = heuristic(start)
 
-    while len(openList) != 0:
-        openList = dict(sorted(openList.items(), key=lambda item: item[1][0]))
-
-        for state in openList:
-            q = state
-            break
-
-        qF, qG = openList[q]
-        openList.pop(q)
+    heapq.heapify(openList_heap)
+    while len(openList_heap) != 0:
+        qF, qG, q = heapq.heappop(openList_heap)        
 
         nextStates = getNext(q)
 
@@ -209,22 +206,35 @@ def aStar(start):
             nG += qG
 
             if state == end:
+                print(f"Solution found in {time.perf_counter() - startTime} seconds")
                 return nG
 
-            nF = nG + heuristic(state)
+            try:
+                nH = heuristics[state]
+            except:
+                nH = heuristic(state)
+                heuristics[state] = nH
 
-            if state in openList and openList[state][0] <= nF:
+            nF = nG + nH
+
+            found = False
+            for item in openList_heap:
+                if item[2] == state and item[0] <= nF:
+                    found = True
+                    break
+
+            if found:
                 continue
 
             if state in closedList and closedList[state][0] <= nF:
                 continue
 
-            openList[state] = [nF, nG]
+            heapq.heappush(openList_heap, [nF, nG, state])
 
-        closedList[q] = [qF, qG]
+        closedList[q] = [qF, qG, q]
 
 def main():
-    with open('input1.txt', encoding='UTF-8') as f:
+    with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     for i in range(len(lines)):
