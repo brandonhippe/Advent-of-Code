@@ -1,5 +1,4 @@
 import math
-import time
 import heapq
 
 def getEnergy(s_, indexes):
@@ -166,7 +165,7 @@ def heuristic(state):
 
         if i < 11:
             # In hallway
-            energy += 10 * (abs(i - goalIndex) + counts[goalRoom])
+            energy += val * (abs(i - goalIndex) + counts[goalRoom])
         else:
             # In a room
             level = (i - 11) // 4 + 1
@@ -185,7 +184,6 @@ def heuristic(state):
     return energy
 
 def aStar(start):
-    startTime = time.perf_counter()
     end = '.' * 11 + 'ABCD' * ((len(start) - 11) // 4)
 
     openList_heap = [[heuristic(start), 0, start]]
@@ -196,17 +194,16 @@ def aStar(start):
 
     heapq.heapify(openList_heap)
     while len(openList_heap) != 0:
-        qF, qG, q = heapq.heappop(openList_heap)        
+        qF, qG, q = heapq.heappop(openList_heap)  
+        
+        if q == end:
+            return qG
 
         nextStates = getNext(q)
 
         for n in nextStates:
             state, nG = n
             nG += qG
-
-            if state == end:
-                print(f"Solution found in {time.perf_counter() - startTime} seconds")
-                return nG
 
             try:
                 nH = heuristics[state]
@@ -237,8 +234,7 @@ def main():
         lines = [line.strip('\n') for line in f.readlines()]
 
     for i in range(len(lines)):
-        while len(lines[i]) != len(lines[0]):
-            lines[i] += " "
+        lines[i] += ' ' * (len(lines[0]) - len(lines[i]))
 
     roomsP1 = lines[1][1:-1]
 
@@ -247,7 +243,7 @@ def main():
 
     roomsP2 = roomsP1[:15] + 'DCBADBAC' + roomsP1[15:]
 
-    print("Part 1\nThe lowest possible energy required is: " + str(aStar(roomsP1)))
-    print("Part 2\nThe lowest possible energy required is: " + str(aStar(roomsP2)))
+    print(f"Part 1\nThe lowest possible energy required is: {aStar(roomsP1)}")
+    print(f"Part 2\nThe lowest possible energy required is: {aStar(roomsP2)}")
 
 main()
