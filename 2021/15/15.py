@@ -54,12 +54,12 @@ def aStar(data):
                 q = i
                 minF = openList[i]
 
+        if q == dictString([len(data[-1]) - 1, len(data) - 1]):
+            return g[q]
+
         del openList[q]
 
         neighbors = getNeighbors([int(x) for x in q.split(',')])
-
-        if [len(data[-1]) - 1, len(data) - 1] in neighbors:
-            return g[q] + riskLevels[dictString([len(data[-1]) - 1, len(data) - 1])]\
 
         for n in neighbors:
             locStr = dictString(n)
