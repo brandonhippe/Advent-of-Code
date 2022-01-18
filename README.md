@@ -2,7 +2,7 @@ This repository contains all of Brandon Hippe's code and input data for Advent o
 
 Years with completed project(s) and languages:
 
-2019: 1 in Python
+2019: 1-3 in Python
 
 2020: 1-25 in C\
       1-2, 17, 24-25 in Python
