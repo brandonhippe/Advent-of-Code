@@ -11,10 +11,7 @@ def runCode(i, data, inputs):
             # ADD
             value = 0
             for op in operands[:-1]:
-                try:
-                    mode = modes.pop(-1)
-                except:
-                    mode = 0
+                mode = modes.pop(-1) if len(modes) > 0 else 0
 
                 if mode == 0:
                     value += data[op]
@@ -28,10 +25,7 @@ def runCode(i, data, inputs):
             # MULT
             value = 1
             for op in operands[:-1]:
-                try:
-                    mode = modes.pop(-1)
-                except:
-                    mode = 0
+                mode = modes.pop(-1) if len(modes) > 0 else 0
 
                 if mode == 0:
                     value *= data[op]
@@ -54,10 +48,7 @@ def runCode(i, data, inputs):
             i += 2
         elif opCode == 5:
             # JNZ
-            try:
-                mode = modes.pop(-1)
-            except:
-                mode = 0
+            mode = modes.pop(-1) if len(modes) > 0 else 0
 
             if mode == 0:
                 value = data[operands[0]]
@@ -65,10 +56,7 @@ def runCode(i, data, inputs):
                 value = operands[0]
 
             if value != 0:
-                try:
-                    mode = modes.pop(-1)
-                except:
-                    mode = 0
+                mode = modes.pop(-1) if len(modes) > 0 else 0
 
                 if mode == 0:
                     i = data[operands[1]]
@@ -78,10 +66,7 @@ def runCode(i, data, inputs):
                 i += 3
         elif opCode == 6:
             # JZ
-            try:
-                mode = modes.pop(-1)
-            except:
-                mode = 0
+            mode = modes.pop(-1) if len(modes) > 0 else 0
 
             if mode == 0:
                 value = data[operands[0]]
@@ -89,10 +74,7 @@ def runCode(i, data, inputs):
                 value = operands[0]
 
             if value == 0:
-                try:
-                    mode = modes.pop(-1)
-                except:
-                    mode = 0
+                mode = modes.pop(-1) if len(modes) > 0 else 0
 
                 if mode == 0:
                     i = data[operands[1]]
@@ -104,10 +86,7 @@ def runCode(i, data, inputs):
             # LT
             value = 0
             for (j, op) in enumerate(operands[:-1]):
-                try:
-                    mode = modes.pop(-1)
-                except:
-                    mode = 0
+                mode = modes.pop(-1) if len(modes) > 0 else 0
 
                 if mode == 0:
                     value += data[op] * ((-1) ** j)
@@ -121,10 +100,7 @@ def runCode(i, data, inputs):
             # EQ
             value = 0
             for (j, op) in enumerate(operands[:-1]):
-                try:
-                    mode = modes.pop(-1)
-                except:
-                    mode = 0
+                mode = modes.pop(-1) if len(modes) > 0 else 0
 
                 if mode == 0:
                     value += data[op] * ((-1) ** j)
