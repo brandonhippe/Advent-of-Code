@@ -28,6 +28,7 @@ def main():
             if num != 2:
                 visibleImg[i] = num
 
+    print("\nPart 2:\n")
     visibleImg.reverse()
     for y in range(height):
         for x in range(width):
