@@ -1,3 +1,5 @@
+import time
+
 class segment:
     def __init__(self, string):
         ends = string.split(" -> ")
@@ -110,6 +112,6 @@ def main():
 
     print("Part 2: \nDangerous Points: " + str(count))
 
-
-
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

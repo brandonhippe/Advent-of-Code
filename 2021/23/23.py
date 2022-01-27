@@ -1,5 +1,6 @@
 import math
 import heapq
+import time
 
 def getEnergy(s_, indexes):
     state = list(s_)
@@ -246,4 +247,6 @@ def main():
     print(f"Part 1\nThe lowest possible energy required is: {aStar(roomsP1)}")
     print(f"Part 2\nThe lowest possible energy required is: {aStar(roomsP2)}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

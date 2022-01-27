@@ -1,3 +1,5 @@
+import time
+
 def main():
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
@@ -41,4 +43,6 @@ def main():
 
     print("Part 2:\nProduct: " + str(product))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

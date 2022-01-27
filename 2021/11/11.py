@@ -1,3 +1,5 @@
+import time
+
 def neighborOctopi(data, x, y):
     neighbors = []
     
@@ -62,5 +64,6 @@ def main():
 
     print("First Synchronized Flash: " + str(day + 100))
 
-
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

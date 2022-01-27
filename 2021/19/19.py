@@ -1,3 +1,5 @@
+import time
+
 class vector:
     def __init__(self, v=0, vText=0):
         if v != 0:
@@ -32,16 +34,16 @@ class vector:
         newV = self.v[:]
 
         if orientation < 16:
-            for i in range((orientation // 4)):
+            for _ in range((orientation // 4)):
                 newV = self.rotateX(newV)
         if orientation >= 16:
-            for i in range((orientation - 12) // 4):
+            for _ in range((orientation - 12) // 4):
                 newV = self.rotateY(newV)
             
             if orientation >= 20:
                 newV = self.rotateY(newV)
 
-        for i in range(orientation % 4):
+        for _ in range(orientation % 4):
             newV = self.rotateZ(newV)
 
         return vector(v=newV)       
@@ -231,4 +233,6 @@ def main():
 
     print("\nPart 2:\nFarthest Apart Scanners: " + str(max))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

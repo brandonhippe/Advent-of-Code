@@ -1,3 +1,5 @@
+import time
+
 def runCode(data, inputs):
     i = 0
     outputs = []
@@ -116,4 +118,6 @@ def main():
     print(f"\nPart 1:\nDiagnostic Code: {runCode(lines[:], [1])[-1]}")
     print(f"\nPart 2:\nDiagnostic Code: {runCode(lines[:], [5])[-1]}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

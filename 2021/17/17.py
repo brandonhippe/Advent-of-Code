@@ -1,3 +1,5 @@
+import time
+
 def triangle(n):
     return n * (n + 1) // 2
 
@@ -94,4 +96,6 @@ def main():
 
     print("\nPart 2:\nNumber of Landing Trajectories: " + str(len(trajectories)))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

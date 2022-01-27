@@ -1,3 +1,5 @@
+import time
+
 class digitProg:
     def __init__(self, code):
         self.lines = code[:]
@@ -133,4 +135,6 @@ def main():
     print("\nPart 1:\nLargest Valid Model Number: " + str(numFromArr(getInputsP1(groups, 0))))
     print("\nPart 2:\nSmallest Valid Model Number: " + str(numFromArr(getInputsP2(groups, 0))))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

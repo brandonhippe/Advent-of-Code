@@ -1,3 +1,5 @@
+import time
+
 class wire:
     def __init__(self, path):
         self.path = path[:]
@@ -92,4 +94,6 @@ def main():
 
     print(f"Part 2:\nLowest delay is {delays[0]} steps")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

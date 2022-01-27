@@ -1,3 +1,5 @@
+import time
+
 def main():
     with open('input.txt',encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
@@ -9,7 +11,7 @@ def main():
         data[i] = int(num)
         fishes[data[i]] += 1
 
-    for day in range(80):
+    for _ in range(80):
         fishes.append(fishes.pop(0))
         fishes[6] += fishes[8]
 
@@ -19,7 +21,7 @@ def main():
         count += num
     print("Number of fishes: " + str(count))
 
-    for day in range(256 - 80):
+    for _ in range(256 - 80):
         fishes.append(fishes.pop(0))
         fishes[6] += fishes[8]
 
@@ -29,4 +31,6 @@ def main():
         count += num
     print("Number of fishes: " + str(count))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

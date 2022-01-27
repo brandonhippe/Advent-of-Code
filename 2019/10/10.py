@@ -1,4 +1,5 @@
 import math
+import time
 
 class asteroid:
     def __init__(self, locArr):
@@ -114,4 +115,6 @@ def main():
     removed.reverse()
     print(f"\nPart 2:\n200th Asteroid Vaporized: {100 * removed[finalIndex].locArr[0] + removed[finalIndex].locArr[1]}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

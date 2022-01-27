@@ -1,3 +1,5 @@
+import time
+
 def volume(box):
     vol = 1
     for i in range(0, len(box), 2):
@@ -66,4 +68,6 @@ def main():
     print("\nPart 1:\nNumber on in Central Core: " + str(countLit(prismsP1)))
     print("\nPart 2:\nNumber on in Reactor: " + str(countLit(prisms)))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -1,3 +1,5 @@
+import time
+
 class tile:
     def __init__(self, info):
         self.x, self.y, self.id = info
@@ -273,7 +275,7 @@ def main():
         if t.id == 2:
             count += 1
 
-    printGame(tiles)
+    #printGame(tiles)
 
     print(f"\nPart 1:\nNumber of block tiles: {count}")
 
@@ -292,4 +294,6 @@ def main():
             print(f"\nPart 2:\nScore after playing game: {t.score}")
             break
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

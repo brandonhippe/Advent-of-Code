@@ -1,4 +1,5 @@
 import math
+import time
 
 def arrtoInt(arr):
     val = 0
@@ -105,4 +106,6 @@ def main():
     print(f"Part 1:\nNumber of valid passwords: {len(foundP1(r))}")
     print(f"Part 2:\nNumber of valid passwords: {len(foundP2(r))}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -1,3 +1,5 @@
+import time
+
 def neighborCells(data, x, y):
     neighbors = []
     
@@ -73,4 +75,6 @@ def main():
     
     print("Product of the size of the 3 largest basins: " + str(product))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

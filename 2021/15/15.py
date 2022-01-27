@@ -1,3 +1,5 @@
+import time
+
 def dictString(loc):
     string = str(loc[0])
     for l in loc[1:]:
@@ -117,4 +119,6 @@ def main():
 
     print("\nPart 2:\nLowest Total Risk: " + str(aStar(data)))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

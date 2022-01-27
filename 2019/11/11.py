@@ -1,3 +1,5 @@
+import time
+
 def runCode(state, inputs):
     # Modes: 0: Position, 1: Immediate, 2: Relative
     data, i, relBase, outputs = state
@@ -265,4 +267,6 @@ def main():
 
         print('')
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

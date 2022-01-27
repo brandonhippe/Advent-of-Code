@@ -1,3 +1,5 @@
+import time
+
 class orbit:
     def __init__(self, name):
         self.name = name
@@ -54,5 +56,7 @@ def main():
     print(f"\nPart 1:\nNumber of Direct and Indirect orbits: {totalOrbits}")
     print(f"\nPart 2:\nShortest Path to Santa: {orbits['YOU'].orbiting.pathLen(orbits['SAN'].orbiting, orbits['YOU'])}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")
             

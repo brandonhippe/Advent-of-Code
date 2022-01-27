@@ -1,3 +1,5 @@
+import time
+
 def runCode(data):
     i = 0
     while data[i] != 99:
@@ -50,4 +52,6 @@ def main():
     
     print("\nPart 2:\n100 * noun + verb: " + str(100 * data[1] + data[2]))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

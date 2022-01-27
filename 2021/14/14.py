@@ -1,3 +1,5 @@
+import time
+
 def main():
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
@@ -77,4 +79,6 @@ def main():
 
     print("Part 2:\nMost common - least common = " + str(counts[-1] - counts[0]))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

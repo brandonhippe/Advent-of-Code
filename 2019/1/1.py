@@ -1,3 +1,5 @@
+import time
+
 def rocketFuel(weight):
     newFuel = weight // 3 - 2
     if newFuel <= 0:
@@ -22,4 +24,6 @@ def main():
 
     print("\nPart 2:\nTotal Fuel Required: " + str(sum))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

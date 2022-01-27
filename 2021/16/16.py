@@ -1,8 +1,14 @@
+import time
+
 class packet:
     def __init__(self, packetString):
         self.binary = packetString
         self.parsed = False
         self.subPackets = []
+        self.version = 0
+        self.typeID = 0
+        self.lengthType = 0
+        self.value = 0
 
     def parse(self):
         if self.parsed:
@@ -59,11 +65,11 @@ class packet:
     def eval(self):
         if self.typeID == 0:
             # Sum Packet
-            sum = 0
+            total = 0
             for sP in self.subPackets:
-                sum += sP.eval()
+                total += sP.eval()
 
-            return sum
+            return total
         if self.typeID == 1:
             # Product Packet
             product = 1
@@ -130,4 +136,6 @@ def main():
     for p in packets:
         print("Part 2\nEvaulation of Packet: " + str(p.eval()))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

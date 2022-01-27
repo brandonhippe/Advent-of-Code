@@ -1,3 +1,5 @@
+import time
+
 class conwayCell:
     def __init__(self, locArr, dictString):
         self.loc = locArr[:]
@@ -160,4 +162,6 @@ def main():
 
     print("Part 2: " + str(len(floorTiles.cells)))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

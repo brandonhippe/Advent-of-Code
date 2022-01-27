@@ -1,4 +1,5 @@
 import math
+import time
 
 class moon:
     def __init__(self, pos, num):
@@ -96,4 +97,6 @@ def main():
 
     print(f"\nPart 2:\nFirst repeated postions will occur at step {lcm(cycles)}, found at step {step}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

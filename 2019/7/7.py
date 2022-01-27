@@ -1,4 +1,5 @@
 import itertools
+import time
 
 def runCode(i, data, inputs):
     outputs = []
@@ -161,4 +162,6 @@ def main():
 
     print(f"\nPart 2:\nMaximum Thruster Signal: {largest}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

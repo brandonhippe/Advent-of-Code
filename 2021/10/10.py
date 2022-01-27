@@ -1,3 +1,5 @@
+import time
+
 class chunk:
     def __init__(self, o, parentChunk):
         self.parent = parentChunk
@@ -138,4 +140,6 @@ def main():
 
     print("Median Score: " + str(scores[int((len(scores) - 1) / 2)]))
     
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

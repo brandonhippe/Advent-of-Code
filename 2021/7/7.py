@@ -1,3 +1,5 @@
+import time
+
 def triangle(n):
     return n * (n + 1) // 2
 
@@ -33,4 +35,6 @@ def main():
 
     print("Part 2:\nMinimum fuel: " + str(minFuel))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

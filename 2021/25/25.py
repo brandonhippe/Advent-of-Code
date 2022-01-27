@@ -1,3 +1,5 @@
+import time
+
 def increment(lines):
     newLines = []
     for line in lines:
@@ -85,4 +87,6 @@ def main():
 
     print("\nPart 1:\nFirst day no cucumbers move: " + str(day))    
     
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

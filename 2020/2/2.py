@@ -1,3 +1,5 @@
+import time
+
 class password:
     def __init__(self, data):
         self.min = int(data[0])
@@ -40,9 +42,10 @@ def main():
         pwd = password(data)
         pwds.append(pwd)
     
-    print('Part 1:\nValid Passwords: ' + str(countValidP1(pwds)) + '\n')
+    print('\nPart 1:\nValid Passwords: ' + str(countValidP1(pwds)))
 
-    print('Part 2:\nValid Passwords: ' + str(countValidP2(pwds)) + '\n')
+    print('\nPart 2:\nValid Passwords: ' + str(countValidP2(pwds)))
 
-
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

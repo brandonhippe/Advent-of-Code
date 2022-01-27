@@ -1,3 +1,5 @@
+import time
+
 class snailFishNumber:
     def __init__(self, text, parent=0):
         self.regularNumber = False
@@ -138,4 +140,6 @@ def main():
     print('\nPart 1:\nMagnitude of Result: ' + str(numbers[0].magnitude()))
     print('\nPart 2:\nLargest Magnitude: ' + str(maximum))
     
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

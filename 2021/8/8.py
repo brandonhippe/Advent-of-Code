@@ -1,3 +1,5 @@
+import time
+
 dispPats = ['abcefg', 'cf', 'acdeg', 'acdfg', 'bcdf', 'abdfg', 'abdefg', 'acf', 'abcdefg', 'abcdfg']
 occurences = {344: 'a', 204: 'b', 304: 'c', 266: 'd', 96: 'e', 396: 'f', 280: 'g'}
 
@@ -37,10 +39,6 @@ class code:
             new += self.pairs[o]
 
         return sortStr(new)
-
-        
-
-    
 
 def sortStr(s):
     ordArr = [0] * len(s)
@@ -94,4 +92,6 @@ def main():
 
     print("Sum of output values: " + str(count))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

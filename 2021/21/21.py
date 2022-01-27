@@ -1,4 +1,5 @@
 from collections import Counter
+import time
 
 def stateString(stateArr):
     string = str(stateArr[0])
@@ -30,7 +31,7 @@ def main():
             die += 1
             rolls += 1
             if die > 100:
-                die == die % 100
+                die = die % 100
 
         playersScores[playerIndex] += players[playerIndex]
         
@@ -91,4 +92,6 @@ def main():
     playerWins.sort()
     print("\nPart 2:\nThe most universes won in is: " + str(playerWins[-1]))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

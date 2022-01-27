@@ -1,3 +1,5 @@
+import time
+
 class conwayCell:
     def __init__(self, locArr, dictString):
         self.loc = locArr[:]
@@ -154,4 +156,6 @@ def main():
 
     print("\nPart 2:\nNumber of lit pixels: " + str(len(image.cells)))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

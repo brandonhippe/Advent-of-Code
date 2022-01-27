@@ -1,3 +1,5 @@
+import time
+
 def runCode(code, inputs):
     # Modes: 0: Position, 1: Immediate, 2: Relative
     data = {}
@@ -187,4 +189,6 @@ def main():
     print(f"\nPart 1:\nBOOST Keycode: {runCode(lines[:], [1])[-1]}")
     print(f"\nPart 2:\nCoordinates of distress signal: {runCode(lines[:], [2])[-1]}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

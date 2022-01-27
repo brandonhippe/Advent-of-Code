@@ -1,3 +1,5 @@
+import time
+
 def zeroSort(e):
     return e[0]
 
@@ -37,4 +39,6 @@ def main():
 
         print('')
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

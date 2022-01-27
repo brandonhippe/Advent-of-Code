@@ -1,3 +1,5 @@
+import time
+
 def oxy_rating(data, bit):
     if len(data) == 1:
         return int(data[0], 2)
@@ -69,4 +71,6 @@ def main():
     
     print("Part 2:\nOxygen Generator Rating: " + str(oxy) + "\nCO2 Scrubber Rating: " + str(co2) + "\nLife Support Rating: " + str(oxy * co2) + "\n")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

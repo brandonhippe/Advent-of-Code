@@ -1,3 +1,5 @@
+import time
+
 def main():
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
@@ -27,4 +29,7 @@ def main():
             increased += 1
 
     print("Number of increases = " + str(increased))
+
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

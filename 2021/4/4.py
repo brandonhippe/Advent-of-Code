@@ -1,9 +1,11 @@
+import time
+
 class bingoBoard:
     def __init__(self, values):
         self.board = values[:]
         template = [0] * 5
         self.checked = []
-        for i in range (5):
+        for _ in range (5):
             self.checked.append(template[:])
 
     def mark(self, call):
@@ -99,4 +101,6 @@ def main():
 
     print("\n\nProgram Done")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -1,4 +1,5 @@
 import math
+import time
 
 class reaction:
     def __init__(self, line):
@@ -90,4 +91,6 @@ def main():
 
     print(f"\nPart 2:\nAmount of fuel made with one trillion ore: {fuelMade}")
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

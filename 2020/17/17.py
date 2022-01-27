@@ -1,3 +1,5 @@
+import time
+
 class conwayCell:
     def __init__(self, locArr, dictString):
         self.loc = locArr[:]
@@ -128,4 +130,6 @@ def main():
 
     print("Part 1: " + str(len(cubes3d.cells)) + "\nPart 2: " + str(len(cubes4d.cells)))    
         
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

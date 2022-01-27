@@ -1,3 +1,5 @@
+import time
+
 data = [1327981, 2822615]
 # data = [5764801, 17807724]
 
@@ -26,4 +28,6 @@ def main():
     
     print("Encryption key: " + str(val))
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")

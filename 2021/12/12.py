@@ -1,3 +1,5 @@
+import time
+
 class cave:
     def __init__(self, caveName):
         self.name = caveName
@@ -71,4 +73,6 @@ def main():
     print("Part 1:\nNumber of paths to end cave: " + str(cavePathsP1(caves['start'])))
     print("Part 2:\nNumber of paths to end cave: " + str(cavePathsP2(caves['start'], False)))        
 
+init_time = time.perf_counter()
 main()
+print(f"\nRan in {time.perf_counter() - init_time} seconds")
