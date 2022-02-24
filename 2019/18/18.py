@@ -2,33 +2,36 @@ import time
 import heapq
 
 class Path:
-    def __init__(self, found, pathLen):
-        self.found = found[:]
-        self.length = pathLen
+    def __init__(self, lines, pathTaken):
+        self.found = []
+        self.length = 0
+
+        for pos in pathTaken[1:]:
+            if ord('a') <= ord(lines[pos[1]][pos[0]].lower()) <= ord('z'):
+                self.found.append(lines[pos[1]][pos[0]])
+
+            self.length += 1
 
 def genPaths(lines, k1):
     neighborOffsets = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
-    openList = [[[k1[1]], []]]
+    openList = [[k1[1]]]
     closedList = []
 
     paths = []
     while len(openList) != 0:
-        path, found = openList.pop(0)
+        path = openList.pop(0)
         pos = path[-1]
 
         for n in [[p + o for (p, o) in zip(pos, offset)] for offset in neighborOffsets]:
             if n in closedList or lines[n[1]][n[0]] == '#':
                 continue
 
+            openList.append(path + [n])
+
             c = lines[n[1]][n[0]]
             if ord('a') <= ord(c) <= ord('z'):
-                openList.append([path + [n], found[:] + [c]])
-                paths.append(Path(found[:] + [c], len(path)))
-            elif ord('A') <= ord(c) <= ord('Z'):
-                openList.append([path + [n], found[:] + [c]])
-            else:
-                openList.append([path + [n], found[:]])
+                paths.append(Path(lines, path + [n]))
 
         closedList.append(pos)
 
@@ -63,7 +66,6 @@ def collectKeys(paths, allKeys):
                     if c.lower() not in newCollected:
                         valid = False
                         break
-            
 
             if not valid:
                 continue
@@ -94,26 +96,25 @@ def collectKeys(paths, allKeys):
     return [0, 'ERROR']
 
 def main():
-    with open('input.txt', encoding='UTF-8') as f:
+    with open('input1.txt', encoding='UTF-8') as f:
         lines = [[x for x in line.strip()] for line in f.readlines()]
 
     keys = []
-    doors = []
     for (y, line) in enumerate(lines):
         for (x, l) in enumerate(line):
             if l == '@':
                 start = [x, y]
             elif ord('a') <= ord(l) <= ord('z'):
                 keys.append([l, [x, y]])
-            elif ord('A') <= ord(l) <= ord('Z'):
-                doors.append([l, [x, y]])
+
+    if len([lines[y][x] for x, y in [[p + o for p, o in zip(start, offset)] for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]] if lines[y][x] != '#']) == 4:
+        lines[start[1] + 1][start[0]] = '#'
+        lines[start[1] - 1][start[0]] = '#'
 
     keys = [['@', start]] + keys
     keys.sort(key=lambda k: k[0])
 
-    paths = {}
-    for k1 in keys:
-        paths[k1[0]] = genPaths(lines, k1)
+    paths = {k[0]: genPaths(lines, k) for k in keys}
 
     print("Found all paths between pairs of keys")
 
