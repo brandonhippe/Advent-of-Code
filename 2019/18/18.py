@@ -32,6 +32,21 @@ class Path:
         self.end = end
         self.length = length
 
+def deadEndFill(lines, deadEnd):
+    if lines[deadEnd[1]][deadEnd[0]] != '.':
+        return
+
+    possible = []
+    
+    for n in [[p + o for p, o in zip(deadEnd, offset)] for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]]:
+        if 0 <= n[0] < len(lines[0]) and 0 <= n[1] < len(lines):
+            if lines[n[1]][n[0]] != '#':
+                possible.append(n)
+
+    if len(possible) == 1:
+        lines[deadEnd[1]][deadEnd[0]] = '#'
+        deadEndFill(lines, possible[0])
+
 def genPaths(start, neededKeys):
     openList = [[start, 0]]
     closedList = []
@@ -132,6 +147,11 @@ def collectKeysP2(POIs, allKeys):
 def main():
     with open('input.txt', encoding='UTF-8') as f:
         lines = [[x for x in line.strip()] for line in f.readlines()]
+
+    for (y, line) in enumerate(lines):
+        for (x, l) in enumerate(line):
+            if l == '.':
+                deadEndFill(lines, [x, y])
 
     linesP2 = copy.deepcopy(lines)
     POIsP1 = {}
