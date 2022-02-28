@@ -1,124 +1,114 @@
 import time
 import heapq
 
+class pointOfInterest:
+    def __init__(self, pos, c):
+        self.pos = pos[:]
+        self.id = c
+        self.neighbors = []
+
+    def genNeighbors(self, lines, others):
+        openList = [[self.pos]]
+        closedList = []
+
+        while len(openList) != 0:
+            path = openList.pop(0)
+            pos = path[-1]
+
+            for n in [[p + o for (p, o) in zip(pos, offset)] for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]]:
+                if n in closedList or lines[n[1]][n[0]] == '#':
+                    continue
+
+                if lines[n[1]][n[0]] == '.' or lines[n[1]][n[0]] == '@':
+                    openList.append(path + [n])
+                else:
+                    self.neighbors.append([others[lines[n[1]][n[0]]], len(path)])
+
+            closedList.append(pos)
+
 class Path:
-    def __init__(self, lines, pathTaken):
-        self.found = []
-        self.length = 0
+    def __init__(self, end, length):
+        self.end = end
+        self.length = length
 
-        for pos in pathTaken[1:]:
-            if ord('a') <= ord(lines[pos[1]][pos[0]].lower()) <= ord('z'):
-                self.found.append(lines[pos[1]][pos[0]])
-
-            self.length += 1
-
-def genPaths(lines, k1):
-    neighborOffsets = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-
-    openList = [[k1[1]]]
+def genPaths(start, neededKeys):
+    openList = [[start, 0]]
     closedList = []
 
     paths = []
     while len(openList) != 0:
-        path = openList.pop(0)
-        pos = path[-1]
+        currPOI, pathLen = openList.pop(0)
 
-        for n in [[p + o for (p, o) in zip(pos, offset)] for offset in neighborOffsets]:
-            if n in closedList or lines[n[1]][n[0]] == '#':
+        for neighbor, dist in currPOI.neighbors:
+            if neighbor in closedList or neighbor.id in neededKeys.upper():
                 continue
 
-            openList.append(path + [n])
+            if neighbor.id in neededKeys:
+                paths.append(Path(neighbor.id, pathLen + dist))
+            else:
+                openList.append([neighbor, pathLen + dist])
 
-            c = lines[n[1]][n[0]]
-            if ord('a') <= ord(c) <= ord('z'):
-                paths.append(Path(lines, path + [n]))
-
-        closedList.append(pos)
+        closedList.append(currPOI)
 
     return paths
 
-def collectKeys(paths, allKeys):
-    openList = [[0, ['@'], '@']]
+def collectKeys(POIs, allKeys):
+    openList = [[0, "".join(sorted([k for k in allKeys.keys() if k != '@'])), '@']]
     closedList = {}
 
+    paths = {k: {} for k in allKeys.keys()}
+
     while len(openList) != 0:
-        pathLen, sorted, collected = heapq.heappop(openList)
+        pathLen, neededKeys, collected = heapq.heappop(openList)
         currKey = collected[-1]
 
-        if sorted == allKeys:
+        if len(neededKeys) == 0:
             return [pathLen, collected]
 
-        for p in paths[currKey]:
+        if neededKeys not in paths[currKey].keys():
+            paths[currKey][neededKeys] = genPaths(POIs[currKey], neededKeys)
+
+        for p in paths[currKey][neededKeys]:
             newPathLen = pathLen + p.length
-            newSorted = sorted[:]
-            newCollected = collected[:]
+            newNeeded = neededKeys[:].replace(p.end, '')
+            newCollected = collected[:] + p.end
 
-            if p.found[-1] in newCollected:
-                continue
-            
-            valid = True
-            for c in p.found:
-                if ord('a') <= ord(c) <= ord('z'):
-                    if c not in newCollected:
-                        newSorted.append(c)
-                        newCollected += c
-                else:
-                    if c.lower() not in newCollected:
-                        valid = False
-                        break
-
-            if not valid:
-                continue
-
-            newSorted.sort()
-            sortedString = ''
-            for s in newSorted:
-                sortedString += s
-
-            if sortedString in closedList and closedList[sortedString] <= newPathLen:
+            if newNeeded in closedList and closedList[newNeeded] <= newPathLen:
                 continue
 
             valid = True
             for other in openList:
-                if other[1] == newSorted and other[0] <= newPathLen:
+                if other[0] <= newPathLen and other[1] == newNeeded and other[2][-1] == newCollected[-1]:
                     valid = False
                     break
 
             if valid:
-                heapq.heappush(openList, [newPathLen, newSorted, newCollected])
+                heapq.heappush(openList, [newPathLen, newNeeded, newCollected])
 
-        sortedString = ''
-        for s in sorted:
-            sortedString += s
-
-        closedList[sortedString] = pathLen
+        closedList[neededKeys] = pathLen
 
     return [0, 'ERROR']
 
 def main():
-    with open('input1.txt', encoding='UTF-8') as f:
+    with open('input.txt', encoding='UTF-8') as f:
         lines = [[x for x in line.strip()] for line in f.readlines()]
 
-    keys = []
+    POIs = {}
+    keys = {}
     for (y, line) in enumerate(lines):
         for (x, l) in enumerate(line):
-            if l == '@':
-                start = [x, y]
-            elif ord('a') <= ord(l) <= ord('z'):
-                keys.append([l, [x, y]])
+            if l == '@' or  ord('a') <= ord(l.lower()) <= ord('z'):
+                POIs[l] = pointOfInterest([x, y], l)
 
-    if len([lines[y][x] for x, y in [[p + o for p, o in zip(start, offset)] for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]] if lines[y][x] != '#']) == 4:
-        lines[start[1] + 1][start[0]] = '#'
-        lines[start[1] - 1][start[0]] = '#'
+            if l == '@' or ord('a') <= ord(l) <= ord('z'):
+                keys[l] = [x, y]
 
-    keys = [['@', start]] + keys
-    keys.sort(key=lambda k: k[0])
+    for p in POIs.values():
+        p.genNeighbors(lines, POIs)
+    
+    print("Created graph edges!\n")
 
-    paths = {k[0]: genPaths(lines, k) for k in keys}
-
-    print("Found all paths between pairs of keys")
-
-    pathLen, collected = collectKeys(paths, [k[0] for k in keys])
+    pathLen, collected = collectKeys(POIs, keys)
     collected = collected.replace('@', '')
 
     print(f"\nPart 1:\nShortest Path: {pathLen} steps\nPath: {collected}")
