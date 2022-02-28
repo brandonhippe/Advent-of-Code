@@ -1,6 +1,5 @@
 import time
 import heapq
-import numpy as np
 import copy
 
 class pointOfInterest:
