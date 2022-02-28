@@ -169,8 +169,6 @@ def main():
     for p in POIsP1.values():
         p.genNeighbors(lines, POIsP1)
     
-    print("\nCreated graph edges!")
-
     pathLen, collected = collectKeysP1(POIsP1, keysP1)
     collected = collected.replace('@', '')
 
@@ -178,8 +176,6 @@ def main():
 
     for p in POIsP2.values():
         p.genNeighbors(linesP2, POIsP2)
-
-    print("\nCreated graph edges!")
 
     pathLen, collected = collectKeysP2(POIsP2, keysP2)
 
