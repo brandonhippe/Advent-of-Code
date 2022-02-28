@@ -1,5 +1,6 @@
 import time
 import heapq
+import copy
 
 class pointOfInterest:
     def __init__(self, pos, c):
@@ -93,6 +94,7 @@ def main():
     with open('input.txt', encoding='UTF-8') as f:
         lines = [[x for x in line.strip()] for line in f.readlines()]
 
+    linesP2 = copy.deepcopy(lines)
     POIs = {}
     keys = {}
     for (y, line) in enumerate(lines):
@@ -102,6 +104,18 @@ def main():
 
             if l == '@' or ord('a') <= ord(l) <= ord('z'):
                 keys[l] = [x, y]
+
+            pos = [x, y]
+            for offset in [[x1, y1] for x1 in range(-1, 2) for y1 in range(-1, 2)]:
+                newPos = [p + o for p, o in zip(pos, offset)]
+                try:
+                    if lines[newPos[1]][newPos[0]] == '@':
+                        if sum([abs(n) for n in offset]) == 2:
+                            linesP2[y][x] = '@'
+                        else:
+                            linesP2[y][x] = '#'
+                except IndexError:
+                    continue
 
     for p in POIs.values():
         p.genNeighbors(lines, POIs)
