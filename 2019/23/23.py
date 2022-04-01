@@ -1,8 +1,6 @@
 import time
 import copy
 
-from numpy import empty
-
 def runCode(state, inputs):
     # Modes: 0: Position, 1: Immediate, 2: Relative
     data, i, relBase, outputs = state
@@ -218,29 +216,58 @@ def handlerP1(code):
 def handlerP2(code):
     state = [code, 0, 0, []]
 
+    Nat = []
     NICs = []
     inputs = {}
     for i in range(50):
         NICs.append(copy.deepcopy(state))
         inputs[i] = [i]
-
+    
+    lastY = float('inf')
+    sleeping = [False] * 50
+    lastInput = [0] * 50
+    period = [0] * 50
+    step = 0
     while True:
+        if False not in sleeping:
+            if Nat[-1] == lastY:
+                return lastY
+            
+            lastY = Nat[-1]
+            inputs[0] = Nat[:]
+            sleeping[0] = False
+
         for (i, n) in enumerate(NICs):
+            if sleeping[i]:
+                continue
+            
+            emptyInput = inputs[i][-1] == -1
+            pLen = len(inputs[i])
             NICs[i] = runCode(n, inputs[i])[-1]
+            if emptyInput and pLen != 0 and len(inputs[i]) == 0:
+                if step - lastInput[i] == period[i]:
+                    sleeping[i] = True
+                
+                period[i] = step - lastInput[i]
+                lastInput[i] = step
             
             if len(NICs[i][-1]) == 3:
                 if NICs[i][-1][0] == 255:
-                    return NICs[i][-1][-1]
+                    Nat = NICs[i][-1][1:]
+                else:
+                    if -1 in inputs[NICs[i][-1][0]]:
+                        inputs[NICs[i][-1][0]].pop(inputs[NICs[i][-1][0]].index(-1))
+                        sleeping[NICs[i][-1][0]] = False
 
-                if -1 in inputs[NICs[i][-1][0]]:
-                    inputs[NICs[i][-1][0]].pop(inputs[NICs[i][-1][0]].index(-1))
-
-                inputs[NICs[i][-1][0]] += NICs[i][-1][1:]
+                    inputs[NICs[i][-1][0]] += NICs[i][-1][1:]
+                    
                 NICs[i][-1] = []
 
         for inp, arr in zip(inputs.keys(), inputs.values()):
             if len(arr) == 0:
                 inputs[inp].append(-1)
+
+        step += 1
 
 
 def main():
