@@ -23,4 +23,4 @@ def main():
 if __name__ == "__main__":
     init_time = time.perf_counter()
     main()
-    print(f"Ran in {time.perf_counter() - init_time} seconds.")
+    print(f"\nRan in {time.perf_counter() - init_time} seconds.")
