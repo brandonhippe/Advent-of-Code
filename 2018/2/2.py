@@ -1,5 +1,3 @@
-from importlib.metadata import distribution
-from this import d
 import time
 from collections import Counter
 
