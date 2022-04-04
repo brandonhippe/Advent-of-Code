@@ -2,7 +2,13 @@ import time
 import re
 
 def reducePolymer(polymer):
-    pattern = '(' + '|'.join([chr(c) + chr(c).upper() for c in range(ord('a'), ord('z') + 1)]) + '|' + '|'.join([chr(c) + chr(c).lower() for c in range(ord('A'), ord('Z') + 1)]) + ')'
+    pattern = []
+    for c in range(ord('a'), ord('z') + 1):
+        pattern.append(chr(c) + chr(c).upper())
+        pattern.append(chr(c).upper() + chr(c))
+
+    pattern = f"({'|'.join(pattern)})"
+    
     pPolymer = ''
     while pPolymer != polymer:
         pPolymer = polymer[:]
