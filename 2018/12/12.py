@@ -22,12 +22,12 @@ def main(filename):
     rules = {line.split(" => ")[0] for line in lines[2:] if line.split(" => ")[1] == '#'}
 
     gen = 0
-    genData = [sum(k for k, v in zip(plantState.keys(), plantState.values()) if v == '#')]
+    genData = [sum(plantState.keys())]
     deltas = []
     while True:
         gen += 1
         plantState = iterate(plantState, rules)
-        totalPlants = sum(k for k, v in zip(plantState.keys(), plantState.values()) if v == '#')
+        totalPlants = sum(plantState.keys())
         genData.append(totalPlants)
         deltas.append(genData[gen] - genData[gen - 1])
 
