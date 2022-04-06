@@ -1,21 +1,13 @@
 import time
 from collections import defaultdict
 
-class Rule:
-    def __init__(self, initString):
-        self.ruleText, self.ruleResult = initString.split(" => ")
-
 def iterate(plantState, rules):
     newPlantState = defaultdict(lambda: '.')
 
     for i in range(min(plantState.keys()) - 2, max(plantState.keys()) + 3):
         plantString = ''.join(plantState[i + c] for c in range(-2, 3))
-        
-        try:
-            rule = rules[[r.ruleText for r in rules].index(plantString)]
-            newPlantState[i] = rule.ruleResult
-        except ValueError:
-            pass
+        if plantString in rules:
+            newPlantState[i] = '#'
 
     return newPlantState
 
@@ -27,9 +19,7 @@ def main(filename):
     for i, c in enumerate(lines[0].split(": ")[1]):
         plantState[i] = c
 
-    rules = []
-    for r in lines[2:]:
-        rules.append(Rule(r))
+    rules = {line.split(" => ")[0] for line in lines[2:] if line.split(" => ")[1] == '#'}
 
     gen = 0
     genData = [sum(k for k, v in zip(plantState.keys(), plantState.values()) if v == '#')]
