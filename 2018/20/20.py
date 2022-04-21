@@ -158,9 +158,6 @@ def main(filename):
 
     if len(re.findall('\d+', filename)) > 0:
         print(printRooms(rooms, doors, (0, 0)))
-    else:
-        with open("output.txt", "w") as f:
-            f.write(printRooms(rooms, doors, (0, 0)))
 
     farthest, over1000 = farthestRoom(doors, (0, 0))
 
