@@ -4,7 +4,7 @@ import heapq
 class searchNode:
     def __init__(self, pos, end, prev = None):
         self.pos = pos
-        self.moves = [tuple([p + o for p, o in zip(self.pos, offset)] + [self.pos[-1]]) for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]]
+        self.moves = [tuple([p + o for p, o in zip(self.pos, offset)] + [self.pos[-1]]) for offset in [[1, 0], [0, 1], [-1, 0], [0, -1]]]
         self.swaps = [tuple(list(pos[:-1]) + [l]) for l in range(3) if l != self.pos[-1]]
         self.h = self.heuristic(end)
         self.g = 0 if prev is None else (prev.g + (1 if self.pos[-1] == prev.pos[-1] else 7))
@@ -49,7 +49,7 @@ def shortestPath(start, end, erosionLevels, depth):
 
         for n in currPos.moves + currPos.swaps:
             newPos = searchNode(n, end, currPos)
-            if (newPos in visited and visited[newPos] <= newPos.f) or (newPos in openList and openList[openList.index(newPos)].f <= newPos.f) or (min(newPos.pos) < 0) or (erosionLevel(newPos.pos[:-1], depth, end[:-1], erosionLevels) % 3 == newPos.pos[-1]):
+            if (newPos in visited and visited[newPos] <= newPos.f) or (min(newPos.pos) < 0) or (erosionLevel(newPos.pos[:-1], depth, end[:-1], erosionLevels) % 3 == newPos.pos[-1]):
                 continue
 
             heapq.heappush(openList, newPos)
