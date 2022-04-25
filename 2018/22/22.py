@@ -1,6 +1,28 @@
 import time
 import heapq
 
+class searchNode:
+    def __init__(self, pos, end, prev = None):
+        self.pos = pos
+        self.moves = [tuple([p + o for p, o in zip(self.pos, offset)] + [self.pos[-1]]) for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]]
+        self.swaps = [tuple(list(pos[:-1]) + [l]) for l in range(3) if l != self.pos[-1]]
+        self.h = self.heuristic(end)
+        self.g = 0 if prev is None else (prev.g + (1 if self.pos[-1] == prev.pos[-1] else 7))
+        self.f = self.g + self.h        
+
+    def heuristic(self, target):
+        layerOffset = 7 if self.pos[-1] != target[-1] else 0
+        return sum([abs(p - t) for p, t in zip(self.pos[:-1], target[:-1])]) + layerOffset
+
+    def __hash__(self):
+        return hash(self.pos)
+
+    def __eq__(self, other):
+        return self.pos == other.pos
+
+    def __lt__(self, other):
+        return (self.f < other.f) or (self.f == other.f and self.h < other.h)
+
 def erosionLevel(pos, depth, target, calculated):
     if pos not in calculated:
         if pos == target:
@@ -12,47 +34,25 @@ def erosionLevel(pos, depth, target, calculated):
 
     return calculated[pos]
 
-def heuristic(pos, target):
-    layerOffset = 7 if pos[-1] != target[-1] else 0
-    return sum([abs(p - t) for p, t in zip(pos[:-1], target[:-1])]) + layerOffset
-
-def aStar(start, end, regions):
+def shortestPath(start, end, erosionLevels, depth):
     # 0: Neither, 1: Torch, 2: Climbing gear
-    visited = {tuple(list(pos) + [r]): float('-inf') for pos, r in zip(regions.keys(), regions.values())}
-    openList = [[heuristic(start, end), 0, start]]
+    visited = {}
+    openList = [searchNode(start, end)]
 
     while len(openList) != 0:
-        currF, currG, currPos = heapq.heappop(openList)
+        currPos = heapq.heappop(openList)
 
-        if currPos == end:
-            return currG
+        if currPos.pos == end:
+            return currPos.g
 
-        for n in [tuple([p + o for p, o in zip(currPos[:-1], offset)] + [currPos[-1]]) for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]] + [tuple(list(currPos[:-1]) + [(currPos[-1] + l) % 3]) for l in [-1, 1]]:
-            nH = heuristic(n, end)
-            if n[-1] == currPos[-1]:
-                nG = currG + 1
-            else:
-                nG = currG + 7
+        visited[currPos] = currPos.f
 
-            nF = nG + nH
-
-            adding = True
-            for o in openList:
-                if o[2] == n and o[0] <= nF:
-                    adding = False
-                    break
-
-            if not adding:
+        for n in currPos.moves + currPos.swaps:
+            newPos = searchNode(n, end, currPos)
+            if (newPos in visited and visited[newPos] <= newPos.f) or (newPos in openList and openList[openList.index(newPos)].f <= newPos.f) or (min(newPos.pos) < 0) or (erosionLevel(newPos.pos[:-1], depth, end[:-1], erosionLevels) % 3 == newPos.pos[-1]):
                 continue
 
-            if n in visited:
-                foundF = visited[n]
-                if foundF <= nF:
-                    continue
-
-            heapq.heappush(openList, [nF, nG, n])
-
-        visited[currPos] = currF
+            heapq.heappush(openList, newPos)
 
     return -1
 
@@ -63,9 +63,9 @@ def main(depth = 5913, target = (8, 701)):
     regions = {(x, y): erosionLevel((x, y), depth, target, erosionLevels) % 3 for x in range(target[0] + 1) for y in range(target[1] + 1)}
 
     print(f"\nPart 1:\nTotal risk level: {sum(regions.values())}")
-    print(f"\nPart 2:\nTime for shortest path to target: {aStar((0, 0, 1), tuple(list(target) + [1]), regions)}")
+    print(f"\nPart 2:\nTime for shortest path to target: {shortestPath((0, 0, 1), tuple(list(target) + [1]), erosionLevels, depth)}")
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main(510, (10, 10))
+    main()
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")
