@@ -1,5 +1,6 @@
 import time
 import re
+import copy
 
 class Group:
     def __init__(self, army, groupText):
@@ -22,8 +23,8 @@ class Group:
         self.attacking = None
         self.defending = None
 
-    def __gt__(self, other):
-        return self.units * self.damage > other.units * other.damage or (self.units * self.damage == other.units * other.damage and self.initiative > other.initiative)
+    def __lt__(self, other):
+        return self.units * self.damage < other.units * other.damage or (self.units * self.damage == other.units * other.damage and self.initiative < other.initiative)
 
     def damageDealt(self, other):
         return self.units * self.damage * (0 if self.damageType in other.immune else 1) * (2 if self.damageType in other.weak else 1)
@@ -42,11 +43,11 @@ def targetPhase(groups):
         for gr in groups:
             if gr.defending is None and gr.army != g.army:
                 dam = g.damageDealt(gr)
-                if dam > most or (dam == most and (chosen is None or gr.initiative < chosen.initiative)):
+                if dam > most or (dam == most and (chosen is None or (gr.units * gr.damage > chosen.units * chosen.damage or (gr.units * gr.damage == chosen.units * chosen.damage and gr.initiative > chosen.initiative)))):
                     most = g.damageDealt(gr)
                     chosen = gr
 
-        if chosen:
+        if most > 0:
             g.attacking = chosen
             chosen.defending = g
 
@@ -65,6 +66,18 @@ def attackingPhase(groups):
 
     return newGroups
 
+def fight(groups):
+    remainingUnits = set()
+    while len({g.army for g in groups}) != 1 and tuple(g.units for g in groups) not in remainingUnits:
+        remainingUnits.add(tuple(g.units for g in groups))
+        targetPhase(groups)
+        groups = attackingPhase(groups)
+        for g in groups:
+            g.attacking = None
+            g.defending = None
+
+    return groups
+
 def main(filename):
     with open(filename, encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
@@ -79,14 +92,36 @@ def main(filename):
         else:
             groups.append(Group(army, line))
 
-    while len({g.army for g in groups}) != 1:
-        targetPhase(groups)
-        groups = attackingPhase(groups)
-        for g in groups:
-            g.attacking = None
-            g.defending = None
+    print(f"\nPart 1:\nTotal remaining units of winning army: {sum([g.units for g in fight(copy.deepcopy(groups))])}")
 
-    print(f"\nPart 1:\nTotal remaining units of winning army: {sum([g.units for g in groups])}")
+    immune = None
+    infection = 0
+    boost = 1
+    while immune is None or immune - infection > 1:
+        gs = copy.deepcopy(groups)
+        for g in gs:
+            if g.army == "Immune System":
+                g.damage += boost
+
+        gs = fight(gs)
+
+        if len(set(g.army for g in gs)) == 1 and gs[0].army == 'Immune System':
+            if immune is None or boost < immune:
+                immune = boost
+        elif boost > infection:
+            infection = boost
+
+        if immune is None:
+            boost *= 2
+        else:
+            boost = (immune + infection) // 2
+
+    gs = copy.deepcopy(groups)
+    for g in gs:
+        if g.army == "Immune System":
+            g.damage += immune
+
+    print(f"\nPart 2:\nTotal remaining immune system units with smallest boost: {sum([g.units for g in fight(gs)])}")
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
