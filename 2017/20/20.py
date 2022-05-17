@@ -75,3 +75,4 @@ if __name__ == "__main__":
     init_time = time.perf_counter()
     main("input.txt")
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")
+    
