@@ -50,3 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Python modules
+*__pycache__
+**/Modules
+!/Modules
