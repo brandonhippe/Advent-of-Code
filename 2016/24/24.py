@@ -40,63 +40,6 @@ def aStar(start, end, positions, numPos):
 
     return -1
 
-# def shortestPathP1(startNum, positions, numPos, memo):
-#     if len(numPos) == 1:
-#         return 0
-
-#     for k, v in zip(numPos.keys(), numPos.values()):
-#         if v == startNum:
-#             break
-
-#     start = k
-#     del numPos[start]
-#     shortest = float('inf')
-#     for pos, num in zip(numPos.keys(), numPos.values()):
-#         if (startNum, num, tuple(sorted(numPos.values()))) in memo:
-#             length = memo[(startNum, num, tuple(sorted(numPos.values())))]
-#         else:
-#             length = aStar(start, pos, positions, numPos)
-#             if length < 0:
-#                 continue
-            
-#             length += shortestPathP1(num, positions, copy.deepcopy(numPos), memo)
-#             memo[(startNum, num, tuple(sorted(numPos.values())))] = length
-
-#         if length < shortest:
-#             shortest = length
-
-#     return shortest
-
-# def shortestPathP2(startNum, positions, numPos, memo, zeroPos = None):
-#     for k, v in zip(numPos.keys(), numPos.values()):
-#         if v == startNum:
-#             break
-
-#     start = k
-#     if len(numPos) == 1:
-#         return aStar(start, zeroPos, positions, {})
-
-#     if startNum == 0:
-#         zeroPos = start
-
-#     del numPos[start]
-#     shortest = float('inf')
-#     for pos, num in zip(numPos.keys(), numPos.values()):
-#         if (startNum, num, tuple(sorted(numPos.values()))) in memo:
-#             length = memo[(startNum, num, tuple(sorted(numPos.values())))]
-#         else:
-#             length = aStar(start, pos, positions, numPos)
-#             if length < 0:
-#                 continue
-            
-#             length += shortestPathP2(num, positions, copy.deepcopy(numPos), memo, zeroPos)
-#             memo[(startNum, num, tuple(sorted(numPos.values())))] = length
-
-#         if length < shortest:
-#             shortest = length
-    
-#     return shortest
-
 def shortestPathP1(adjList, start, visited):
     visited[start] = True
     if False not in visited:
