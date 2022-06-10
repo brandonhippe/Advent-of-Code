@@ -55,3 +55,9 @@ dkms.conf
 *__pycache__
 **/Modules
 !/Modules
+
+# Other random things
+*.html
+*.download
+*.css
+css
