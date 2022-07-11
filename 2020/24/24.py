@@ -1,167 +1,50 @@
 import time
+from collections import defaultdict
 
-class conwayCell:
-    def __init__(self, locArr, dictString):
-        self.loc = locArr[:]
-        self.index = dictString
+def iterate(tiles):
+    newTiles = defaultdict(lambda: 0)
+    for t in list(tiles):
+        for nOff in [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)]:
+            newTiles[tuple(p + o for p, o in zip(t, nOff))] += 1
 
-class conwayCells:
-    def __init__(self):
-        self.cells = {}
-        self.min = float('inf')
-        self.max = float('-inf')
-        self.mins = 0
-        self.maxs = 0
-        self.side = 0
+    return set(k for k, v in zip(newTiles.keys(), newTiles.values()) if v == 2 or (k in tiles and v == 1))
 
-    def addCell(self, loc):
-        if self.mins == 0:
-            self.mins = [float('inf')] * len(loc)
+def main(filename):
+    with open(filename, encoding='UTF-8') as f:
+        data = [line.strip('\n') for line in f.readlines()]
 
-        if self.maxs == 0:
-            self.maxs = [float('-inf')] * len(loc)
-        
-        for i in range(len(loc)):
-            if loc[i] > self.maxs[i]:
-                self.maxs[i] = loc[i]
+    floorTiles = set()
 
-            if loc[i] < self.mins[i]:
-                self.mins[i] = loc[i]
-
-        self.updateMinMax()
-
-        string = self.dictString(loc)
-        self.cells[string] = conwayCell(loc, string)
-
-    def updateMinMax(self):
-        for m in self.maxs:
-            if m >= self.max:
-                self.max = m + 1
-
-        for m in self.mins:
-            if m <= self.min:
-                self.min = m - 1
-
-        self.side = self.max - self.min + 1
-    
-    def dictString(self, loc):
-        s = str(loc[0])
-        for l in loc[1:]:
-            s += ',' + str(l)
-
-        return s      
-
-    def getNeighbors(self, loc, dist):
-        sideLen = dist * 2 + 1
-
-        neighbors = []
-        for i in range(sideLen ** len(loc)):
-            temp = [-dist] * len(loc)
-            num = i
-            for j in range(len(loc)):
-                temp[j] += num % sideLen
-                num = int(num / sideLen)
-            
-            neighbors.append(temp)
-
-        output = []
-        for neighbor in neighbors:
-            temp = []
-            for (l, n) in zip(loc, neighbor):
-                temp.append(l + n)
-
-            output.append(temp)
-
-        return output
-
-    def countNeighbors(self, loc, neighborFunction= 0, dist= 1):
-        if neighborFunction == 0:
-            neighbors = self.getNeighbors(loc, dist)
-        else:
-            neighbors = neighborFunction(loc, dist)
-
-        count = 0
-        for n in neighbors:
-            if n != loc:
-                if self.dictString(n) in self.cells:
-                    count += 1                    
-
-        return count   
-
-    def iterate(self, aliveFunction, neighborFunction = 0, dist = 1):
-        dictItem = self.cells.popitem()
-        dim = len(dictItem[1].loc)
-        self.addCell(dictItem[1].loc)
-
-        nextCells = conwayCells()
-
-        for i in range(self.side ** dim):
-            cell = [self.min] * dim
-            num = i
-            for j in range(dim):
-                cell[j] += num % self.side
-                num = int(num / self.side)
-            
-            numNeighbors = self.countNeighbors(cell, neighborFunction, dist)
-
-            if aliveFunction(numNeighbors, self.dictString(cell) in self.cells):
-                nextCells.addCell(cell)
-
-        return nextCells
-
-def hexNeighbors(loc, dist):
-    neighbors = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]]
-
-    output = []
-    for neighbor in neighbors:
-        temp = []
-        for (l, n) in zip(loc, neighbor):
-            temp.append(l + n)
-
-        output.append(temp)
-
-    return output
-
-def determineAlive(numNeighbors, alive):
-    return numNeighbors == 2 or (numNeighbors == 1 and alive)
-
-def main():
-    with open('input.txt', encoding='UTF-8') as f:
-        lines = [line[0:-1] for line in f.readlines()]
-
-    floorTiles = conwayCells()
-
-    for line in lines:
-        loc = [0, 0]
+    for line in data:
+        loc = (0, 0)
         pChar = 'e'
         for l in line:
             if l == 'e':
                 if pChar != 's':
-                    loc[0] += 1
+                    loc = (loc[0] + 1, loc[1])
             elif l == 'w':
                 if pChar != 'n':
-                    loc[0] += -1
+                    loc = (loc[0] - 1, loc[1])
             elif l == 'n':
-                loc[1] += -1
+                loc = (loc[0], loc[1] - 1)
             elif l == 's':
-                loc[1] += 1
+                loc = (loc[0], loc[1] + 1)
             
             pChar = l
-
-        locStr = floorTiles.dictString(loc)
         
-        if locStr in floorTiles.cells:
-            del floorTiles.cells[locStr]
+        if loc in floorTiles:
+            floorTiles.remove(loc)
         else:
-            floorTiles.addCell(loc)
+            floorTiles.add(loc)
     
-    print("Part 1: " + str(len(floorTiles.cells)))
+    print(f"\nPart 1:\nNumber of tiles with black side up: {len(floorTiles)}")
 
-    for day in range(100):
-        floorTiles = floorTiles.iterate(determineAlive, neighborFunction=hexNeighbors)
+    for _ in range(100):
+        floorTiles = iterate(floorTiles)
 
-    print("Part 2: " + str(len(floorTiles.cells)))
+    print(f"\nPart 2:\nNumber of tiles with black side up after 100 days: {len(floorTiles)}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main("input.txt")
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")
