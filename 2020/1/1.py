@@ -1,55 +1,41 @@
 import time
 
-def findSum(data, amt, val):
-    elements = []
+def main(filename):
+    with open(filename, encoding='UTF-8') as f:
+        data = [int(line) for line in f.readlines()]
 
-    if amt == 1:
-        for d in data:
-            if d == val:
-                elements.append(d)
+    data = sorted(data)
+
+    found = False
+    for i in range(len(data) - 1):
+        for j in range(i + 1, len(data)):
+            if data[i] + data[j] == 2020:
+                found = True
                 break
-    else:
-        for d in data:
-            if d < val:
-                temp = data.copy()
-                temp.remove(d)
-                found = findSum(temp, amt - 1, val - d)
-                if len(found) != 0:
-                    elements = found.copy()                    
-                    elements.append(d)
+
+        if found:
+            break
+
+    print(f"\nPart 1:\nProduct of numbers that sum to 2020: {data[i] * data[j]}")
+
+    found = False
+    for i in range(len(data) - 2):
+        for j in range(i + 1, len(data) - 1):
+            for k in range(j + 1, len(data)):
+                if data[i] + data[j] + data[k] == 2020:
+                    found = True
                     break
 
-    return elements
+            if found:
+                break
 
-def main():
-    with open('input.txt', encoding='UTF-8') as f:
-        lines = f.readlines()
+        if found:
+            break
 
-    for (i, line) in enumerate(lines):
-        lines[i] = int(line)
+    print(f"\nPart 2:\nProduct of numbers that sum to 2020: {data[i] * data[j] * data[k]}")
 
-    message = "Part 1: "
-    product = 1
-    nums = findSum(lines, 2, 2020)
-    for (i, num) in enumerate(nums):
-        product *= num
-        message += str(num)
-        if i + 1 != len(nums):
-            message += " * "
-
-    print(message + " = " + str(product))
-
-    message = "Part 2: "
-    product = 1
-    nums = findSum(lines, 3, 2020)
-    for (i, num) in enumerate(nums):
-        product *= num
-        message += str(num)
-        if i + 1 != len(nums):
-            message += " * "
-
-    print(message + " = " + str(product))
-
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main("input.txt")
+    print(f"\nRan in {time.perf_counter() - init_time} seconds.")
+    
