@@ -1,135 +1,40 @@
 import time
+from itertools import product
+from collections import defaultdict
 
-class conwayCell:
-    def __init__(self, locArr, dictString):
-        self.loc = locArr[:]
-        self.index = dictString
+def iterate(cells):
+    neighborCounts = defaultdict(lambda: 0)
 
-class conwayCells:
-    def __init__(self):
-        self.cells = {}
-        self.min = float('inf')
-        self.max = float('-inf')
-        self.mins = 0
-        self.maxs = 0
-        self.side = 0
+    for pos in list(cells):
+        for nOff in product(*[[n for n in range(-1, 2)] for _ in range(len(pos))]):
+            if all(n == 0 for n in nOff):
+                continue
 
-    def addCell(self, loc):
-        if self.mins == 0:
-            self.mins = [float('inf')] * len(loc)
+            nPos = tuple(p + o for p, o in zip(pos, nOff))
+            neighborCounts[nPos] += 1
 
-        if self.maxs == 0:
-            self.maxs = [float('-inf')] * len(loc)
-        
-        for i in range(len(loc)):
-            if loc[i] > self.maxs[i]:
-                self.maxs[i] = loc[i]
+    return set(p for p in neighborCounts.keys() if neighborCounts[p] == 3 or (p in cells and neighborCounts[p] == 2))
 
-            if loc[i] < self.mins[i]:
-                self.mins[i] = loc[i]
+def main(filename):
+    with open(filename, encoding='UTF-8') as f:
+        data = [line.strip('\n') for line in f.readlines()]
 
-        self.updateMinMax()
-
-        string = self.dictString(loc)
-        self.cells[string] = conwayCell(loc, string)
-
-    def updateMinMax(self):
-        for m in self.maxs:
-            if m >= self.max:
-                self.max = m + 1
-
-        for m in self.mins:
-            if m <= self.min:
-                self.min = m - 1
-
-        self.side = self.max - self.min + 1
-    
-    def dictString(self, loc):
-        s = str(loc[0])
-        for l in loc[1:]:
-            s += ',' + str(l)
-
-        return s      
-
-    def getNeighbors(self, loc, dist):
-        sideLen = dist * 2 + 1
-
-        neighbors = []
-        for i in range(sideLen ** len(loc)):
-            temp = [-dist] * len(loc)
-            num = i
-            for j in range(len(loc)):
-                temp[j] += num % sideLen
-                num = int(num / sideLen)
-            
-            neighbors.append(temp)
-
-        output = []
-        for neighbor in neighbors:
-            temp = []
-            for (l, n) in zip(loc, neighbor):
-                temp.append(l + n)
-
-            output.append(temp)
-
-        return output
-
-    def countNeighbors(self, loc, neighborFunction= 0, dist= 1):
-        if neighborFunction == 0:
-            neighbors = self.getNeighbors(loc, dist)
-        else:
-            neighbors = neighborFunction(loc, dist)
-
-        count = 0
-        for n in neighbors:
-            if n != loc:
-                if self.dictString(n) in self.cells:
-                    count += 1                    
-
-        return count   
-
-    def iterate(self, aliveFunction, neighborFunction = 0, dist = 1):
-        dictItem = self.cells.popitem()
-        dim = len(dictItem[1].loc)
-        self.addCell(dictItem[1].loc)
-
-        nextCells = conwayCells()
-
-        for i in range(self.side ** dim):
-            cell = [self.min] * dim
-            num = i
-            for j in range(dim):
-                cell[j] += num % self.side
-                num = int(num / self.side)
-            
-            numNeighbors = self.countNeighbors(cell, neighborFunction, dist)
-
-            if aliveFunction(numNeighbors, self.dictString(cell) in self.cells):
-                nextCells.addCell(cell)
-
-        return nextCells
-
-def determineAlive(numNeighbors, alive):
-    return numNeighbors == 3 or (numNeighbors == 2 and alive)
-
-def main():
-    with open('input.txt', encoding='UTF-8') as f:
-        lines = f.readlines()
-
-    cubes3d = conwayCells()
-    cubes4d = conwayCells()
-    for (i, line) in enumerate(lines):
-        for (j, l) in enumerate(line):
+    cellsP1 = set()
+    cellsP2 = set()
+    for y, line in enumerate(data):
+        for x, l in enumerate(line):
             if l == '#':
-                cubes3d.addCell([j, i, 0])
-                cubes4d.addCell([j, i, 0, 0])
+                cellsP1.add((x, y, 0))
+                cellsP2.add((x, y, 0, 0))
 
-    for day in range(6):
-        cubes3d = cubes3d.iterate(determineAlive)
-        cubes4d = cubes4d.iterate(determineAlive)
+    for _ in range(6):
+        cellsP1 = iterate(cellsP1)
+        cellsP2 = iterate(cellsP2)
 
-    print("Part 1: " + str(len(cubes3d.cells)) + "\nPart 2: " + str(len(cubes4d.cells)))    
-        
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    print(f"\nPart 1:\n3d cubes on after 6 cylces: {len(cellsP1)}")
+    print(f"\nPart 2:\n4d hypercubes on after 6 cycles: {len(cellsP2)}")
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main("input.txt")
+    print(f"\nRan in {time.perf_counter() - init_time} seconds.")
