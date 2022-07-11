@@ -1,47 +1,30 @@
-def findPaths(data):
+import time
+
+def adapterCombinations(data, memo):
     if len(data) == 1:
         return 1
-    
-    count = 0
+
+    total = 0
     i = 1
-    while i < len(data) and data[i] - data[0] <= 3:
-        count += findPaths(data[i:len(data)])
+    while i < len(data) and data[i] <= data[0] + 3:
+        if tuple(data[i:]) not in memo:
+            memo[tuple(data[i:])] = adapterCombinations(data[i:], memo)
+
+        total += memo[tuple(data[i:])]
         i += 1
 
-    return count
+    return total
 
-def main():
-    with open('input.txt', encoding='UTF-8') as f:
-        lines = f.readlines()
-    
-    for (i, line) in enumerate(lines):
-        lines[i] = int(line)
+def main(filename):
+    with open(filename, encoding='UTF-8') as f:
+        data = [0] + sorted([int(line) for line in f.readlines()])
 
-    lines.append(0)
-    lines.sort()
-    lines.append(lines[len(lines) - 1] + 3)
+    data.append(data[-1] + 3)
 
-    print('\nPart 1:')
-    ones = 0
-    threes = 0
-    for i in range (1, len(lines)):
-        if lines[i] - lines[i - 1] == 1:
-            ones += 1
-        else:
-            threes += 1
+    print(f"\nPart 1:\nDifferences of 1 * Differences of 3: {len([1 for i in range(1, len(data)) if data[i] - data[i - 1] == 1]) * len([3 for i in range(1, len(data)) if data[i] - data[i - 1] == 3])}")
+    print(f"\nPart 2:\nNumber of ways to arrange adapters: {adapterCombinations(data, {})}")
 
-    print('Ones: ' + str(ones) + '\nThrees: ' + str(threes) + '\nProduct: ' + str(ones * threes) + '\n')
-
-
-    print('Part 2:')
-    paths = 1
-    start = 0
-    for i in range (1, len(lines) - 1):
-        if lines[i + 1] - lines[i - 1] > 3:
-            paths *= findPaths(lines[start:i + 1])
-            start = i
-    
-    print('Number of paths: ' + str(paths) + '\n')
-
-main()
-    
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main("input.txt")
+    print(f"\nRan in {time.perf_counter() - init_time} seconds.")
