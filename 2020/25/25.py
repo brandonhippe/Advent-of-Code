@@ -1,33 +1,20 @@
 import time
 
-data = [1327981, 2822615]
-# data = [5764801, 17807724]
+def modMultInv(n, m):
+    return pow(n, m - 2, m)
 
-def loopSize(index):
-    val = 1
-    subject = 7
-    count = 0
-
-    while val != data[index]:
-        val *= subject
-        val = val % 20201227
-        count += 1
-
-    return count
-
-def main():
-    loops = [0] * len(data)
-    for i in range(len(data)):
-        loops[i] = loopSize(i)
+def main(data = [1327981, 2822615]):
+    loopSize = 0
+    nums = data[:]
+    m = modMultInv(7, 20201227)
+    while all(d != 1 for d in nums):
+        loopSize += 1
+        for i in range(len(data)):
+            nums[i] = (nums[i] * m) % 20201227
     
-    val = 1
-    subject = data[1]
-    for i in range(loops[0]):
-        val *= subject
-        val = val % 20201227
-    
-    print("Encryption key: " + str(val))
+    print(f"\nPart 1:\nEncryption key: {pow(data[1] if pow(7, loopSize, 20201227) == data[0] else data[0], loopSize, 20201227)}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main()
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")
