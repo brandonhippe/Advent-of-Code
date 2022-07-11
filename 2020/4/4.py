@@ -1,118 +1,51 @@
-class passport:
-    def __init__(self, data):
-        data = data.replace('\n', ' ')
-        words = data.split(' ')
+import time
+import re
 
-        for word in words:
-            d = word.split(':')
-            if len(d) > 1:
-                setattr(self, d[0], d[1])
-    
-    def p1_valid(self):
-        if hasattr(self, 'byr') and hasattr(self, 'iyr') and hasattr(self, 'eyr') and hasattr(self, 'hgt') and hasattr(self, 'hcl') and hasattr(self, 'ecl') and hasattr(self, 'pid'):
-            return 1
-
-        return 0
-
-    def p2_valid(self):
-        if not (hasattr(self, 'byr') and hasattr(self, 'iyr') and hasattr(self, 'eyr') and hasattr(self, 'hgt') and hasattr(self, 'hcl') and hasattr(self, 'ecl') and hasattr(self, 'pid')):
-            return 0
-
-        for a in dir(self):
-            if not a.startswith('__'):
-                value = getattr(self, a)
-                if a == 'byr':
-                    if value.isnumeric():
-                        value = int(value)
-                        if not (value >= 1920 and value <= 2002):
-                            return 0
-                    else:
-                        return 0
-                elif a == 'iyr':
-                    if value.isnumeric():
-                        value = int(value)
-                        if not (value >= 2010 and value <= 2020):
-                            return 0
-                    else:
-                        return 0
-                elif a == 'eyr':
-                    if value.isnumeric():
-                        value = int(value)
-                        if not (value >= 2020 and value <= 2030):
-                            return 0
-                    else:
-                        return 0
-                elif a == 'hgt':
-                    num = value[:-2:]
-                    unit = value[-2:]
-                    if num.isnumeric():
-                        num = int(num)
-                    else:
-                        return 0
-
-                    if unit == 'cm':
-                        if not (num >= 150 and num <= 193):
-                            return 0
-                    elif unit == 'in':
-                        if not (num >= 59 and num <= 76):
-                            return 0
-                    else:
-                        return 0
-                elif a == 'hcl':
-                    if value[0] == '#' and len(value) == 7:
-                        value = value[1:]
-                        for c in value:
-                            if (not c >= '0' and c <= '9') and (not c >= 'a' and c <= 'z') and (not c >= 'A' and c <= 'Z'):
-                                return 0
-                    else:
-                        return 0
-                elif a == 'ecl':
-                    if not (value == 'amb' or value == 'blu' or value == 'brn' or value == 'gry' or value == 'grn' or value == 'hzl' or value == 'oth'):
-                        return 0
-                elif a == 'pid':
-                    if value.isnumeric():
-                        if not len(value) == 9:
-                            return 0
-                    else:
-                        return 0
-
-        return 1
-
-    def printPassport(self):
-        print('\n')
-        for a in dir(self):
-            if '_' not in a:
-                print(a + ': ' + getattr(self, a))
-
-        print('\n')    
-            
-
-def main():
-    with open('input.txt', encoding='UTF-8') as f:
-        lines = f.readlines()
-
+def main(filename):
+    with open(filename, encoding='UTF-8') as f:
+        lines = [line.strip('\n') for line in f.readlines()]
 
     passports = []
-    string = ""
-
+    currPassport = {}
     for line in lines:
-        if len(line) > 1:
-            string = string + line
-        else:
-            passports.append(passport(string))
-            string = ""
+        if len(line) == 0:
+            passports.append(currPassport)
+            currPassport = {}
+            continue
 
-    count = 0
-    for p in passports:
-        count += p.p1_valid()
+        for field in re.split(' ', line):
+            k, v = re.split(':', field)
+            currPassport[k] = v
 
-    print("Part 1\nValid: " + str(count) + "\n")
+    validP1, validP2 = 0, 0
+    for i, p in enumerate(passports):
+        if len(p) == 8 or (len(p) == 7 and 'cid' not in p):
+            validP1 += 1
 
-    count = 0
-    for p in passports:
-        count += p.p2_valid()
+            try:
+                if not (1920 <= int(p['byr']) <= 2002):
+                    continue
+                if not (2010 <= int(p['iyr']) <= 2020):
+                    continue
+                if not (2020 <= int(p['eyr']) <= 2030):
+                    continue
+                if ('cm' in p['hgt'] and not (150 <= int(p['hgt'][:-2]) <= 193)) or ('in' in p['hgt'] and not (59 <= int(p['hgt'][:-2]) <= 76)) or not ('cm' in p['hgt'] or 'in' in p['hgt']):
+                    continue
+                if not (p['hcl'][0] == '#' and int(p['hcl'][1:], 16) is not None):
+                    continue
+                if not (p['ecl'] in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']):
+                    continue
+                if not (len(p['pid']) == 9 and int(p['pid']) is not None):
+                    continue
 
-    print("Part 2\nValid: " + str(count) + "\n")
+                validP2 += 1
+            except ValueError:
+                continue
 
+    print(f"\nPart 1:\nValid passports: {validP1}")
+    print(f"\nPart 2:\nValid passports with valid field data: {validP2}")
 
-main()
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main("input.txt")
+    print(f"\nRan in {time.perf_counter() - init_time} seconds.")

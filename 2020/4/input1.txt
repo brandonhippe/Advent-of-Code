@@ -1,8 +1,0 @@
-byr:1966
-ecl:gry
-eyr:2023
-hcl:#341e13
-hgt:154cm
-iyr:2017
-pid:#6a28c9
-
