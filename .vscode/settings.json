@@ -4,5 +4,10 @@
     "python.languageServer": "Pylance",
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
+    },
+    "files.associations": {
+        "*.py": "python",
+        "*.h": "c",
+        "*.c": "c"
     }
 }
