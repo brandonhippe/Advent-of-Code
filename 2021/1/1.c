@@ -4,90 +4,41 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\input.h"
+#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\vector.h"
 #define fileName "input.txt"
-#define dataLine 20
-
-int findLines() {
-	int numLines = 0;
-	char textRead[dataLine];
-
-	// Open the file
-	FILE *inFile = fopen(fileName, "r");
-
-	// Check if the file exists or not
-    if (inFile == NULL) {
-        return -1;
-    }
-
-	while(fgets(textRead, dataLine, inFile)) {
-        ++numLines;
-	}
-
-	fclose(inFile);
-
-	return numLines;
-}
-
-void readData(int nums[]) {
-    int lineNum = 0;
-	char textRead[dataLine];
-
-	// Open the file
-	FILE *inFile = fopen(fileName, "r");
-
-	// Check if the file exists or not
-    if (inFile == NULL) {
-        return;
-    }
-
-	while(fgets(textRead, dataLine, inFile)) {
-        nums[lineNum] = atoi(textRead);
-
-        lineNum++;
-	}
-
-	fclose(inFile);
-
-    return;
-}
 
 int main () {
-    int numLines;
-	numLines = findLines();
+    struct vector *input_data = multiLine(fileName);
+    struct vector *data = createVector(intsize, copyElement);
 
-	if (numLines == -1) {
-        printf("Error: Could not read input file. Quitting\n");
-        return -1;
-	}
-
-    int nums[numLines];
-    readData(nums);
-
-    int count = 0;
-    for (int i = 0; i < numLines - 1; i++) {
-        count += (nums[i] < nums[i + 1]) ? 1 : 0;
+    for (int i = 0; i < input_data->len; i++) {
+        int *val = (int*)calloc(1, sizeof(int));
+        *(val) = atoi((char*)input_data->arr[i]);
+        appendVector(data, val);
     }
 
-    printf("Part 1:\n# of increases: %d\n", count);
-
-    count = 0;
-    int frame1[3], frame2[3];
-    for (int i = 0; i < numLines - 3; i++) {
-        memcpy(&frame1[0], &nums[i], 3 * sizeof(int));
-        memcpy(&frame2[0], &nums[i + 1], 3 * sizeof(int));
-
-        int sums[2] = {0, 0};
-        for (int j = 0; j < 3; j++) {
-            sums[0] += frame1[j];
-            sums[1] += frame2[j];
-        }
-
-        count += (sums[0] < sums[1]) ? 1 : 0;
+    int increase_count = 0;
+    for (int i = 1; i < data->len; i++) {
+        increase_count += (*(int*)data->arr[i] > *(int*)data->arr[i - 1]) ? 1 : 0;
     }
 
-    printf("Part 2:\n# of increases: %d\n", count);
+    printf("\nPart 1:\nNumber of measurements larger than the previous element: %d\n", increase_count);
+    
 
-	printf("\nProgram Done");
+    struct vector *sum1 = sliceVector(data, 0, data->len - 2, 1);
+    struct vector *sum2 = sliceVector(data, 1, data->len - 1, 1);
+    struct vector *sum3 = sliceVector(data, 2, data->len, 1);
+    
+    increase_count = 0;
+    for (int i = 1; i < sum1->len; i++) {
+        int val = *(int*)sum1->arr[i] + *(int*)sum2->arr[i] + *(int*)sum3->arr[i];
+        int pval = *(int*)sum1->arr[i - 1] + *(int*)sum2->arr[i - 1] + *(int*)sum3->arr[i - 1];
+        increase_count += (val > pval) ? 1 : 0;
+    }
 
-	return 1;
+    printf("\nPart 2:\nNumber of windows larger than previous window: %d\n", increase_count);
+    
+
+    return 1;
 }
