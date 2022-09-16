@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\input.h"
+#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\vector.h"
+#define fileName "input.txt"
+
+
+int calcScore(struct vector *board, struct vector *calledNums) {
+    int score = 0, lastCalled = *(int*)calledNums->arr[calledNums->len - 1];
+
+    for (int i = 0; i < board->len; i++) {
+        struct vector *row = (struct vector*)board->arr[i];
+        for (int j = 0; j < row->len; j++) {
+            if (!inVector(calledNums, row->arr[j], row->e_size(row->arr[j]))) {
+                score += *(int*)row->arr[j] * lastCalled;
+            }
+        }
+    }
+
+    return score;
+}
+
+
+void determineWin(struct vector *boardScores, struct vector *winningTurns, struct vector *rows, struct vector *cols, struct vector *numbers) {
+    int *winningTurn = (int*)calloc(1, sizeof(int)), *score = (int*)calloc(1, sizeof(int));
+    *winningTurn = numbers->len;
+
+    for (int i = 0; i < rows->len; i++) {
+        struct vector *row = (struct vector *)rows->arr[i], *col = (struct vector *)cols->arr[i];
+        int rowWin = -1, colWin = -1;
+
+        for (int j = 0; j < cols->len; j++) {
+            int rowIx = indexVector(numbers, row->arr[j], row->e_size(row->arr[j]));
+
+            if (rowIx < 0) {
+                rowWin = numbers->len;
+            }
+
+            if (rowIx > rowWin) {
+                rowWin = rowIx;
+            }
+
+            int colIx = indexVector(numbers, col->arr[j], col->e_size(col->arr[j]));
+
+            if (colIx < 0) {
+                colWin = numbers->len;
+            }
+
+            if (colIx > colWin) {
+                colWin = colIx;
+            }
+        }
+
+        if (rowWin < *winningTurn) {
+            *winningTurn = rowWin;
+            *score = calcScore(rows, sliceVector(numbers, 0, *winningTurn + 1, 1));
+        }
+
+        if (colWin < *winningTurn) {
+            *winningTurn = colWin;
+            *score = calcScore(rows, sliceVector(numbers, 0, *winningTurn + 1, 1));
+        }
+    }
+
+    appendVector(winningTurns, winningTurn);
+    appendVector(boardScores, score);
+}
+
+
+int main () {
+    struct vector *input_data = multiLine(fileName);
+
+    struct vector *numbers = createVector(intsize, copyElement);
+    char *numberStr = input_data->arr[0], *p = strtok(numberStr, ",");
+    while (p) {
+        int *n = (int*)calloc(1, sizeof(int));
+        *n = atoi(p);
+        appendVector(numbers, n);
+        p = strtok(NULL, ",");
+    }
+
+    input_data = sliceVector(input_data, 2, input_data->len, 1);
+
+    struct vector *boardScores = createVector(intsize, copyElement);
+    struct vector *winningTurns = createVector(intsize, copyElement);
+
+    for (int board = 0; board <= input_data->len; board += 6) {
+        struct vector *rows = createVector(sizeofVector, createCopyVector);
+        struct vector *cols = createVector(sizeofVector, createCopyVector);
+
+        for (int i = 0; i < 5; i++) {
+            appendVector(rows, createVector(intsize, copyElement));
+            appendVector(cols, createVector(intsize, copyElement));
+        }
+
+        for (int i = 0; i < 5; i++) {
+            char *boardStr = (char*)input_data->arr[board + i], *p = strtok(boardStr, " ");
+            int j = 0;
+
+            while (p) {
+                int *num = (int*)calloc(1, sizeof(int));
+                *(num) = atoi(p);
+
+                appendVector(rows->arr[i], num);
+                appendVector(cols->arr[j], num);
+
+                j++;
+                p = strtok(NULL, " ");
+            }
+        }
+
+        determineWin(boardScores, winningTurns, rows, cols, numbers);
+    }
+
+    int first = *(int*)winningTurns->arr[0], last = *(int*)winningTurns->arr[0], firstScore = *(int*)boardScores->arr[0], lastScore = *(int*)boardScores->arr[0];
+    for (int i = 1; i < winningTurns->len; i++) {
+        int turn = *(int*)winningTurns->arr[i], score = *(int*)boardScores->arr[i];
+        if (turn < first) {
+            first = turn;
+            firstScore = score;
+        }
+
+        if (turn > last) {
+            last = turn;
+            lastScore = score;
+        }
+    }
+
+    printf("\nPart 1:\nScore of board that wins first: %d\n\nPart 2:\nScore of board that wins last: %d\n", firstScore, lastScore);
+
+    return 1;
+}
