@@ -16,7 +16,7 @@ struct vector *singleLine(char *fileName, char *delim);
 // Function to convert single dataline vector to a string
 char *getLine(struct vector *line) {
     int len = line->len;
-    char *dataLine = (char*)calloc(len + 1, sizeof(char));
+    char *dataLine = (char*)calloc(len + 2, sizeof(char));
 
     for (int i = 0; i < len; i++) {
         dataLine[i] = *((char*)line->arr[i]);
@@ -38,7 +38,7 @@ struct vector *multiLine(char *fileName) {
     struct vector *line = createVector(charsize, copyElement);
 
     while (!feof(fp)) {
-        char *c = (char*)calloc(2, sizeof(char));
+        char *c = (char*)calloc(1, sizeof(char));
         *c = fgetc(fp);
 
         if (*c == '\n') {
