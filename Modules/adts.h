@@ -42,6 +42,18 @@ size_t intsize(void *e) {
 }
 
 
+// Returns size of unsigned long pointed to by void*
+size_t ulongsize(void *e) {
+    return sizeof(unsigned long);
+}
+
+
+// Returns size of unsigned long long pointed to by void*
+size_t ullsize(void *e) {
+    return sizeof(unsigned long long);
+}
+
+
 // Returns size of double pointed to by void*
 size_t doulbesize(void *e) {
     return sizeof(double);
