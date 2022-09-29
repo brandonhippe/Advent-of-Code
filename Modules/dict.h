@@ -81,6 +81,10 @@ int dictHash(void *key, size_t size) {
 
 // Add an element to a dict
 void addDict(struct dict *d, void *key, void *val) {
+    if (inDict(d, key)) {
+        return;
+    }
+    
     int hash = d->hashFunc(key, d->key_size(key)) * d->hashMult;
     d->avgHash = d->avgHash * (d->len / (double)(d->len + 1)) + (hash / (double)(d->len + 1));
     hash %= d->cap;
