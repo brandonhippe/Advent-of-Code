@@ -1,77 +1,41 @@
 import time
+from collections import defaultdict
 
-class cave:
-    def __init__(self, caveName):
-        self.name = caveName
-        self.bigCave = caveName.isupper()
-        self.visited = 0
-        self.links = {}
 
-    def addLink(self, other):
-        self.links[other.name] = other
-
-def cavePathsP1(currCave):
-    if currCave.name == 'end':
+def findPaths(curr, caves, visited, p2):
+    if curr == "end":
         return 1
 
-    currCave.visited += 1
+    if curr.islower():
+        visited[curr] += 1
 
-    possibleCaves = []
-    for c in currCave.links:
-        c = currCave.links[c]
-        if c.bigCave or c.visited == 0:
-            possibleCaves.append(c)
+    paths = 0
+    for n in list(caves[curr]):
+        if n == "start":
+            continue
 
-    count = 0
-    for c in possibleCaves:
-        count += cavePathsP1(c)
+        if visited[n] == 0 or (p2 and max(visited.values()) == 1):
+            paths += findPaths(n, caves, visited, p2)
 
-    currCave.visited -= 1
+    if curr.islower():
+        visited[curr] -= 1
 
-    return count
-
-def cavePathsP2(currCave, smallTwice):
-    if currCave.name == 'end':
-        return 1
-
-    currCave.visited += 1
-
-    smallTwice = smallTwice or (currCave.visited == 2 and not currCave.bigCave)
-
-    possibleCaves = []
-    for c in currCave.links:
-        c = currCave.links[c]
-        if c.bigCave or c.visited == 0 or not smallTwice:
-            possibleCaves.append(c)
-
-    count = 0
-    for c in possibleCaves:
-        if c.name != 'start':
-            count += cavePathsP2(c, smallTwice)
-
-    currCave.visited -= 1
-
-    return count
+    return paths
 
 
 def main():
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
-    caves = {}
-
+    caves = defaultdict(lambda: set())
     for line in lines:
-        caveNames = line.split('-')
-
-        for (i, name) in enumerate(caveNames):
-            if not name in caves:
-                caves[name] = cave(name)
+        line = line.split('-')
         
-        for (i, name) in enumerate(caveNames):
-            caves[name].addLink(caves[caveNames[i - 1]])
+        caves[line[0]].add(line[1])
+        caves[line[1]].add(line[0])
 
-    print("Part 1:\nNumber of paths to end cave: " + str(cavePathsP1(caves['start'])))
-    print("Part 2:\nNumber of paths to end cave: " + str(cavePathsP2(caves['start'], False)))        
+    print(f"\nPart 1:\nNumber of paths visiting small caves once: {findPaths('start', caves, defaultdict(lambda: 0), False)}")
+    print(f"\nPart 2:\nNumber of paths visiting small caves once: {findPaths('start', caves, defaultdict(lambda: 0), True)}")
 
 init_time = time.perf_counter()
 main()
