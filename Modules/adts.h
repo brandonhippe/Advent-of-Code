@@ -55,7 +55,7 @@ size_t ullsize(void *e) {
 
 
 // Returns size of double pointed to by void*
-size_t doulbesize(void *e) {
+size_t doublesize(void *e) {
     return sizeof(double);
 }
 
