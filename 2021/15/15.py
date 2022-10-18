@@ -1,124 +1,67 @@
 import time
-
-def dictString(loc):
-    string = str(loc[0])
-    for l in loc[1:]:
-        string += ',' + str(l)
-
-    return string
-
-def getNeighbors(loc):
-    offsets = []
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            if (i + j) % 2 == 1:
-                offsets.append([i, j])
-
-    neighbors = []
-    for offset in offsets:
-        neighbor = []
-        for (l, o) in zip(loc, offset):
-            neighbor.append(l + o)
-
-        neighbors.append(neighbor)
-
-    return neighbors
+import heapq
+from collections import defaultdict
 
 
-def heuristic(p1, p2):
-    dist = 0
-    for (item1, item2) in zip(p1, p2):
-        dist += abs(item1 - item2)
+def manhatDist(p1, p2):
+    return sum([abs(c1 - c2) for c1, c2 in zip(p1, p2)])
 
-    return dist
 
-def aStar(data):
-    riskLevels = {}
-    h = {}
-    g = {}
-    for (y, line) in enumerate(data):
-        for (x, r) in enumerate(line):
-            locStr = dictString([x, y])
-            riskLevels[locStr] = r
-            h[locStr] = heuristic([x, y], [len(data[-1]) - 1, len(data) - 1])
-            g[locStr] = float('inf')
+def aStar(start, end, area):
+    openList = [[manhatDist(start, end), 0, start]]
+    gScores = defaultdict(lambda: float('inf'))
+    closedList = set()
 
-    openList = {}
-    closedList = {}
-    openList['0,0'] = 0
-    g['0,0'] = 0
+    while len(openList) > 0:
+        _, qG, qPos = heapq.heappop(openList)
 
-    while len(openList) != 0:
-        q = ''
-        minF = float('inf')
-        for i in openList:
-            if openList[i] < minF:
-                q = i
-                minF = openList[i]
+        if qPos == end:
+            return qG
 
-        if q == dictString([len(data[-1]) - 1, len(data) - 1]):
-            return g[q]
+        if qPos in closedList:
+            continue
 
-        del openList[q]
+        for nOff in [[0, 1], [0, -1], [1, 0], [-1, 0]]:
+            nPos = tuple(c1 + c2 for c1, c2 in zip(qPos, nOff))
 
-        neighbors = getNeighbors([int(x) for x in q.split(',')])
-
-        for n in neighbors:
-            locStr = dictString(n)
-            if not locStr in riskLevels:
+            if nPos not in area or nPos in closedList:
                 continue
 
-            newG = g[q] + riskLevels[locStr]
-            if newG < g[locStr]:
-                g[locStr] = newG
+            nG = qG + area[nPos]
 
-            newF = g[locStr] + h[locStr]
+            if nG < gScores[nPos]:
+                heapq.heappush(openList, [nG + manhatDist(nPos, end), nG, nPos])
+                gScores[nPos] = nG
 
-            if locStr in openList:
-                if openList[locStr] <= newF:
-                    continue
-            if locStr in closedList:
-                if closedList[locStr] <= newF:
-                    continue
-            
-            openList[locStr] = newF
-        
-        closedList[q] = minF
+        closedList.add(qPos)
 
-def main():
-    with open('input.txt', encoding='UTF-8') as f:
+    return -1
+
+
+def main(filename):
+    with open(filename, encoding='UTF-8') as f:
         data = [[int(x) for x in line.strip()] for line in f.readlines()]
 
-    print("\nPart 1:\nLowest Total Risk: " + str(aStar(data)))
+    area = {}
+    for y, line in enumerate(data):
+        for x, l in enumerate(line):
+            area[tuple([x, y])] = l
 
-    startLen = len(data)
-    for line in data:
-        if len(data) == 5 * startLen:
-            break
+    print(f"\nPart 1:\nSafest path risk: {aStar((0, 0), (len(data) - 1, len(data) - 1), area)}")
 
-        template = [1] * len(line)
-        newLine = []
-        for (l, t) in zip(line, template):
-            newLine.append(l + t)
+    areaP2 = {}
+    for y in range(len(data) * 5):
+        for x in range(len(data) * 5):
+            if tuple([x, y]) in area:
+                areaP2[tuple([x, y])] = area[tuple([x, y])]
+            else:
+                increment = manhatDist([x, y], [x % len(data), y % len(data)]) // len(data)
+                areaP2[tuple([x, y])] = ((area[tuple([x % len(data), y % len(data)])] - 1 + increment) % 9) + 1
 
-        data.append(newLine)
-
-    for line in data:
-        for l in line:
-            line.append(l + 1)
-
-            if len(line) == 5 * startLen:
-                break
+    print(f"\nPart 2:\nSafest path risk: {aStar((0, 0), (len(data) * 5 - 1, len(data) * 5 - 1), areaP2)}")
 
 
-    for (i, line) in enumerate(data):
-        for (j, r) in enumerate(line):
-            data[i][j] = r % 9
-            if data[i][j] == 0:
-                data[i][j] = 9
-
-    print("\nPart 2:\nLowest Total Risk: " + str(aStar(data)))
-
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main("input.txt")
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")
