@@ -12,7 +12,7 @@ def main(filename):
             overlaps += 1
                 
 
-    print(f"\nPart 1:\n{overlaps}")
+    print(f"\nPart 1:\nOverlaping section assignments: {overlaps}")
 
 
     overlaps = 0
@@ -20,7 +20,7 @@ def main(filename):
         if min(a1) <= min(a2) <= max(a1) or min(a1) <= max(a2) <= max(a1) or min(a2) <= min(a1) <= max(a2) or min(a2) <= max(a1) <= max(a2):
             overlaps += 1
 
-    print(f"\nPart 2:\n{overlaps}")
+    print(f"\nPart 2:\nOverlaping section assignments: {overlaps}")
 
 
 if __name__ == "__main__":
