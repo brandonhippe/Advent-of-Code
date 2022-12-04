@@ -12,7 +12,7 @@ def main(filename):
         else:
             sum += ord(priority) - ord('A') + 27
 
-    print(f"\nPart 1:\n{sum}")
+    print(f"\nPart 1:\nSum of priorities: {sum}")
 
     sum = 0
     for i in range(0, len(lines), 3):
@@ -27,7 +27,7 @@ def main(filename):
         else:
             sum += ord(priority) - ord('A') + 27
 
-    print(f"\nPart 2:\n{sum}")
+    print(f"\nPart 2:\nSum of priorities: {sum}")
 
 
 if __name__ == "__main__":
