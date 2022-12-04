@@ -65,7 +65,7 @@ void deleteSet(struct set *s, bool delEls) {
 int setHash(void *e, size_t size) {
     char *e_str = (char*)e;
 
-    int hash = 0;
+    int hash = 1;
 
     for (int i = 0; i < size; i++) {
         hash += e_str[i] - CHAR_MIN;
@@ -129,8 +129,13 @@ void removeSet(struct set *s, void *e){
     }
 
     int hash = s->hashFunc(e, s->e_size(e)) * s->hashMult;
-    s->avgHash = s->avgHash * (s->len / (s->len - 1)) - (hash / (s->len - 1));
     hash %= s->cap;
+    
+    if (s->len > 1) {
+        s->avgHash = s->avgHash * (s->len / (s->len - 1)) - (hash / (s->len - 1));
+    } else {
+        s->avgHash = 0;
+    }
 
     struct vector *bucket = s->setVector->arr[hash];
     int ix = indexVector(bucket, e, s->e_size(e));
@@ -139,7 +144,7 @@ void removeSet(struct set *s, void *e){
     s->len--;
 
 
-    while ((double)s->len / (double)s->cap < s->loadMax / 4.0) {
+    while (s->len > 0 && s->cap > 1 && (double)s->len / (double)s->cap < s->loadMax / 4.0) {
         s->cap /= 2;
 
         s->avgHash /= s->hashMult;
