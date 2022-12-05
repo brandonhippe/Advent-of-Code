@@ -69,7 +69,7 @@ void deleteDict(struct dict *d, bool delKeys, bool delVals) {
 int dictHash(void *key, size_t size) {
     char *key_str = (char*)key;
 
-    int hash = 0;
+    int hash = 1;
 
     for (int i = 0; i < size; i++) {
         hash += key_str[i] - CHAR_MIN;
@@ -141,8 +141,13 @@ void removeDict(struct dict *d, void *key) {
     }
 
     int hash = d->hashFunc(key, d->key_size(key)) * d->hashMult;
-    d->avgHash = d->avgHash * (d->len / (d->len - 1)) - (hash / (d->len - 1));
     hash %= d->cap;
+    
+    if (d->len > 1) {
+        d->avgHash = d->avgHash * (d->len / (d->len - 1)) - (hash / (d->len - 1));
+    } else {
+        d->avgHash = 0;
+    }
 
     struct vector *kbucket = d->keyVector->arr[hash], *vbucket = d->valVector->arr[hash];
     int ix = indexVector(kbucket, key, d->key_size(key));
@@ -151,7 +156,7 @@ void removeDict(struct dict *d, void *key) {
 
     d->len--;
 
-    while ((double)d->len / (double)d->cap < d->loadMax / 0.4) {
+    while (d->len > 0 && d->cap > 1 && (double)d->len / (double)d->cap < d->loadMax / 0.4) {
         d->cap /= 2;
 
         d->avgHash /= d->hashMult;

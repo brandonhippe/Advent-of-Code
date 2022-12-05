@@ -18,6 +18,7 @@ struct heap {
 // Function Prototypes
 struct heap *createHeap(struct vector *hVec, bool (*cmp)(void *e1, void *e2));
 void appendHeap(struct heap *h, void *e);
+void *popHeap(struct heap *h);
 
 
 // Create a heap struct
@@ -50,7 +51,11 @@ void *popHeap(struct heap *h) {
     popVector(h->heapVec);
 
     int ix = 0;
-    while (true) {
+    while (h->heapVec->len > 1) {
+        if (2 * ix + 2 >= h->heapVec->len) {
+            break;
+        }
+
         int nIx = (h->cmp(h->heapVec->arr[2 * ix + 1], h->heapVec->arr[2 * ix + 2])) ? 2 * ix + 1 : 2 * ix + 2;
 
         if (h->cmp(h->heapVec->arr[ix], h->heapVec->arr[nIx])) {

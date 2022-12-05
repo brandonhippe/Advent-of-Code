@@ -15,7 +15,7 @@ def main(filename):
         elif (played[1] - 1) % 3 == played[0]:
             score += 6    
 
-    print(f"\nPart 1:\n{score}")
+    print(f"\nPart 1:\nScore: {score}")
 
     score = 0
     for p1, p2 in lines:
@@ -31,7 +31,7 @@ def main(filename):
 
         score += (opp + offset) % 3 + 1
 
-    print(f"\nPart 2:\n{score}")
+    print(f"\nPart 2:\nScore: {score}")
 
 
 if __name__ == "__main__":
