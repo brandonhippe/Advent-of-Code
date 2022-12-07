@@ -58,14 +58,8 @@ def main(filename):
 
     fileSystem = Directory("/")
 
-    listing = False
     for line in lines[1:]:
-        if line[0] == "$":
-            listing = False
-
-        if "$ ls" in line:
-            listing = True
-        elif "$ cd .." in line:
+        if "$ cd .." in line:
             fileSystem = fileSystem.parent
         elif "$ cd" in line:
             for subDir in fileSystem.files:
@@ -74,7 +68,7 @@ def main(filename):
                     break
         elif "dir" in line:
             fileSystem.files.append(Directory(line.split(" ")[1], fileSystem))
-        else:
+        elif line != "$ ls":
             fileSystem.files.append(File(line.split(" ")[1], int(line.split(" ")[0])))
 
     while fileSystem.parent:
@@ -82,12 +76,12 @@ def main(filename):
 
     fileSystem.size()
 
-    print(f"\nPart 1:\n{sumDirectories(fileSystem)}")
+    print(f"\nPart 1:\nTotal size of directories under 100000: {sumDirectories(fileSystem)}")
 
     freeSpace = 70000000 - fileSystem.s
     needToDelete = 30000000 - freeSpace
 
-    print(f"\nPart 2:\n{smallestDelete(fileSystem, needToDelete)}")
+    print(f"\nPart 2:\nSmallest directory to make space for update: {smallestDelete(fileSystem, needToDelete)}")
 
 
 if __name__ == "__main__":
