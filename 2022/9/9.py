@@ -41,7 +41,7 @@ def main(filename):
     tailVisits.add(tuple(tail))
 
 
-    print(f"\nPart 1:\n{len(tailVisits)}")
+    print(f"\nPart 1:\nNumber of positions visited by tail of rope: {len(tailVisits)}")
 
     tails = [[0, 0] for _ in range(10)]
     tailVisits = set()
@@ -62,7 +62,7 @@ def main(filename):
 
     tailVisits.add(tuple(tail))
 
-    print(f"\nPart 2:\n{len(tailVisits)}")
+    print(f"\nPart 2:\nNumber of positions visited by tail of rope: {len(tailVisits)}")
 
 
 if __name__ == "__main__":
