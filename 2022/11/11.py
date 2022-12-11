@@ -2,95 +2,96 @@ from time import perf_counter
 import re
 
 
-class Monkey:
-    def __init__(self, number) -> None:
-        self.number = number
-        self.items = []
-        self.op = []
-        self.test = []
-        self.inspections = 0
+def add(a, n):
+    return a + n
 
 
-    def __hash__(self) -> int:
-        return self.number
+def mult(a, n):
+    return a * n
 
 
-    def __lt__(self, other):
-        return self.inspections < other.inspections
-
-
-    def throw(self, otherMonkeys, div3 = True):
-        self.items.reverse()
-
-        while len(self.items) != 0:
-            self.inspections += 1
-            self.items[-1] = self.op[0](self.items[-1], self.op[1])
-
-            if div3:
-                self.items[-1] //= 3
-
-            if self.items[-1] % self.test[0] == 0:
-                otherMonkeys[self.test[1]].items.append(self.items.pop())
-            else:
-                otherMonkeys[self.test[2]].items.append(self.items.pop())
-
-
-def add(n, a):
-    return n + a
-
-
-def mult(n, a):
-    return n * a
-
-
-def square(n, _):
-    return n * n
+def square(a, _):
+    return a * a
 
 
 def main(filename):
     with open(filename, encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
-    monkeys = {}
+    monkeyBusiness = {}
+    monkeyOps = {}
+    monkeyTests = {}
+
+    items = []
+    itemsP2 = []
 
     for line in lines:
-        if len(line) == 0:
-            continue
-        elif line[0] == 'M':
-            monkeys[len(monkeys)] = Monkey(len(monkeys))
-            monkeyLine = 0
-            continue
-        
-        if monkeyLine == 0:
-            monkeys[len(monkeys) - 1].items = [int(x) for x in re.findall("-?\d+", line)]
-        elif monkeyLine == 1:
+        if "Monkey" in line:
+            monkeyNum = [int(x) for x in re.findall("-?\d+", line)][0]
+            monkeyBusiness[monkeyNum] = 0
+        elif "Starting items" in line:
+            items.append([])
+            itemsP2.append([])
+            for i in [int(x) for x in re.findall("-?\d+", line)]:
+                items[-1].append(i)
+                itemsP2[-1].append(i)
+        elif "Operation" in line:
             if "old * old" in line:
-                monkeys[len(monkeys) - 1].op = [square, 0]
-            elif "old *" in line:
-                monkeys[len(monkeys) - 1].op = [mult, [int(x) for x in re.findall("-?\d+", line)][0]]
+                monkeyOps[monkeyNum] = [square, 0]
+            elif "*" in line:
+                monkeyOps[monkeyNum] = [mult, [int(x) for x in re.findall("-?\d+", line)][0]]
             else:
-                monkeys[len(monkeys) - 1].op = [add, [int(x) for x in re.findall("-?\d+", line)][0]]
-        elif monkeyLine >= 2:
-            monkeys[len(monkeys) -1].test.append([int(x) for x in re.findall("-?\d+", line)][0])
+                monkeyOps[monkeyNum] = [add, [int(x) for x in re.findall("-?\d+", line)][0]]
+        elif len(line) != 0:
+            if monkeyNum not in monkeyTests:
+                monkeyTests[monkeyNum] = []
 
-        monkeyLine += 1
+            monkeyTests[monkeyNum].append([int(x) for x in re.findall("-?\d+", line)][0])
 
 
     for _ in range(20):
-        for i in range(len(monkeys)):
-            monkeys[i].throw(monkeys)
+        for monkeyNum, monkeyItems in enumerate(items):
+            items[monkeyNum] = []
+            monkeyBusiness[monkeyNum] += len(monkeyItems)
 
-    monkeyBusiness = sorted(list(monkeys.values()), reverse=True)
+            for item in monkeyItems:
+                item = monkeyOps[monkeyNum][0](item, monkeyOps[monkeyNum][1])
+                item //= 3
 
-    print(f"\nPart 1:\n{monkeyBusiness[0].inspections * monkeyBusiness[1].inspections}")
+                if item % monkeyTests[monkeyNum][0] == 0:
+                    items[monkeyTests[monkeyNum][1]].append(item)
+                else:
+                    items[monkeyTests[monkeyNum][2]].append(item)
+
+    result = sorted(monkeyBusiness.values(), reverse=True)
+        
+
+    print(f"\nPart 1:\nMonkey Business after 20 rounds: {result[0] * result[1]}")
+
+    items = itemsP2
+    monkeyBusiness = {m: 0 for m in monkeyBusiness.keys()}
+
+    monkeyMod = 1
+    for i in range(len(monkeyBusiness)):
+        monkeyMod *= monkeyTests[i][0]
 
     for _ in range(10000):
-        for i in range(len(monkeys)):
-            monkeys[i].throw(monkeys, False)
+        for monkeyNum, monkeyItems in enumerate(items):
+            items[monkeyNum] = []
+            monkeyBusiness[monkeyNum] += len(monkeyItems)
 
-    monkeyBusiness = sorted(list(monkeys.values()), reverse=True)
+            for item in monkeyItems:
+                item = monkeyOps[monkeyNum][0](item, monkeyOps[monkeyNum][1])
+                item %= monkeyMod
 
-    print(f"\nPart 2:\n{monkeyBusiness[0].inspections * monkeyBusiness[1].inspections}")
+                if item % monkeyTests[monkeyNum][0] == 0:
+                    items[monkeyTests[monkeyNum][1]].append(item)
+                else:
+                    items[monkeyTests[monkeyNum][2]].append(item)
+
+    result = sorted(monkeyBusiness.values(), reverse=True)
+
+    print(f"\nPart 2:\nMonkey Business after 10000 rounds: {result[0] * result[1]}")
 
 
 if __name__ == "__main__":
