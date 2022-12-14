@@ -22,56 +22,29 @@ def main(filename):
 
     maxY = max([e[1] for e in list(area)]) + 1
 
+    pastPos = [(500, 0)]
     sand = set()
-    settled = True
-    while settled:
-        settled = False
+    sandP1 = None
 
-        pos = (500, 0)
+    while len(pastPos) != 0:
+        pos = pastPos.pop()
 
-        dropped = True
-        while dropped:
-            dropped = False
-
+        if pos[1] == maxY:
+            if sandP1 is None:
+                sandP1 = len(sand)
+        else:
             for move in [0, -1, 1]:
                 newPos = tuple(p + o for p, o in zip(pos, [move, 1]))
 
-                if newPos[1] == maxY:
-                    pos = newPos
-                    break
-
                 if newPos not in area and newPos not in sand:
-                    dropped = True
-                    pos = newPos
+                    pastPos.append(pos)
+                    pastPos.append(newPos)
                     break
 
-            if not dropped:
-                settled = pos[1] != maxY
-
-        if settled:
+        if len(pastPos) == 0 or pastPos[-1] != newPos:
             sand.add(pos)
 
-
-    print(f"\nPart 1:\nUnits of sand that come to rest: {len(sand)}")
-
-    sand = set()
-    while (500, 0) not in sand:
-        pos = (500, 0)
-
-        dropped = True
-        while dropped and pos[1] != maxY:
-            dropped = False
-
-            for move in [0, -1, 1]:
-                newPos = tuple(p + o for p, o in zip(pos, [move, 1]))
-
-                if newPos not in area and newPos not in sand:
-                    dropped = True
-                    pos = newPos
-                    break
-
-        sand.add(pos)
-
+    print(f"\nPart 1:\nUnits of sand that come to rest: {sandP1}")
     print(f"\nPart 2:\nUnits of sand that come to rest: {len(sand)}")
 
 
