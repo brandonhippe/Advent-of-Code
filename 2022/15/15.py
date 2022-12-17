@@ -1,90 +1,40 @@
 from time import perf_counter
 import re
+from shapely import LineString, Polygon, geometry
+from shapely.ops import unary_union
 
 
 def manhatDist(p1, p2):
     return sum([abs(c1 - c2) for c1, c2 in zip(p1, p2)])
 
 
-def findIntersection(range1, range2):
-    maxX = max(range1[0], range2[0])
-    minX = min(range1[1], range2[1])
-
-    if minX >= maxX:
-        return (maxX, minX)
-    else:
-        return 0
-
-
-def notPossibleP1(sensorData, testLine):
-    total = 0
-    finished = []
-
-    for sensor, dist in reversed(sensorData):
-        intersections = []
-        if isinstance(sensor, list):
-            if abs(sensor[1] - testLine) > dist:
-                continue
-
-            sensorRange = [sensor[0] - (dist - abs(sensor[1] - testLine)), sensor[0] + (dist - abs(sensor[1] - testLine))]
-        else:
-            sensorRange = [sensor, dist]
-
-        for other in finished:
-            intersection = findIntersection(sensorRange, other)
-
-            if intersection != 0:
-                intersections.append(intersection)
-            
-        total += sensorRange[1] - sensorRange[0] + 1
-        total -= notPossibleP1(intersections, testLine)
-
-        finished.append(sensorRange)
-
-    return total
-
-
 def main(filename):
     with open(filename, encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
+    testLine = 10 if '1' in filename else 2000000
+    
     sensorData = []
     beacons = set()
+    minX = float('inf')
+    maxX = float('-inf')
+
     for line in lines:
         nums = [int(x) for x in re.findall("-?\d+", line)]
-        sensor = nums[:2]
-        beacon = nums[2:]
+        sensor = tuple(nums[:2])
+        beacon = tuple(nums[2:])
+        d = manhatDist(sensor, beacon)
 
-        sensorData.append([sensor, manhatDist(sensor, beacon)])
-        beacons.add(tuple(beacon))
+        minX = min(minX, sensor[0] - d)
+        maxX = max(maxX, sensor[0] + d)
 
-    testLine = 10 if '1' in filename else 2000000
+        sensorData.append(Polygon([[sensor[0] + d, sensor[1]], [sensor[0], sensor[1] + d], [sensor[0] - d, sensor[1]], [sensor[0], sensor[1] - d]]))
+        beacons.add(beacon)
 
-    count = notPossibleP1(sensorData, testLine)
-    count -= len([b for b in list(beacons) if b[1] == testLine])
-    
-    print(f"\nPart 1:\n{count}")
-
-    distress = None
-    for y in range(testLine * 2 + 1):
-        x = 0
-        while x <= testLine * 2:
-            found = False
-            maxEnd = x
-            for sensor, d in sensorData:
-                if manhatDist(sensor, (x, y)) <= d:
-                    found = True
-                    rowEnd = sensor[0] + d - abs(y - sensor[1])
-                    maxEnd = max(maxEnd, rowEnd)
-
-            if not found:
-                distress = (x, y)
-                break
-
-            x = maxEnd + 1
-
-        if distress is not None:
-            break
+    print(f"\nPart 1:\n{int(LineString([[minX, testLine], [maxX, testLine]]).intersection(unary_union(sensorData)).length) + 1 - len([b for b in beacons if b[1] == testLine])}")
+        
+    distressBox = geometry.box(0, 0, testLine * 2, testLine * 2)
+    distress = [int(c) + 1 for c in distressBox.difference(unary_union(sensorData)).bounds]
 
     print(f"\nPart 2:\n{distress[0] * 4000000 + distress[1]}")
 
