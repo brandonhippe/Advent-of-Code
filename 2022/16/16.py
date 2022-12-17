@@ -3,7 +3,7 @@ import re
 from collections import defaultdict
 
 
-def dfs(currValve, flowRates, connections, openValves, timeRem):
+def dfs(currValve, flowRates, connections, validValves, openValves, timeRem):
     if timeRem <= 1:
         return 0
 
@@ -12,60 +12,12 @@ def dfs(currValve, flowRates, connections, openValves, timeRem):
 
     maxReleased = 0
     for v, t in zip(connections[currValve].keys(), connections[currValve].values()):
-        if v in openValves:
+        if v in openValves or v not in validValves:
             continue
 
-        maxReleased = max(maxReleased, dfs(v, flowRates, connections, openValves, timeRem - t))
+        maxReleased = max(maxReleased, dfs(v, flowRates, connections, validValves, openValves, timeRem - t))
 
     openValves.remove(currValve)
-
-    return released + maxReleased
-
-
-def dfsPath(currValve, connections, openValves, timeRem):
-    if timeRem <= 1:
-        return [None]
-
-    openValves.add(currValve)
-    paths = []
-    for v, t in zip(connections[currValve].keys(), connections[currValve].values()):
-        if v in openValves:
-            continue
-
-        for p in dfsPath(v, connections, openValves, timeRem - t):
-            if p is None:
-                paths.append([v])
-            else:
-                paths.append([v] + p)
-
-    openValves.remove(currValve)
-
-    return paths
-
-
-def elephantDfs(currValves, moveTimes, flowRates, connections, openValves, timeRem):
-    subTime = min(moveTimes)
-    moveTimes = [m - subTime for m in moveTimes]
-    timeRem -= subTime
-
-    ix = moveTimes.index(0)
-    released = timeRem * flowRates[currValves[ix]]
-
-    maxReleased = 0
-    for v, t in zip(connections[currValves[ix]].keys(), connections[currValves[ix]].values()):
-        if v in openValves or t >= timeRem:
-            continue
-
-        if ix == 0:
-            newValves = [v, currValves[1]]
-            newTimes = [t, moveTimes[1]]
-        else:
-            newValves = [currValves[0], v]
-            newTimes = [moveTimes[0], t]
-        
-        openValves.add(v)
-        maxReleased = max(maxReleased, elephantDfs(newValves, newTimes, flowRates, connections, openValves, timeRem))
-        openValves.remove(v)
 
     return released + maxReleased
 
@@ -108,22 +60,27 @@ def main(filename):
             else:
                 connections[k][k1] += 1
 
-    pressure = dfs('AA', flowRates, connections, set(), 30)
+    pressure = dfs('AA', flowRates, connections, set(flowRates.keys()), set(), 30)
  
     print(f"\nPart 1:\n{pressure}")
 
     maxPressure = pressure
-    count = 0
-    for i, humanStart in enumerate(list(connections['AA'].keys())[:-1]):
-        for elephantStart in list(connections['AA'].keys())[i + 1:]:
-            print(f"{count + 1}/{len(connections['AA']) * (len(connections['AA']) - 1) // 2}")
-            count += 1
-            maxPressure = max(maxPressure, elephantDfs([humanStart, elephantStart], [connections['AA'][humanStart], connections['AA'][elephantStart]], flowRates, connections, {'AA', humanStart, elephantStart}, 26))
+    for i in range(2 ** (len(flowRates) - 1)):
+        print(f"{i + 1}/{2 ** (len(flowRates) - 1)}")
+        validValves = [set(), set()]
+        b = bin(i)[2:]
+        b += '0' * (len(flowRates) - 1 - len(b))
+
+        for i, v in enumerate([valve for valve in flowRates.keys() if valve != 'AA']):
+            validValves[int(b[i])].add(v)
+
+        maxPressure = max(maxPressure, sum(dfs('AA', flowRates, connections, valid, set(), 26) for valid in validValves))
+
 
     print(f"\nPart 2:\n{maxPressure}")
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input1.txt")
+    main("input.txt")
     print(f"\nRan in {perf_counter() - init_time} seconds.")
