@@ -116,8 +116,6 @@ def main(filename):
     count = 0
     for i, humanStart in enumerate(list(connections['AA'].keys())[:-1]):
         for elephantStart in list(connections['AA'].keys())[i + 1:]:
-            if {humanStart, elephantStart} == {'JJ', 'DD'}:
-                print("Check")
             print(f"{count + 1}/{len(connections['AA']) * (len(connections['AA']) - 1) // 2}")
             count += 1
             maxPressure = max(maxPressure, elephantDfs([humanStart, elephantStart], [connections['AA'][humanStart], connections['AA'][elephantStart]], flowRates, connections, {'AA', humanStart, elephantStart}, 26))
