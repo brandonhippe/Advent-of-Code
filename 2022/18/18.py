@@ -39,7 +39,7 @@ def main(filename):
             if tuple(p + o for p, o in zip(c, offset)) in cubeFaces:
                 cubeFaces[tuple(p + o for p, o in zip(c, offset))][i] = False
  
-    print(f"\nPart 1:\n{sum(sum(cF) for cF in cubeFaces.values())}")
+    print(f"\nPart 1:\nTotal surface area: {sum(sum(cF) for cF in cubeFaces.values())}")
 
     possible = set()
     for c in cubes:
@@ -59,7 +59,7 @@ def main(filename):
             if tuple(p + o for p, o in zip(c, offset)) in cubeFaces:
                 cubeFaces[tuple(p + o for p, o in zip(c, offset))][i] = False
 
-    print(f"\nPart 2:\n{sum(sum(cF) for cF in cubeFaces.values())}")
+    print(f"\nPart 2:\nExterior surface area: {sum(sum(cF) for cF in cubeFaces.values())}")
 
 
 if __name__ == "__main__":
