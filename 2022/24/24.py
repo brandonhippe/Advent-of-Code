@@ -6,17 +6,28 @@ DIR_MAP = {'>': (1, 0), '<': (-1, 0), '^': (0, -1), 'v': (0, 1)}
 
 
 def moveBlizzards(blizzards, walls):
+    mins = [min(p[i] for p in walls) for i in range(2)]
+    maxs = [max(p[i] for p in walls) for i in range(2)]
+
+    mins[1] += 1
+    maxs[1] -= 1
+
     newBlizzards = defaultdict(list)
     for b in blizzards.keys():
         for d in blizzards[b]:
             newB = tuple(p + o for p, o in zip(b, d))
 
-            if newB in walls:
-                newB = b
-                while newB not in walls:
-                    newB = tuple(p - o for p, o in zip(newB, d))
+            if newB[0] == mins[0]:
+                newB = (maxs[0] - 1, newB[1])
+            
+            if newB[0] == maxs[0]:
+                newB = (mins[0] + 1, newB[1])
 
-                newB = tuple(p + o for p, o in zip(newB, d))
+            if newB[1] == mins[1]:
+                newB = (newB[0], maxs[1] - 1)
+            
+            if newB[1] == maxs[1]:
+                newB = (newB[0], mins[1] + 1)
 
             newBlizzards[newB].append(d)
 
