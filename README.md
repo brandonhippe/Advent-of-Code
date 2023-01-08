@@ -17,3 +17,5 @@ Years with completed project(s) and languages:
 
 2021: 1-7 in C\
       1-25 in Python
+
+2022: 1-25 in Python
