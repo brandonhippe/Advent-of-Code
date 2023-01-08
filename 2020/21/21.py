@@ -17,8 +17,8 @@ def removePossible(allergen, possible):
 
     return
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip(')\n') for line in f.readlines()]
 
     ingredients = defaultdict(lambda: set())
@@ -43,10 +43,16 @@ def main(filename):
                 possible[a].remove(i)
                 removePossible(a, possible)
 
-    print(f"\nPart 1:\nNumber of occurrances of ingredients that aren't allergens: {sum([v for k, v in zip(ingredientOccurrances.keys(), ingredientOccurrances.values()) if k not in possible.values()])}")
-    print(f"\nPart 2:\nCanonical dangerous ingredient list:\n{','.join(e[1] for e in sorted(zip(possible.keys(), possible.values()), key=lambda e: e[0]))}")
+    part1 = sum([v for k, v in zip(ingredientOccurrances.keys(), ingredientOccurrances.values()) if k not in possible.values()])
+    part2 = ','.join(e[1] for e in sorted(zip(possible.keys(), possible.values()), key=lambda e: e[0]))
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of occurrances of ingredients that aren't allergens: {part1}\n\nPart 2:\nCanonical dangerous ingredient list: {part2}")
+    
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

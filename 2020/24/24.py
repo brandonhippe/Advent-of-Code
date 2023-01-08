@@ -9,8 +9,8 @@ def iterate(tiles):
 
     return set(k for k, v in zip(newTiles.keys(), newTiles.values()) if v == 2 or (k in tiles and v == 1))
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     floorTiles = set()
@@ -37,14 +37,18 @@ def main(filename):
         else:
             floorTiles.add(loc)
     
-    print(f"\nPart 1:\nNumber of tiles with black side up: {len(floorTiles)}")
+    part1 = len(floorTiles)
 
     for _ in range(100):
         floorTiles = iterate(floorTiles)
 
-    print(f"\nPart 2:\nNumber of tiles with black side up after 100 days: {len(floorTiles)}")
+    if verbose:
+        print(f"\nPart 1:\nNumber of tiles with black side up: {part1}\n\nPart 2:\nNumber of tiles with black side up after 100 days: {len(floorTiles)}")
+
+    return [part1, len(floorTiles)]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds")

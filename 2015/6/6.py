@@ -2,8 +2,8 @@ import time
 import re
 from collections import defaultdict
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     onLights = set()
@@ -18,7 +18,7 @@ def main(filename):
                     if 'on' in line or 'toggle' in line:
                         onLights.add((x, y))
 
-    print(f"\nPart 1:\nNumber of lights lit: {len(onLights)}")
+    part1 = len(onLights)
 
     onLights = defaultdict(lambda: 0)
     for line in data:
@@ -35,7 +35,12 @@ def main(filename):
                 if onLights[(x, y)] < 0:
                     onLights[(x, y)] = 0
 
-    print(f"\nPart 2:\nTotal brightness: {sum(onLights.values())}")
+    part2 = sum(onLights.values())
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of lights lit: {part1}\n\nPart 2:\nTotal brightness: {part2}")
+
+    return [part1, part2]
 
 if __name__ == "__main__":
     init_time = time.perf_counter()

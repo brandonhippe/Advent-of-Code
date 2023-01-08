@@ -230,7 +230,7 @@ def aStar(start):
 
         closedList[q] = [qF, qG, q]
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
@@ -244,9 +244,16 @@ def main():
 
     roomsP2 = roomsP1[:15] + 'DCBADBAC' + roomsP1[15:]
 
-    print(f"Part 1\nThe lowest possible energy required is: {aStar(roomsP1)}")
-    print(f"Part 2\nThe lowest possible energy required is: {aStar(roomsP2)}")
+    part1 = aStar(roomsP1)
+    part2 = aStar(roomsP2)
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1\nThe lowest possible energy required is: {part1}\n\nPart 2\nThe lowest possible energy required is: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

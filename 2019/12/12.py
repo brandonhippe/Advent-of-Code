@@ -45,7 +45,7 @@ def lcm(arr):
 
     return abs(arr[0] * arr[1]) // math.gcd(arr[0], arr[1])
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip("<>\n") for line in f.readlines()]
 
@@ -63,8 +63,6 @@ def main():
         for m in moons:
             m.timeStep()
             totalEnergy += m.totEng()
-
-    print(f"\nPart 1:\nTotal Energy: {totalEnergy}")
 
     moons = []
     for line in lines:
@@ -95,8 +93,15 @@ def main():
                 else:
                     states[a][state] = step
 
-    print(f"\nPart 2:\nFirst repeated postions will occur at step {lcm(cycles)}, found at step {step}")
+    part2 = lcm(cycles)
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nTotal Energy: {totalEnergy}\n\nPart 2:\nFirst repeated postions will occur at step {part2}, found at step {step}")
+
+    return [totalEnergy, part2]
+
+    
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

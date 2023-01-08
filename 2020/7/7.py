@@ -34,14 +34,20 @@ class Bag:
 
         return total
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         bags = {Bag(line.strip('\n')).name: Bag(line.strip('\n')) for line in f.readlines()}
 
-    print(f"\nPart 1:\nNumber of bags that can contain a shiny gold bag: {len([b for b in bags.values() if b.canContain(bags, 'shiny gold')]) - 1}")
-    print(f"\nPart 2:\nNumber of bags contained within a shiny gold bag: {bags['shiny gold'].numContained(bags, {})}")
+    part1 = len([b for b in bags.values() if b.canContain(bags, 'shiny gold')]) - 1
+    part2 = bags['shiny gold'].numContained(bags, {})
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of bags that can contain a shiny gold bag: {part1}\n\nPart 2:\nNumber of bags contained within a shiny gold bag: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

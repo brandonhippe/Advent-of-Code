@@ -42,14 +42,14 @@ def co2_rating(data, bit):
 
     return co2_rating(newData, bit + 1)
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
     gamma = ""
     epsilon = ""
 
-    for i in range(len(lines[0]) - 1):
+    for i in range(len(lines[0])):
         counts = [0] * 2
         for line in lines:
             counts[int(line[i])] += 1
@@ -64,13 +64,16 @@ def main():
     gamma = int(gamma, 2)
     epsilon = int(epsilon, 2)
 
-    print("Part 1:\nGamma: " + str(gamma) + "\nEpsilon: " + str(epsilon) + "\nPower Consumption: " + str(gamma * epsilon) + "\n")
-
     oxy = oxy_rating(lines, 0)
     co2 = co2_rating(lines, 0)
     
-    print("Part 2:\nOxygen Generator Rating: " + str(oxy) + "\nCO2 Scrubber Rating: " + str(co2) + "\nLife Support Rating: " + str(oxy * co2) + "\n")
+    if verbose:
+        print(f"Part 1:\nPower Consumption: {gamma * epsilon}\n\nPart 2:\nLife Support Rating: {oxy * co2}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [gamma * epsilon, oxy * co2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

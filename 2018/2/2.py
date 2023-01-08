@@ -1,7 +1,7 @@
 import time
 from collections import Counter
 
-def main():
+def main(verbose):
     with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
@@ -11,8 +11,6 @@ def main():
         letters = Counter(line)
         twos += 1 if 2 in letters.values() else 0
         threes += 1 if 3 in letters.values() else 0
-
-    print(f"\nPart 1:\nChecksum: {twos * threes}")
 
     common = ''
     for i, l1 in enumerate(lines[:-1]):
@@ -30,9 +28,13 @@ def main():
         if len(common) != 0:
             break
 
-    print(f"\nPart 2:\nCommon letters between box IDs: {common}")
+    if verbose:
+        print(f"\nPart 1:\nChecksum: {twos * threes}\n\nPart 2:\nCommon letters between box IDs: {common}")
+
+    return [twos * threes, common]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

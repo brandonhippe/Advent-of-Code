@@ -10,14 +10,20 @@ def div(line):
                 if d2 % d1 == 0:
                     return d2 // d1
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [[int(x) for x in re.findall('-?\d+', line)] for line in f.readlines()]
 
-    print(f"\nPart 1:\nChecksum: {sum([max(line) - min(line) for line in data])}")
-    print(f"\nPart 2:\nDivsum: {sum([div(line) for line in data])}")
+    part1 = sum([max(line) - min(line) for line in data])
+    part2 = sum([div(line) for line in data])
+
+    if verbose:
+        print(f"\nPart 1:\nChecksum: {part1}\n\nPart 2:\nDivsum: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

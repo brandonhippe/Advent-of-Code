@@ -16,11 +16,11 @@ def runCode(instructions):
 
     return [regs['acc'], regs['PC'] not in ran]
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
-        instructions = [line.strip('\n').split(' ') for line in f.readlines()]    
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
+        instructions = [line.strip('\n').split(' ') for line in f.readlines()]
 
-    print(f"\nPart 1:\nValue in accumulator before running any line of code twice: {runCode(instructions)[0]}")
+    part1 = runCode(instructions)[0]   
 
     for i, (op, val), in enumerate(instructions):
         if op == 'acc':
@@ -30,9 +30,13 @@ def main(filename):
         if result:
             break
 
-    print(f"\nPart 2:\nValue in accumulator after running fixed program: {acc}")
+    if verbose:
+        print(f"\nPart 1:\nValue in accumulator before running any line of code twice: {part1}\n\nPart 2:\nValue in accumulator after running fixed program: {acc}")
+
+    return [part1, acc]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

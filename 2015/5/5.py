@@ -36,14 +36,20 @@ def niceP2(string):
 
     return False
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         strings = [line.strip('\n') for line in f.readlines()]
 
-    print(f"\nPart 1:\nNice strings: {len([s for s in strings if niceP1(s)])}")
-    print(f"\nPart 2:\nNice strings: {len([s for s in strings if niceP2(s)])}")
+    part1 = len([s for s in strings if niceP1(s)])
+    part2 = len([s for s in strings if niceP2(s)])
+
+    if verbose:
+        print(f"\nPart 1:\nNice strings: {part1}\n\nPart 2:\nNice strings: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

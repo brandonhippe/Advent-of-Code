@@ -8,11 +8,11 @@ def validTriangle(line):
 
     return True
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [[int(x) for x in re.findall('\d+', line)] for line in f.readlines()]
 
-    print(f"\nPart 1:\nPossible triangles: {sum([1 if validTriangle(line) else 0 for line in data])}")
+    part1 = sum([1 if validTriangle(line) else 0 for line in data])
     
     count = 0
     for j in range(3):
@@ -23,10 +23,16 @@ def main(filename):
                 count += 1 if validTriangle(arr) else 0
                 arr = []
 
-    print(f"\nPart 2:\nPossible triangles: {count}")
+    part2 = count
+
+    if verbose:
+        print(f"\nPart 1:\nPossible triangles: {part1}\n\nPart 2:\nPossible triangles: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")
     

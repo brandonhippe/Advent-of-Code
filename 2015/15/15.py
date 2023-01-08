@@ -6,12 +6,12 @@ class Ingredient:
     def __init__(self, text):
         self.capacity, self.durability, self.flavor, self.texture, self.calories = [int(x) for x in re.findall('-?\d+', text)]
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         ingredients = [Ingredient(line) for line in f.readlines()]
 
-    best = float('-inf')
-    best500 = float('-inf')
+    part1 = float('-inf')
+    part2 = float('-inf')
     for split in product(range(0, 101), repeat=len(ingredients) - 1):
         counts = [split[0]] + [split[i] - split[i - 1] for i in range(1, len(split))] + [100 - split[-1]]
         if min(counts) < 0:
@@ -32,16 +32,19 @@ def main(filename):
         if t < 0:
             t = 0
 
-        if c * d * f * t > best:
-            best = c * d * f * t
+        if c * d * f * t > part1:
+            part1 = c * d * f * t
 
-        if cals == 500 and c * d * f * t > best500:
-            best500 = c * d * f * t
+        if cals == 500 and c * d * f * t > part2:
+            part2 = c * d * f * t
 
-    print(f"\nPart 1:\nScore of best cookie: {best}")
-    print(f"\nPart 2:\nScore of best 500 calorie cookie: {best500}")
+    if verbose:
+        print(f"\nPart 1:\nScore of best cookie: {part1}\n\nPart 2:\nScore of best 500 calorie cookie: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

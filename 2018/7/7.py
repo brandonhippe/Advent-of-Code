@@ -69,7 +69,8 @@ def orderTimed(nodes, numWorkers, baseTime):
 
     return timeTaken
 
-def main(filename):
+def main(verbose):
+    filename = "input.txt"
     with open(filename, encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
@@ -84,12 +85,17 @@ def main(filename):
             nodes[substep] = Node(substep)
 
         nodes[substep].addNeed(nodes[step])
+
+    part1 = order(copy.deepcopy(nodes))
+    part2 = orderTimed(copy.deepcopy(nodes), 5 if len(re.findall('\d+', filename)) == 0 else 2, 60 if len(re.findall('\d+', filename)) == 0 else 0)
     
-    pattern = '\d+'
-    print(f"\nPart 1:\nCorrect Order: {order(copy.deepcopy(nodes))}")
-    print(f"\nPart 2:\nTime Taken: {orderTimed(copy.deepcopy(nodes), 5 if len(re.findall(pattern, filename)) == 0 else 2, 60 if len(re.findall(pattern, filename)) == 0 else 0)}")
+    if verbose:
+        print(f"\nPart 1:\nCorrect Order: {part1}\n\nPart 2:\nTime Taken: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds")

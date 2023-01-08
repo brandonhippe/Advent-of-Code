@@ -1,6 +1,6 @@
 import time
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -21,7 +21,7 @@ def main():
     for i in pos:
         product *= i
 
-    print("Part 1:\nProduct: " + str(product))
+    part1 = product
 
 
     pos = [0] * 2
@@ -41,8 +41,13 @@ def main():
     for i in pos:
         product *= i
 
-    print("Part 2:\nProduct: " + str(product))
+    if verbose:
+        print(f"\nPart 1:\nProduct: {part1}\n\nPart 2:\nProduct: {product}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, product]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

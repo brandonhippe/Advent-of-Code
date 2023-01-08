@@ -36,8 +36,8 @@ def longestPath(adj, collected, memo):
 
     return longest
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n').split(' ') for line in f.readlines()]
 
     adj = {l: {} for l in list(set([line[0] for line in lines] + [line[2] for line in lines]))}
@@ -46,8 +46,14 @@ def main(filename):
         adj[n1][n2] = int(dist)
         adj[n2][n1] = int(dist)
 
-    print(f"\nPart 1:\nShortest path to all locations: {shortestPath(adj, [], {})}")
-    print(f"\nPart 2:\nLongest path to all locations: {longestPath(adj, [], {})}")
+    part1 = shortestPath(adj, [], {})
+    part2 = longestPath(adj, [], {})
+
+    if verbose:
+        print(f"\nPart 1:\nShortest path to all locations: {part1}\n\nPart 2:\nLongest path to all locations: {part2}")
+
+    return [part1, part2]
+    
 
 if __name__ == "__main__":
     init_time = time.perf_counter()

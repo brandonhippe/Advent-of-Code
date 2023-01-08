@@ -11,7 +11,7 @@ class event:
     def __lt__(self, other):
         return self.time < other.time
 
-def main():
+def main(verbose):
     with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
@@ -44,7 +44,7 @@ def main():
         if minuteAsleep not in sleepingGuard[1][0] or amt > sleepingGuard[1][0][minuteAsleep]:
             minuteAsleep = m
 
-    print(f"\nPart 1:\nGuard ID * minute: {sleepingGuard[0] * minuteAsleep}")
+    part1 = sleepingGuard[0] * minuteAsleep
 
     minuteAsleep = [0, 0, 0] # Guard, minute, number of times asleep
     for guardNum, guard in zip(guards.keys(), guards.values()):
@@ -52,9 +52,15 @@ def main():
             if minuteAsleep[0] not in guards or minuteAsleep[1] not in guards[minuteAsleep[0]][0] or times > minuteAsleep[2]:
                 minuteAsleep = [guardNum, minute, times]
 
-    print(f"\nPart 2:\nGuard ID * minute: {minuteAsleep[0] * minuteAsleep[1]}")
+    part2 = minuteAsleep[0] * minuteAsleep[1]
+
+    if verbose:
+        print(f"\nPart 1:\nGuard ID * minute: {part1}\n\nPart 2:\nGuard ID * minute: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

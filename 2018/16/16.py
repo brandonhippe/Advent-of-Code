@@ -108,7 +108,7 @@ def reduceOps(opCodes):
 
 OPERATIONS = [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]
 
-def main():
+def main(verbose):
     with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
@@ -130,16 +130,20 @@ def main():
             elif fun in opCodes[o.op[0]]:
                 opCodes[o.op[0]].pop(opCodes[o.op[0]].index(fun))
 
-    print(f"\nPart 1:\nNumber of observations that behave like 3 or more opcodes: {len([o for o in observations if o.behavesLike >= 3])}")
+    part1 = len([o for o in observations if o.behavesLike >= 3])
 
     reduceOps(opCodes)
     reg = [0] * 4
     for op in program:
         reg = opCodes[op[0]][0](reg, op)
 
-    print(f"\nPart 2:\nValue in register 0 after program executes: {reg[0]}")
+    if verbose:
+        print(f"\nPart 1:\nNumber of observations that behave like 3 or more opcodes: {part1}\n\nPart 2:\nValue in register 0 after program executes: {reg[0]}")
+
+    return [part1, reg[0]]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

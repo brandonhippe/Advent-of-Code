@@ -31,8 +31,8 @@ def pathFollow(start, lines):
 
     return (string, steps - 1)
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     corners = {}
@@ -45,11 +45,14 @@ def main(filename):
 
     string, steps = pathFollow(start, lines)
 
-    print(f"\nPart 1:\nLetters collected: {string}")
-    print(f"\nPart 2:\nSteps: {steps}")
+    if verbose:
+        print(f"\nPart 1:\nLetters collected: {string}\n\nPart 2:\nSteps: {steps}")
+
+    return [string, steps]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")
     

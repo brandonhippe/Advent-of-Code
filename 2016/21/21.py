@@ -85,21 +85,27 @@ def unscramble(scrambled, lines):
     
     return ''.join(password)
 
-def main(filename):
+def main(verbose):
+    filename = "input.txt"
     with open(filename, encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     password = "abcde" + ("fgh" if '1' not in filename else "")
     scrambled = scramble(password, lines)
-    print(f"\nPart 1:\nScrambled: {scrambled}")
+    part1 = scrambled
 
     if '1' not in filename:
         scrambled = "fbgdceah"
 
     password = unscramble(scrambled, lines)
-    print(f"\nPart 2:\nUnscrambled: {password}")
+
+    if verbose:
+        print(f"\nPart 1:\nScrambled: {part1}\n\nPart 2:\nUnscrambled: {password}")
+
+    return [part1, password]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

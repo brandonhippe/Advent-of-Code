@@ -134,7 +134,7 @@ def enchancementIndex(imgInput, loc, enhancementImg, day):
 
     return index
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -152,10 +152,15 @@ def main():
         image = image.iterate(enhancement, day)
 
         if day == 1:
-            print("\nPart 1:\nNumber of lit pixels: " + str(len(image.cells)))
+            part1 = len(image.cells)
 
-    print("\nPart 2:\nNumber of lit pixels: " + str(len(image.cells)))
+    if verbose:
+        print(f"\nPart 1:\nNumber of lit pixels: {part1}\n\nPart 2:\nNumber of lit pixels: {len(image.cells)}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, len(image.cells)]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

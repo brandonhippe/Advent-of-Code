@@ -3,8 +3,8 @@ import time
 def manhatDist(p1, p2):
     return sum([abs(c1 - c2) for c1, c2 in zip(p1, p2)])
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     pos = (0, 0)
@@ -25,7 +25,7 @@ def main(filename):
             for _ in range(int(line[1:]) // 90):
                 facing = ((1 if line[0] == 'L' else -1) * facing[1], (1 if line[0] == 'R' else -1) * facing[0])
 
-    print(f"\nPart 1:\nManhattan distance to final destination: {manhatDist(pos, (0, 0))}")
+    part1 = manhatDist(pos, (0, 0))
 
     pos = (0, 0)
     waypointOffset = (10, -1)
@@ -45,9 +45,15 @@ def main(filename):
             for _ in range(int(line[1:]) // 90):
                 waypointOffset = ((1 if line[0] == 'L' else -1) * waypointOffset[1], (1 if line[0] == 'R' else -1) * waypointOffset[0])
 
-    print(f"\nPart 2:\nManhattan distance to final destination: {manhatDist(pos, (0, 0))}")
+    part2 = manhatDist(pos, (0, 0))
+
+    if verbose:
+        print(f"\nPart 1:\nManhattan distance to final destination: {part1}\n\nPart 2:\nManhattan distance to final destination: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time}")

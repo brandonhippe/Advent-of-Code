@@ -6,8 +6,8 @@ class Rule:
     def __init__(self):
         self.operations = {0: [], 1: []}
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     state = lines[0].split('state ')[1][:-1]
@@ -35,9 +35,13 @@ def main(filename):
         cursor += cursorInc
         state = newState
 
-    print(f"\nPart 1:\nChecksum: {sum(tape.values())}")
+    part1 = sum(tape.values())
+    if verbose:
+        print(f"\nPart 1:\nChecksum: {part1}")
+
+    return [part1]
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

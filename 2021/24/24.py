@@ -116,9 +116,10 @@ def numFromArr(inputs):
 
     return num
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
+        
     arr = []
     groups = []
     for line in lines:
@@ -131,10 +132,17 @@ def main():
         arr.append(line)
 
     groups.append(digitProg(arr))
-    
-    print("\nPart 1:\nLargest Valid Model Number: " + str(numFromArr(getInputsP1(groups, 0))))
-    print("\nPart 2:\nSmallest Valid Model Number: " + str(numFromArr(getInputsP2(groups, 0))))
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    part1 = numFromArr(getInputsP1(groups, 0))
+    part2 = numFromArr(getInputsP2(groups, 0))
+    
+    if verbose:
+        print(f"\nPart 1:\nLargest Valid Model Number: {part1}\n\nPart 2:\nSmallest Valid Model Number: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main()
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -33,8 +33,9 @@ def convexHull(points):
 
     return hull
 
-def main(fileName):
-    with open(fileName, encoding='UTF-8') as f:
+def main(verbose):
+    filename = "input.txt"
+    with open(filename, encoding='UTF-8') as f:
         points = [[int(x) for x in re.findall('\d+', line.strip('\n'))] for line in f.readlines()]
 
     hull = convexHull(points)
@@ -56,18 +57,22 @@ def main(fileName):
             if len(best[1]) == 1 and ','.join([str(p) for p in best[1][0]]) in regions:
                 regions[','.join([str(p) for p in best[1][0]])].append([x, y])
     
-    print(f"\nPart 1:\nSize of the largest finite area: {max(len(s) for s in regions.values())}")
+    part1 = max(len(s) for s in regions.values())
 
-    totDist = 10000 if len(re.findall('\d+', fileName)) == 0 else 32
+    totDist = 10000 if len(re.findall('\d+', filename)) == 0 else 32
     closeCount = 0
     for y in range(mins[1], maxs[1] + 1):
         for x in range(mins[0], maxs[0] + 1):
             if sum([manhatDist([x, y], p) for p in points]) < totDist:
                 closeCount += 1
 
-    print(f"\nPart 2:\nSize of close region: {closeCount}")
+    if verbose:
+        print(f"\nPart 1:\nSize of the largest finite area: {part1}\n\nPart 2:\nSize of close region: {closeCount}")
+
+    return [part1, closeCount]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

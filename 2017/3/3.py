@@ -28,8 +28,9 @@ def sqIndexPos(sq):
 
     return [p + ((sq - ix) * o) for p, o in zip(pos, offset)]
 
-def main(data = 325489):
-    print(f"\nPart 1:\nSteps to access port: {manhatDist(sqIndexPos(data), (0, 0))}")
+def main(verbose):
+    data = 325489
+    part1 = manhatDist(sqIndexPos(data), (0, 0))
 
     generated = defaultdict(lambda: 0)
     generated[(0, 0)] = 1
@@ -51,9 +52,13 @@ def main(data = 325489):
 
         dirs.append([offset, d + 2])
 
-    print(f"\nPart 2:\nFirst value written larger than input: {lastGenerated}")
+    if verbose:
+        print(f"\nPart 1:\nSteps to access port: {part1}\n\nPart 2:\nFirst value written larger than input: {lastGenerated}")
+
+    return [part1, lastGenerated]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

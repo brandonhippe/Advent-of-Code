@@ -11,8 +11,8 @@ def iterate(plantState, rules):
 
     return newPlantState
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     plantState = defaultdict(lambda: '.')
@@ -32,14 +32,20 @@ def main(filename):
         deltas.append(genData[gen] - genData[gen - 1])
 
         if gen == 20:
-            print(f"\nPart 1:\nSum of all numbers of pots that contain plants after 20 generations: {totalPlants}")
+            part1 = totalPlants
 
         if gen >= 20 and len(set(deltas[-10:])) == 1:
             break
+    
+    part2 = totalPlants + ((50000000000 - gen) * deltas[-1])
 
-    print(f"\nPart 2:\nSum of all numbers of pots that contain plants after 50,000,000,000 generations: {totalPlants + ((50000000000 - gen) * deltas[-1])}")
+    if verbose:
+        print(f"\nPart 1:\nSum of all numbers of pots that contain plants after 20 generations: {part1}\n\nPart 2:\nSum of all numbers of pots that contain plants after 50,000,000,000 generations: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -2,7 +2,8 @@ import time
 import numpy as np
 import copy
 
-def main(filename):
+def main(verbose):
+    filename = "input.txt"
     with open(filename, encoding='UTF-8') as f:
         rules = {l[0]: l[1] for l in [line.strip('\n').split(' => ') for line in f.readlines()]}
 
@@ -37,11 +38,17 @@ def main(filename):
         img = newImg
 
         if iterations == 4:
-            print(f"\nPart 1:\nNumber of lit pixels after 5 iterations: {sum(sum(np.char.count(img, '#')))}")
+            part1 = sum(sum(np.char.count(img, '#')))
 
-    print(f"\nPart 1:\nNumber of lit pixels after 18 iterations: {sum(sum(np.char.count(img, '#')))}")
+    part2 = sum(sum(np.char.count(img, '#')))
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of lit pixels after 5 iterations: {part1}\n\nPart 1:\nNumber of lit pixels after 18 iterations: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -3,7 +3,7 @@ import time
 def triangle(n):
     return n * (n + 1) // 2
 
-def main():
+def main(verbose):
     with open('input.txt',encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -22,7 +22,7 @@ def main():
         if fuel < minFuel:
             minFuel = fuel
 
-    print("Part 1:\nMinimum fuel: " + str(minFuel))
+    part1 = minFuel
 
     minFuel = len(data) * triangle(data[-1])
     for i in range(data[0], data[-1]):
@@ -33,8 +33,13 @@ def main():
         if fuel < minFuel:
             minFuel = fuel
 
-    print("Part 2:\nMinimum fuel: " + str(minFuel))
+    if __name__ == "__main__":
+        print(f"\nPart 1:\nMinimum fuel: {part1}\n\nPart 2:\nMinimum fuel: {minFuel}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, minFuel]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

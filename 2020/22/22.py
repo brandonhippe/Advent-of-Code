@@ -23,8 +23,8 @@ def combat(player1, player2, recursive = False):
 
     return [player1, player2]
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     player1 = []
@@ -42,13 +42,20 @@ def main(filename):
 
     p1, p2 = combat(player1[:], player2[:])
     winner = p1 if len(p1) != 0 else p2
-    print(f"\nPart 1:\nWinner's score: {sum([n * (len(winner) - i) for i, n in enumerate(winner)])}")
+
+    part1 = sum([n * (len(winner) - i) for i, n in enumerate(winner)])
 
     p1, p2 = combat(player1[:], player2[:], True)
     winner = p1 if len(p1) != 0 else p2
-    print(f"\nPart 2:\nWinner's score: {sum([n * (len(winner) - i) for i, n in enumerate(winner)])}")
+    part2 = sum([n * (len(winner) - i) for i, n in enumerate(winner)])
+
+    if verbose:
+        print(f"\nPart 1:\nWinner's score: {part1}\n\nPart 2:\nWinner's score: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -1,8 +1,8 @@
 import time
 from collections import defaultdict
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     countP1, countP2 = 0, 0
@@ -21,10 +21,12 @@ def main(filename):
         for c in line:
             group[c] += 1
 
-    print(f"\nPart 1:\nNumber of questions answered yes: {countP1}")
-    print(f"\nPart 2:\nNumber of questions answered yes by everyone in a group: {countP2}")
+    if verbose:
+        print(f"\nPart 1:\nNumber of questions answered yes: {countP1}\n\nPart 2:\nNumber of questions answered yes by everyone in a group: {countP2}")
+
+    return [countP1, countP2]
     
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

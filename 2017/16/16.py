@@ -1,8 +1,8 @@
 import time
 import re
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = f.readline().strip('\n').split(',')
 
     programs = [chr(n + ord('a')) for n in range(16)]
@@ -24,7 +24,7 @@ def main(filename):
         string = ''.join(programs)
 
         if i == 0:
-            print(f"\nPart 1:\nOrder after dance: {string}")
+            part1 = string
 
         if string in states:
             i += (1_000_000_000 - i) // (i - states[string]) * (i - states[string])
@@ -33,9 +33,13 @@ def main(filename):
 
         i += 1
 
-    print(f"\nPart 2:\nOrder after a billion dances: {string}")
+    if verbose:
+        print(f"\nPart 1:\nOrder after dance: {part1}\n\nPart 2:\nOrder after a billion dances: {string}")
+
+    return [part1, string]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

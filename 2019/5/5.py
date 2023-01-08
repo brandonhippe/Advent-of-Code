@@ -111,13 +111,20 @@ def runCode(data, inputs):
 
     return outputs
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
 
-    print(f"\nPart 1:\nDiagnostic Code: {runCode(lines[:], [1])[-1]}")
-    print(f"\nPart 2:\nDiagnostic Code: {runCode(lines[:], [5])[-1]}")
+    part1 = runCode(lines[:], [1])[-1]
+    part2 = runCode(lines[:], [5])[-1]
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nDiagnostic Code: {part1}\n\nPart 2:\nDiagnostic Code: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

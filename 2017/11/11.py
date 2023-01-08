@@ -5,8 +5,8 @@ MOVES = {'n': (0, -1), 'ne': (1, -1), 'se': (1, 0), 's': (0, 1), 'sw': (-1, 1), 
 def manhatDist(p1, p2):
     return sum([abs(c1 - c2) for c1, c2 in zip(p1, p2)])
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         steps = f.readline().strip('\n').split(',')
 
     pos = (0, 0)
@@ -19,10 +19,13 @@ def main(filename):
         if d > farthest:
             farthest = d
 
-    print(f"\nPart 1:\nFewest steps to child process: {d}")
-    print(f"\nPart 2:\nFarthest ever reached: {farthest}")
+    if verbose:
+        print(f"\nPart 1:\nFewest steps to child process: {d}\n\nPart 2:\nFarthest ever reached: {farthest}")
+
+    return [d, farthest]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

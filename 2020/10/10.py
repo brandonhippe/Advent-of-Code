@@ -15,16 +15,22 @@ def adapterCombinations(data, memo):
 
     return total
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [0] + sorted([int(line) for line in f.readlines()])
 
     data.append(data[-1] + 3)
 
-    print(f"\nPart 1:\nDifferences of 1 * Differences of 3: {len([1 for i in range(1, len(data)) if data[i] - data[i - 1] == 1]) * len([3 for i in range(1, len(data)) if data[i] - data[i - 1] == 3])}")
-    print(f"\nPart 2:\nNumber of ways to arrange adapters: {adapterCombinations(data, {})}")
+    part1 = len([1 for i in range(1, len(data)) if data[i] - data[i - 1] == 1]) * len([3 for i in range(1, len(data)) if data[i] - data[i - 1] == 3])
+    part2 = adapterCombinations(data, {})
+
+    if verbose:
+        print(f"\nPart 1:\nDifferences of 1 * Differences of 3: {part1}\n\nPart 2:\nNumber of ways to arrange adapters: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

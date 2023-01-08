@@ -259,7 +259,7 @@ def printGame(tiles):
 
         print('')
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
 
@@ -277,8 +277,6 @@ def main():
 
     #printGame(tiles)
 
-    print(f"\nPart 1:\nNumber of block tiles: {count}")
-
     code = {}
     for (i, x) in enumerate(lines):
         code[i] = x
@@ -291,9 +289,15 @@ def main():
         t = tiles[tName]
         
         if t.id == 5:
-            print(f"\nPart 2:\nScore after playing game: {t.score}")
             break
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nNumber of block tiles: {count}\n\nPart 2:\nScore after playing game: {t.score}")
+
+    return [count, t.score]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

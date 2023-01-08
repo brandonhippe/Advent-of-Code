@@ -27,8 +27,8 @@ def bfs(start, mins, maxs, cubes):
     return visited
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     cubes = set(tuple(int(x) for x in re.findall('-?\d+', line)) for line in lines)
@@ -38,8 +38,8 @@ def main(filename):
         for i, offset in enumerate([[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]):
             if tuple(p + o for p, o in zip(c, offset)) in cubeFaces:
                 cubeFaces[tuple(p + o for p, o in zip(c, offset))][i] = False
- 
-    print(f"\nPart 1:\nTotal surface area: {sum(sum(cF) for cF in cubeFaces.values())}")
+    
+    part1 = sum(sum(cF) for cF in cubeFaces.values())
 
     possible = set()
     for c in cubes:
@@ -59,10 +59,15 @@ def main(filename):
             if tuple(p + o for p, o in zip(c, offset)) in cubeFaces:
                 cubeFaces[tuple(p + o for p, o in zip(c, offset))][i] = False
 
-    print(f"\nPart 2:\nExterior surface area: {sum(sum(cF) for cF in cubeFaces.values())}")
+    part2 = sum(sum(cF) for cF in cubeFaces.values())
+
+    if verbose:
+        print(f"\nPart 1:\nTotal surface area: {part1}\n\nPart 2:\nExterior surface area: {part2}")
+
+    return [part1, part2]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

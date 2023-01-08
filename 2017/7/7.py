@@ -29,8 +29,8 @@ class Program:
 
         return 0
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         programs = [Program(line.strip('\n')) for line in f.readlines()]
 
     pNames = {p.name for p in programs}
@@ -41,16 +41,22 @@ def main(filename):
 
     head = list(pNames)[0]
 
-    print(f"\nPart 1:\nName of bottom program: {head}")
+    part1 = head
 
     programs = {p.name: p for p in programs}
     for p in programs.values():
         for i, s in enumerate(p.subPrograms):
             p.subPrograms[i] = programs[s]
 
-    print(f"\nPart 2:\nWeight of unbalanced program needed to balance: {programs[head].balance()}")
+    part2 = programs[head].balance()
+
+    if verbose:
+        print(f"\nPart 1:\nName of bottom program: {part1}\n\nPart 2:\nWeight of unbalanced program needed to balance: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

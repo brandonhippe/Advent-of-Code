@@ -35,7 +35,7 @@ class orbit:
 
         return shortest + 1
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -53,10 +53,16 @@ def main():
     for o in orbits:
         totalOrbits += orbits[o].countOrbits()
 
-    print(f"\nPart 1:\nNumber of Direct and Indirect orbits: {totalOrbits}")
-    print(f"\nPart 2:\nShortest Path to Santa: {orbits['YOU'].orbiting.pathLen(orbits['SAN'].orbiting, orbits['YOU'])}")
+    part2 = orbits['YOU'].orbiting.pathLen(orbits['SAN'].orbiting, orbits['YOU'])
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nNumber of Direct and Indirect orbits: {totalOrbits}\n\nPart 2:\nShortest Path to Santa: {part2}")
+
+    return [totalOrbits, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")
             

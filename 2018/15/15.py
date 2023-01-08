@@ -111,8 +111,10 @@ def printBattle(maxs, walls, elves, goblins):
             print(c, end='')
         print(f'{postStr[:-2]}')
 
-def main(filename):
+def main(verbose):
+    filename = "input.txt"
     testing = len(re.findall("\d+", filename)) > 0
+
     with open(filename, encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
     
@@ -153,7 +155,8 @@ def main(filename):
         printBattle(maxs, walls, iteratingElves, iteratingGoblins)
 
     winners = iteratingElves[:] if len(iteratingGoblins) == 0 else iteratingGoblins[:]
-    print(f"\nPart 1:\nCombat Outcome: {rounds} x {sum(w.hp for w in winners)} = {rounds * sum(w.hp for w in winners)}")
+    
+    part1 = rounds * sum(w.hp for w in winners)
 
     elfAttack = 3
     while len(iteratingElves) < totalElves:
@@ -170,9 +173,15 @@ def main(filename):
                 rounds += 1
 
     winners = iteratingElves[:] if len(iteratingGoblins) == 0 else iteratingGoblins[:]
-    print(f"\nPart 2:\nCombat Outcome: {rounds} x {sum(w.hp for w in winners)} = {rounds * sum(w.hp for w in winners)}")
+    part2 = rounds * sum(w.hp for w in winners)
+
+    if verbose:
+        print(f"\nPart 1:\nCombat Outcome: {part1}\n\nPart 2:\nCombat Outcome: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

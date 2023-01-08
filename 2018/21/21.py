@@ -99,8 +99,8 @@ OPERATIONS = {
     'eqrr': eqrr
 }
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         program = [line.strip('\n').split(' ') for line in f.readlines()]
 
     bound = int(program[0][1])
@@ -116,7 +116,7 @@ def main(filename):
     registers = [0] * 6
     while registers[bound] < len(program):
         if registers[bound] == 28:
-            print(f"\nPart 1:\nLowest R0 value for minimum halting time: {registers[2]}")
+            part1 = registers[2]
             break
 
         registers = OPERATIONS[program[registers[bound]][0]](registers, program[registers[bound]])
@@ -126,7 +126,7 @@ def main(filename):
     while registers[bound] < len(program):
         if registers[bound] == 28:
             if registers[2] in r0_cycle:
-                print(f"\nPart 2:\nLowest R0 value for maximum halting time: {prev}")
+                part2 = prev
                 break
             else:
                 r0_cycle.add(registers[2])
@@ -139,7 +139,13 @@ def main(filename):
         registers = OPERATIONS[program[registers[bound]][0]](registers, program[registers[bound]])
         registers[bound] += 1
 
+    if verbose:
+        print(f"\nPart 1:\nLowest R0 value for minimum halting time: {part1}\n\nPart 2:\nLowest R0 value for maximum halting time: {part2}")
+
+    return [part1, part2]
+
+
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

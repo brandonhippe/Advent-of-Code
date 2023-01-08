@@ -71,8 +71,8 @@ def printPoints(points):
 
         print(' ')
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     points = []
@@ -80,9 +80,13 @@ def main(filename):
         points.append(Point(line))
 
     finalPoints, timeSteps = iteratePoints(points)
-    print("\nPart 1:\nMessage:\n")
-    printPoints(finalPoints)
-    print(f"\nPart 2:\nMessage appeared after {timeSteps} seconds.")
+    if verbose:
+        print("\nPart 1:\nMessage:\n")
+        printPoints(finalPoints)
+        print(f"\nPart 2:\nMessage appeared after {timeSteps} seconds.")
+
+    return [None, timeSteps]
+    
 
 if __name__ == "__main__":
     init_time = time.perf_counter()

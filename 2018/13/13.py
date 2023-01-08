@@ -29,8 +29,8 @@ class POI:
         self.pos = pos
         self.char = char
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     carts = []
@@ -72,13 +72,18 @@ def main(filename):
                         collision = c.pos
                         break
 
-                print(f"\nPart 1:\nFirst collision occurs at position: {int(collision.real)}, {int(collision.imag)}")
+                part1 = (int(collision.real), int(collision.imag))
 
             carts = [c for c in carts if c.alive]
 
-    print(f"\nPart 2:\nPosition of final cart: {int(carts[0].pos.real)}, {int(carts[0].pos.imag)}")
+    part2 = (int(carts[0].pos.real), int(carts[0].pos.imag))
+    if verbose:
+        print(f"\nPart 1:\nFirst collision occurs at position: {','.join(str(c) for c in part1)}\n\nPart 2:\nPosition of final cart: {','.join(str(c) for c in part2)}")
+
+    return [','.join(str(c) for c in part1), ','.join(str(c) for c in part2)]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

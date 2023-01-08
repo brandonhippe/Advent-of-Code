@@ -68,8 +68,8 @@ class Packet:
         return ix1 == len(self.packet) and ix2 != len(other.packet)
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     index = 0
@@ -86,8 +86,6 @@ def main(filename):
         if packet1 < packet2:
             correctSum += index
 
-    print(f"\nPart 1:\nSum of indecies of packets in correct order: {correctSum}")
-
     packets.append(Packet("[[2]]", True))
     packets.append(Packet("[[6]]", True))
 
@@ -97,10 +95,13 @@ def main(filename):
         if packet.div:
             product *= i + 1
 
-    print(f"\nPart 2:\nProduct of divider packet indecies: {product}")
+    if verbose:
+        print(f"\nPart 1:\nSum of indecies of packets in correct order: {correctSum}\n\nPart 2:\nProduct of divider packet indecies: {product}")
+
+    return [correctSum, product]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

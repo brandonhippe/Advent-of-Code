@@ -1,6 +1,6 @@
 import time
 
-class packet:
+class Packet:
     def __init__(self, packetString):
         self.binary = packetString
         self.parsed = False
@@ -32,7 +32,7 @@ class packet:
                 remainder = self.binary[22:]
 
                 while len(self.binary) - 22 - len(remainder) < totalBits:
-                    subPacket = packet(remainder)
+                    subPacket = Packet(remainder)
                     self.subPackets.append(subPacket)
                     remainder = subPacket.parse()
                 
@@ -43,7 +43,7 @@ class packet:
                 remainder = self.binary[18:]
                 
                 for _ in range(numPackets):
-                    subPacket = packet(remainder)
+                    subPacket = Packet(remainder)
                     self.subPackets.append(subPacket)
                     remainder = subPacket.parse()
 
@@ -119,23 +119,22 @@ def versionSums(packets):
     
     return count
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
-        lines = [bin(int(line.strip(), 16)) for line in f.readlines()]
+        packet = Packet(bin(int(f.readline().strip(), 16))[2:])
 
-    packets = []
-    for line in lines:
-        line = line [2:]
-        while len(line) % 4 != 0:
-            line = '0' + line
-        
-        packets.append(packet(line))
-        packets[-1].parse()
-        print("Part 1:\nSum of Version Numbers: " + str(versionSums([packets[-1]])))    
+    packet.parse()
 
-    for p in packets:
-        print("Part 2\nEvaulation of Packet: " + str(p.eval()))
+    part1 = versionSums([packet])
+    part2 = packet.eval()
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nSum of Version Numbers: {part1}\n\nPart 2\nEvaulation of Packet: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

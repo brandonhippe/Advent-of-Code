@@ -32,17 +32,23 @@ class Node:
 
         return total
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [int(x) for x in re.findall('\d+', f.readline().strip('\n'))]
 
     tree = Node()
     tree.parse(data[:])
 
-    print(f"\nPart 1:\nSum of metadata entries: {tree.metadataSum()}")
-    print(f"\nPart 2:\nValue of root node: {tree.evaluate()}")
+    part1 = tree.metadataSum()
+    part2 = tree.evaluate()
+
+    if verbose:
+        print(f"\nPart 1:\nSum of metadata entries: {part1}\n\nPart 2:\nValue of root node: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

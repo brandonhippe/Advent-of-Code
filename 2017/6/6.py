@@ -1,8 +1,8 @@
 import time
 import re
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         banks = [int(x) for x in re.findall('\d+', f.readline())]
 
     observed = set()
@@ -22,7 +22,7 @@ def main(filename):
 
         steps += 1
 
-    print(f"\nPart 1:\nRedistribution cycles before repeat: {steps}")
+    part1 = steps
 
     steps = 0
     observedRepeat = banks[:]
@@ -39,9 +39,15 @@ def main(filename):
 
         steps += 1
 
-    print(f"\nPart 2:\nLength of loop: {steps}")
+    part2 = steps
+
+    if verbose:
+        print(f"\nPart 1:\nRedistribution cycles before repeat: {part1}\n\nPart 2:\nLength of loop: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

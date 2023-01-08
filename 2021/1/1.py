@@ -1,21 +1,19 @@
 import time
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
     for (i, line) in enumerate(lines):
         lines[i] = int(line)
 
-    print("Part 1:")
     increased = 0
     for i in range(1, len(lines)):
         if lines[i] > lines[i - 1]:
             increased += 1
 
-    print("Number of increases = " + str(increased))
-
-    print("Part 2:")
+    part1 = increased
+    
     increased = 0
     for i in range(3, len(lines)):
         sums = [0] * 2
@@ -28,8 +26,13 @@ def main():
         if sums[1] > sums[0]:
             increased += 1
 
-    print("Number of increases = " + str(increased))
+    if verbose:
+        print(f"\nPart1:\nNumber of increases: {part1}\n\nPart 2:\nNumber of increases {increased}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, increased]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

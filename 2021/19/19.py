@@ -167,7 +167,7 @@ def manhatDist(l1, l2):
 
     return dist
 
-def main():
+def main(verbose):
     with open('input.txt',encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -222,8 +222,6 @@ def main():
         if not checkAgain:
             break
 
-    print("\nPart 1:\nNumber of Beacons: " + str(len(beacons)))
-
     max = float('-inf')
     for s1 in scanners:
         for s2 in scanners:
@@ -231,8 +229,13 @@ def main():
             if dist > max:
                 max = dist
 
-    print("\nPart 2:\nFarthest Apart Scanners: " + str(max))
+    if verbose:
+        print(f"\nPart 1:\nNumber of Beacons: {len(beacons)}\n\nPart 2:\nFarthest Apart Scanners: {max}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [len(beacons), max]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

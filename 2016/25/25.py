@@ -53,8 +53,8 @@ def alternatingBits(n):
 
     return True
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         instructions = [line.strip('\n').split(' ') for line in f.readlines()]
 
     a = 0
@@ -70,9 +70,12 @@ def main(filename):
         a += 1
         regs['d'] += 1
 
-    print(f"\nPart 1:\nValue of a that generates clock signal: {a}")
+    if verbose:
+        print(f"\nPart 1:\nValue of a that generates clock signal: {a}")
+
+    return [a]
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

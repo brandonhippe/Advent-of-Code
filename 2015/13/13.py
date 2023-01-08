@@ -2,8 +2,8 @@ import time
 import re
 from itertools import permutations
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('.\n') for line in f.readlines()]
 
     for i, line in enumerate(lines):
@@ -24,7 +24,7 @@ def main(filename):
         if total > best:
             best = total
 
-    print(f"\nPart 1:\nChange in happiness for optimal seating arrangement: {best}")
+    part1 = best
 
     data['Me'] = {k: 0 for k in data.keys()}
     for k in data.keys():
@@ -40,9 +40,15 @@ def main(filename):
         if total > best:
             best = total
 
-    print(f"\nPart 2:\nChange in happiness for optimal seating arrangement: {best}")
+    part2 = best
+
+    if verbose:
+        print(f"\nPart 1:\nChange in happiness for optimal seating arrangement: {part1}\n\nPart 2:\nChange in happiness for optimal seating arrangement: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

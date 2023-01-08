@@ -38,12 +38,13 @@ def bfs(start, disks, visited):
 
         visited.add(pos)
 
-def main(data='jxqlasbh'):
+def main(verbose):
+    data='jxqlasbh'
     disk = []
     for i in range(128):
         disk.append([int(x) for x in '0' * (128 - len(bin(int(knotHash([ord(c) for c in data + '-' + str(i)]), 16))[2:])) + bin(int(knotHash([ord(c) for c in data + '-' + str(i)]), 16))[2:]])
 
-    print(f"\nPart 1:\nSquares used: {sum([sum(line) for line in disk])}")
+    part1 = sum([sum(line) for line in disk])
 
     visited = set()
     regions = 0
@@ -53,9 +54,13 @@ def main(data='jxqlasbh'):
                 regions += 1
                 bfs((x, y), disk, visited)
 
-    print(f"\nPart 2:\nNumber of regions: {regions}")
+    if verbose:
+        print(f"\nPart 1:\nSquares used: {part1}\n\nPart 2:\nNumber of regions: {regions}")
+
+    return [part1, regions]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds")

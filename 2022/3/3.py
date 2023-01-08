@@ -1,7 +1,7 @@
 from time import perf_counter
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     sum = 0
@@ -12,7 +12,7 @@ def main(filename):
         else:
             sum += ord(priority) - ord('A') + 27
 
-    print(f"\nPart 1:\nSum of priorities: {sum}")
+    part1 = sum
 
     sum = 0
     for i in range(0, len(lines), 3):
@@ -27,10 +27,13 @@ def main(filename):
         else:
             sum += ord(priority) - ord('A') + 27
 
-    print(f"\nPart 2:\nSum of priorities: {sum}")
+    if verbose:
+        print(f"\nPart 1:\nSum of priorities: {part1}\n\nPart 2:\nSum of priorities: {sum}")
+
+    return [part1, sum]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time}")

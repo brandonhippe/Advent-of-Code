@@ -144,7 +144,7 @@ def collectKeysP2(POIs, allKeys):
 
     return [0, 'ERROR']
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [[x for x in line.strip()] for line in f.readlines()]
 
@@ -192,15 +192,21 @@ def main():
     pathLen, collected = collectKeysP1(POIsP1, keysP1)
     collected = collected.replace('@', '')
 
-    print(f"\nPart 1:\nShortest Path: {pathLen} steps\nPath: {collected}")
+    part1 = [pathLen, collected]
 
     for p in POIsP2.values():
         p.genNeighbors(linesP2, POIsP2)
 
     pathLen, collected = collectKeysP2(POIsP2, keysP2)
+    collected = collected.replace('@', '')
 
-    print(f"\nPart 2:\nShortest Path: {pathLen} steps\nPath: {collected}")
+    if verbose:
+        print(f"\nPart 1:\nShortest Path: {part1[0]} steps\nPath: {part1[1]}\n\nPart 2:\nShortest Path: {pathLen} steps\nPath: {collected}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1[0], pathLen]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

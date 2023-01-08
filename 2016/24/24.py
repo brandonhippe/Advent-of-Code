@@ -78,8 +78,8 @@ def shortestPathP2(adjList, start, visited):
 
     return shortest
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     numPos = {}
@@ -100,10 +100,16 @@ def main(filename):
                 adjList[v1][v2] = d
                 adjList[v2][v2] = d
 
-    print(f"\nPart 1:\nFewest steps to reach all numbers: {shortestPathP1(adjList, 0, [False] * len(adjList))}")
-    print(f"\nPart 2:\nPossilbe fewest steps to reach all numbers and return to 0: {shortestPathP2(adjList, 0, [False] * len(adjList))}")
+    part1 = shortestPathP1(adjList, 0, [False] * len(adjList))
+    part2 = shortestPathP2(adjList, 0, [False] * len(adjList))
+
+    if verbose:
+        print(f"\nPart 1:\nFewest steps to reach all numbers: {part1}\n\nPart 2:\nPossilbe fewest steps to reach all numbers and return to 0: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} second.")

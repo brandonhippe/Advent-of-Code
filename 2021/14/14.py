@@ -1,6 +1,6 @@
 import time
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -27,7 +27,7 @@ def main():
         line = line.split(" -> ")
         insertions[line[0]] = line[1]
 
-    for i in range(10):
+    for _ in range(10):
         nextPairs = pairs.copy()
         for pair in pairs:
             newLetter = insertions[pair]
@@ -51,9 +51,9 @@ def main():
         counts.append(occurrances[o])
     counts.sort()
 
-    print("Part 1:\nMost common - least common = " + str(counts[-1] - counts[0]))
+    part1 = counts[-1] - counts[0]
 
-    for i in range(30):
+    for _ in range(30):
         nextPairs = pairs.copy()
         for pair in pairs:
             newLetter = insertions[pair]
@@ -77,8 +77,13 @@ def main():
         counts.append(occurrances[o])
     counts.sort()
 
-    print("Part 2:\nMost common - least common = " + str(counts[-1] - counts[0]))
+    if verbose:
+        print(f"\nPart 1:\nMost common - least common = {part1}\n\nPart 2:\nMost common - least common = {counts[-1] - counts[0]}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, counts[-1] - counts[0]]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

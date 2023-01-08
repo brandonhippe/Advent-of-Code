@@ -26,8 +26,8 @@ def getCoordinateSum(correctOrder):
     return sum(s)
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [int(line.strip('\n')) for line in f.readlines()]
 
     indexes = deque(range(len(lines)))
@@ -35,7 +35,7 @@ def main(filename):
 
     correctOrder = mix(correctOrder, indexes)[0]
     
-    print(f"\nPart 1:\n{getCoordinateSum(correctOrder)}")
+    part1 = getCoordinateSum(correctOrder)
 
     indexes = deque(range(len(lines)))
     correctOrder = deque([n * 811589153 for n in lines])
@@ -43,7 +43,12 @@ def main(filename):
     for _ in range(10):
         correctOrder, indexes = mix(correctOrder, indexes)
 
-    print(f"\nPart 2:\n{getCoordinateSum(correctOrder)}")
+    part2 = getCoordinateSum(correctOrder)
+
+    if verbose:
+        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+
+    return [part1, part2]
 
 
 if __name__ == "__main__":

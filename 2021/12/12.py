@@ -23,7 +23,7 @@ def findPaths(curr, caves, visited, p2):
     return paths
 
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -34,9 +34,16 @@ def main():
         caves[line[0]].add(line[1])
         caves[line[1]].add(line[0])
 
-    print(f"\nPart 1:\nNumber of paths visiting small caves once: {findPaths('start', caves, defaultdict(lambda: 0), False)}")
-    print(f"\nPart 2:\nNumber of paths visiting small caves once: {findPaths('start', caves, defaultdict(lambda: 0), True)}")
+    part1 = findPaths('start', caves, defaultdict(lambda: 0), False)
+    part2 = findPaths('start', caves, defaultdict(lambda: 0), True)
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nNumber of paths visiting small caves once: {part1}\n\nPart 2:\nNumber of paths visiting small caves once: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

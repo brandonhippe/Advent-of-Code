@@ -5,8 +5,8 @@ from collections import defaultdict
 ROCKS = [[(2, 4), (3, 4), (4, 4), (5, 4)], [(2, 5), (3, 4), (3, 5), (3, 6), (4, 5)], [(2, 4), (3, 4), (4, 4), (4, 5), (4, 6)], [(2, 4), (2, 5), (2, 6), (2, 7)], [(2, 4), (2, 5), (3, 4), (3, 5)]]
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         data = [-1 if c == '<' else 1 for c in f.read().strip('\n')]
 
     rockCount = 0
@@ -19,7 +19,7 @@ def main(filename):
 
     while True:
         if rockCount == 2022:
-            print(f"\nPart 1:\n{maxY}")
+            part1 = maxY
         
         newRock = [tuple(p + o for p, o in zip(pos, [0, maxY])) for pos in ROCKS[rockIx]]
         pRock = newRock[:]
@@ -55,11 +55,13 @@ def main(filename):
         rockIx %= len(ROCKS)
         rockCount += 1
 
+    if verbose:
+        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{maxY}")
 
-    print(f"\nPart 2:\n{maxY}")
+    return [part1, maxY]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

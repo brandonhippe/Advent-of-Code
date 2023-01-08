@@ -1,8 +1,8 @@
 from time import perf_counter
 import re
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     area = set()
@@ -44,11 +44,13 @@ def main(filename):
         if len(pastPos) == 0 or pastPos[-1] != newPos:
             sand.add(pos)
 
-    print(f"\nPart 1:\nUnits of sand that come to rest: {sandP1}")
-    print(f"\nPart 2:\nUnits of sand that come to rest: {len(sand)}")
+    if verbose:
+        print(f"\nPart 1:\nUnits of sand that come to rest: {sandP1}\n\nPart 2:\nUnits of sand that come to rest: {len(sand)}")
+
+    return [sandP1, len(sand)]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

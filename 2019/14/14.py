@@ -49,7 +49,7 @@ def oreNeeded(chemicals, create, amount, extras=None):
 
     return [total, extras]
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -63,7 +63,6 @@ def main():
             chemicals[o] = r
 
     oneFuel = oreNeeded(chemicals, 'FUEL', 1)[0]
-    print(f"\nPart 1:\nAmount of ore needed to make 1 fuel: {oneFuel}")
 
     ore = 1000000000000
     fuelMade = 0
@@ -89,8 +88,13 @@ def main():
         fuelMade += fuelToMake * amt
         ore -= oreUsed * amt
 
-    print(f"\nPart 2:\nAmount of fuel made with one trillion ore: {fuelMade}")
+    if verbose:
+        print(f"\nPart 1:\nAmount of ore needed to make 1 fuel: {oneFuel}\n\nPart 2:\nAmount of fuel made with one trillion ore: {fuelMade}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [oneFuel, fuelMade]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

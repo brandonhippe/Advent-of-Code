@@ -50,7 +50,7 @@ def findIntersections(wires):
 
     return intersections
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -64,7 +64,7 @@ def main():
         manhatDists.append(manhatDist(intersection, [0, 0]))
 
     manhatDists.sort()
-    print(f"Part 1:\nClosest intersection is {manhatDists[0]} units from the central port")
+    part1 = manhatDists[0]
 
     delays = [0] * len(intersections)
     for w in wires:
@@ -92,8 +92,13 @@ def main():
 
     delays.sort()
 
-    print(f"Part 2:\nLowest delay is {delays[0]} steps")
+    if verbose:
+        print(f"Part 1:\nClosest intersection to central port: {part1}\nPart 2:\nLowest delay is {delays[0]} steps")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, delays[0]]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -88,7 +88,7 @@ def score(s):
 
     return total
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -105,7 +105,6 @@ def main():
         for c in chunks[-1]:
             c.setIncomplete()
 
-    print("Part 1:")
     count = 0
     for group in chunks:
         for c in group:
@@ -123,9 +122,6 @@ def main():
                 
                 break
 
-    print("Syntax Error Score: " + str(count))
-
-    print("Part 2:")
     scores = []
     for group in chunks:
         scores.append(0)
@@ -138,8 +134,13 @@ def main():
 
     scores.sort()
 
-    print("Median Score: " + str(scores[int((len(scores) - 1) / 2)]))
+    if verbose:
+        print(f"\nPart 1:\nSyntax Error Score: {count}\n\nPart 2:\nMedian Score: {scores[int((len(scores) - 1) / 2)]}")
+
+    return [count, scores[int((len(scores) - 1) / 2)]]
+
     
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

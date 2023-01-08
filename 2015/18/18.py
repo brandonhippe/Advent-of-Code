@@ -18,8 +18,8 @@ def iterate(positons):
 
     return newPositions
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     positions = set()
@@ -31,7 +31,7 @@ def main(filename):
     for _ in range(100):
         positions = iterate(positions)
 
-    print(f"\nPart 1:\nLights on after 100 iterations: {len(positions)}")
+    part1 = len(positions)
 
     corners = {(0, 0), (0, 99), (99, 0), (99, 99)}
     positions = set()
@@ -46,9 +46,15 @@ def main(filename):
         positions = iterate(positions)
         positions = positions.union(corners)
 
-    print(f"\nPart 2:\nLights on after 100 iterations with corners stuck on: {len(positions)}")
+    part2 = len(positions)
+
+    if verbose:
+        print(f"\nPart 1:\nLights on after 100 iterations: {part1}\n\nPart 2:\nLights on after 100 iterations with corners stuck on: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

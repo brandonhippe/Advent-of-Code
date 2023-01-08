@@ -1,8 +1,9 @@
 import time
 import re
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     passports = []
@@ -42,10 +43,13 @@ def main(filename):
             except ValueError:
                 continue
 
-    print(f"\nPart 1:\nValid passports: {validP1}")
-    print(f"\nPart 2:\nValid passports with valid field data: {validP2}")
+    if verbose:
+        print(f"\nPart 1:\nValid passports: {validP1}\nPart 2:\nValid passports with valid field data: {validP2}")
+
+    return [validP1, validP2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

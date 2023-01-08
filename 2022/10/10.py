@@ -1,8 +1,8 @@
 from time import perf_counter
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     x = 1
@@ -25,24 +25,13 @@ def main(filename):
 
             x += int(line.split(' ')[1])
 
-    print(f"\nPart 1:\nSum of signal strengths: {signalStrength}")
-    print(f"\nPart 2:\nText on CRT:")
+    if verbose:
+        print(f"\nPart 1:\nSum of signal strengths: {signalStrength}\n\nPart 2:\nText on CRT:")
 
-    x = 1
-    cycles = 0
+        x = 1
+        cycles = 0
 
-    for line in lines:
-        if cycles % 40 == 0:
-            print("")
-
-        if abs(x - (cycles % 40)) <= 1:
-            print("#", end='')
-        else:
-            print(' ', end='')
-
-        cycles += 1
-
-        if line != "noop":
+        for line in lines:
             if cycles % 40 == 0:
                 print("")
 
@@ -51,14 +40,27 @@ def main(filename):
             else:
                 print(' ', end='')
 
-            x += int(line.split(' ')[1])
-
             cycles += 1
 
-    print("")
+            if line != "noop":
+                if cycles % 40 == 0:
+                    print("")
+
+                if abs(x - (cycles % 40)) <= 1:
+                    print("#", end='')
+                else:
+                    print(' ', end='')
+
+                x += int(line.split(' ')[1])
+
+                cycles += 1
+
+        print("")
+
+    return [signalStrength, None]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

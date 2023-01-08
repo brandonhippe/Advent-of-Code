@@ -326,7 +326,7 @@ def generateFunctions(path, orientation):
                 
     return 0
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
 
@@ -369,12 +369,7 @@ def main():
             if c == "^" or c == "v" or c == "<" or c == ">":
                 orientation = 0 if c == '^' else (1 if c == '>' else (2 if c == 'v' else 3))
                 robot = [x, y]
-
-    for line in scaffolding:
-        print(line)
-
-    print(f"\nPart 1:\nSum of alignment parameters: {count}")
-
+    
     corners = orderCorners(scaffolding, robot, end, corners)
 
     repeats = []
@@ -407,8 +402,15 @@ def main():
     for (i, x) in enumerate(lines):
         code[i] = x
 
-    print(f"\nPart 2:\nDust collected: {handlerP2(code, instructions[0], instructions[1])}")
+    part2 = handlerP2(code, instructions[0], instructions[1])
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nSum of alignment parameters: {count}\n\nPart 2:\nDust collected: {part2}")
+
+    return [count, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

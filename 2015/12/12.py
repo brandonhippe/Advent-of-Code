@@ -21,14 +21,22 @@ def numSumP2(data):
     else:
         return 0
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
-        data = json.loads(f.readline().strip('\n'))
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
+        data = f.readline().strip('\n')
 
-    print(f"\nPart 1:\nSum of numbers: {numSumP1(data)}")
-    print(f"\nPart 2:\nSum of numbers after ignoring red: {numSumP2(data)}")
+    data = json.loads(data)
+
+    part1 = numSumP1(data)
+    part2 = numSumP2(data)
+
+    if verbose:
+        print(f"\nPart 1:\nSum of numbers: {part1}\n\nPart 2:\nSum of numbers after ignoring red: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

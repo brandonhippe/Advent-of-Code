@@ -3,7 +3,7 @@ import time
 def triangle(n):
     return n * (n + 1) // 2
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
     
@@ -60,8 +60,6 @@ def main():
 
         yVel += 1
 
-    print("\nPart 1:\nMaximum Y Position on Landing Trajectory: " + str(yMax))
-
     trajectories = []
     xVelMin = xVel
 
@@ -94,8 +92,13 @@ def main():
             if landed:
                 trajectories.append([xVel, yVel])
 
-    print("\nPart 2:\nNumber of Landing Trajectories: " + str(len(trajectories)))
+    if verbose:
+        print(f"\nPart 1:\nMaximum Y Position on Landing Trajectory: {yMax}\n\nPart 2:\nNumber of Landing Trajectories: {len(trajectories)}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [yMax, len(trajectories)]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

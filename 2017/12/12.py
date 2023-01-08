@@ -17,8 +17,8 @@ def bfs(start, visited):
 
         visited[p.pNum] = True
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     programs = [Program(i) for i in range(len(lines))]
@@ -32,7 +32,7 @@ def main(filename):
     visited = [False] * len(programs)
     bfs(programs[0], visited)
 
-    print(f"\nPart 1:\nPrograms connected to program 0: {sum(visited)}")
+    part1 = sum(visited)
 
     groups = 1
     for i, v in enumerate(visited):
@@ -40,9 +40,13 @@ def main(filename):
             bfs(programs[i], visited)
             groups += 1
 
-    print(f"\nPart 2:\nNumber of groups: {groups}")
+    if verbose:
+        print(f"\nPart 1:\nPrograms connected to program 0: {part1}\n\nPart 2:\nNumber of groups: {groups}")
+
+    return [part1, groups]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

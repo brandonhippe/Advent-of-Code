@@ -63,8 +63,8 @@ def traceBack(monkeys, currM, desired = None):
     return traceBack(monkeys, monkeys[currM][ix - 1], newDesired)
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     monkeys = {}
@@ -88,15 +88,20 @@ def main(filename):
                     elif op == '/':
                         monkeys[monkey] = monkeys[m1] // monkeys[m2]
     
-    print(f"\nPart 1:\n{monkeys['root']}")
+    part1 = monkeys['root']
 
     monkeys = {line.split(': ')[0]: line.split(': ')[1].split(' ') for line in lines}
     monkeys['root'][1] = '='
 
-    print(f"\nPart 2:\n{traceBack(monkeys, 'root')}")
+    part2 = traceBack(monkeys, 'root')
+
+    if verbose:
+        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+
+    return [part1, part2]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

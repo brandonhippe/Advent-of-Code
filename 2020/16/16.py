@@ -11,8 +11,8 @@ def clearFound(validFields, ix):
             validFields[i].remove(validFields[ix])
             clearFound(validFields, i)
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     ranges = {}
@@ -46,8 +46,6 @@ def main(filename):
         if not validTicket:
             otherTickets.remove(t)
 
-    print(f"\nPart 1:\nTicket scanning error rate: {errorRate}")
-
     validFields = {i: set(ranges.keys()) for i in range(len(ranges))}
 
     for t in list(otherTickets):
@@ -68,9 +66,13 @@ def main(filename):
         if validFields[i].split(' ')[0] == 'departure':
             product *= n
 
-    print(f"\nPart 2\nProduct of fields that start with departure: {product}")
+    if verbose:
+        print(f"\nPart 1:\nTicket scanning error rate: {errorRate}\n\nPart 2\nProduct of fields that start with departure: {product}")
+
+    return [errorRate, product]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

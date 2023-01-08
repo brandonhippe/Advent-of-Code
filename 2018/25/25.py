@@ -28,15 +28,20 @@ def scc(points, neighbors):
 
     return components
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         points = [tuple(int(x) for x in re.findall('-?\d+', line)) for line in f.readlines()]
 
     neighbors = {p: [p1 for p1 in points if p != p1 and manhatDist(p, p1) <= 3] for p in points}
+    part1 = len(scc(points, neighbors))
 
-    print(f"\nPart 1:\nNumber of constellations: {len(scc(points, neighbors))}")
+    if verbose:
+        print(f"\nPart 1:\nNumber of constellations: {part1}")
+
+    return [part1]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -13,8 +13,8 @@ def reverseMoleculeCreation(molecule, backtrackRules):
 
     return None
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     string = lines[-1]
@@ -36,17 +36,22 @@ def main(filename):
 
             o = re.search(r, string[end:])
 
-    print(f"\nPart 1:\nNumber of molecules that can be made with a single replacement: {len(oneStep)}")
+    part1 = len(oneStep)
 
     backtrackRules = {}
     for k, v in zip(rules.keys(), rules.values()):
         for s in v:
             backtrackRules[s] = k
 
-    steps = reverseMoleculeCreation(string, sorted(list(zip(backtrackRules.keys(), backtrackRules.values())), key=lambda e: len(e[0]), reverse=True))
-    print(f"\nPart 2:\nFewest steps to create molecule: {steps}")
+    part2 = reverseMoleculeCreation(string, sorted(list(zip(backtrackRules.keys(), backtrackRules.values())), key=lambda e: len(e[0]), reverse=True))
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of molecules that can be made with a single replacement: {part1}\n\nPart 2:\nFewest steps to create molecule: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

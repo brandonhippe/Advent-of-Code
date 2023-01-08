@@ -1,7 +1,7 @@
 import time
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [int(line) for line in f.readlines()]
 
     data = sorted(data)
@@ -16,7 +16,8 @@ def main(filename):
         if found:
             break
 
-    print(f"\nPart 1:\nProduct of numbers that sum to 2020: {data[i] * data[j]}")
+    part1 = data[i] * data[j]
+
 
     found = False
     for i in range(len(data) - 2):
@@ -32,10 +33,14 @@ def main(filename):
         if found:
             break
 
-    print(f"\nPart 2:\nProduct of numbers that sum to 2020: {data[i] * data[j] * data[k]}")
+    if verbose:
+        print(f"\nPart 1:\nProduct of numbers that sum to 2020: {part1}\n\nPart 2:\nProduct of numbers that sum to 2020: {data[i] * data[j] * data[k]}")
+
+    return [part1, data[i] * data[j] * data[k]]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")
     

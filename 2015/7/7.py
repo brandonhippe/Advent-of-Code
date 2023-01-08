@@ -53,8 +53,8 @@ class Component:
             elif self.left[1] == 'RSHIFT':
                 return (v1 >> v2) % 65536
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         circuit = {}
         for line in f.readlines():
             c = Component(line.strip('\n'))
@@ -62,15 +62,22 @@ def main(filename):
 
     wires = {}
     wires['a'] = circuit['a'].determineOutput(circuit, wires)
-    print(f"\nPart 1:\nValue in wire a after building the circuit: {wires['a']}")
-    
+
+    part1 = wires['a']
+
     b = wires['a']
     wires = {}
     wires['b'] = b
     wires['a'] = circuit['a'].determineOutput(circuit, wires)
-    print(f"\nPart 2:\nValue in wire a after overriding wire b: {wires['a']}")
+
+    part2 = wires['a']
+
+    if verbose:
+        print(f"\nPart 1:\nValue in wire a after building the circuit: {part1}\n\nPart 2:\nValue in wire a after overriding wire b: {part2}")
+
+    return [part1, part2]
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

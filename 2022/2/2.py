@@ -1,7 +1,7 @@
 from time import perf_counter
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n').split(' ') for line in f.readlines()]
 
 
@@ -15,7 +15,7 @@ def main(filename):
         elif (played[1] - 1) % 3 == played[0]:
             score += 6    
 
-    print(f"\nPart 1:\nScore: {score}")
+    part1 = score
 
     score = 0
     for p1, p2 in lines:
@@ -31,10 +31,13 @@ def main(filename):
 
         score += (opp + offset) % 3 + 1
 
-    print(f"\nPart 2:\nScore: {score}")
+    if verbose:
+        print(f"\nPart 1:\nScore: {part1}\n\nPart 2:\nScore: {score}")
+
+    return [part1, score]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

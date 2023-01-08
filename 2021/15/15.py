@@ -38,8 +38,8 @@ def aStar(start, end, area):
     return -1
 
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [[int(x) for x in line.strip()] for line in f.readlines()]
 
     area = {}
@@ -47,7 +47,7 @@ def main(filename):
         for x, l in enumerate(line):
             area[tuple([x, y])] = l
 
-    print(f"\nPart 1:\nSafest path risk: {aStar((0, 0), (len(data) - 1, len(data) - 1), area)}")
+    part1 = aStar((0, 0), (len(data) - 1, len(data) - 1), area)
 
     areaP2 = {}
     for y in range(len(data) * 5):
@@ -58,10 +58,15 @@ def main(filename):
                 increment = manhatDist([x, y], [x % len(data), y % len(data)]) // len(data)
                 areaP2[tuple([x, y])] = ((area[tuple([x % len(data), y % len(data)])] - 1 + increment) % 9) + 1
 
-    print(f"\nPart 2:\nSafest path risk: {aStar((0, 0), (len(data) * 5 - 1, len(data) * 5 - 1), areaP2)}")
+    part2 = aStar((0, 0), (len(data) * 5 - 1, len(data) * 5 - 1), areaP2)
+
+    if verbose:
+        print(f"\nPart 1:\nSafest path risk: {part1}\n\nPart 2:\nSafest path risk: {part2}")
+
+    return [part1, part2]
 
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds")

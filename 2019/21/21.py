@@ -229,7 +229,7 @@ def handlerP2(code):
             print("Code requested more input, which could not be provided.")
             return -1
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
 
@@ -237,9 +237,16 @@ def main():
     for (i, x) in enumerate(lines):
         code[i] = x
 
-    print(f"\nPart 1:\nDamage done to hull: {handlerP1(copy.deepcopy(code))}")
-    print(f"\nPart 2:\nDamage done to hull: {handlerP2(copy.deepcopy(code))}")
-    
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    part1 = handlerP1(copy.deepcopy(code))
+    part2 = handlerP2(copy.deepcopy(code))
+
+    if verbose:
+        print(f"\nPart 1:\nDamage done to hull: {part1}\n\nPart 2:\nDamage done to hull: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

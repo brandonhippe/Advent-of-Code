@@ -187,7 +187,7 @@ def runCode(state, inputs):
 
     return [True, outputs]
 
-def handler(state):
+def handler(state, verbose):
     dirs = [[0, 1], [0, -1], [-1, 0], [1, 0]]
     moveOrder = [1, 4, 2, 3]
     loc = [0, 0]
@@ -216,7 +216,9 @@ def handler(state):
 
             moveOrder.append(moveOrder.pop(0))
 
-    printSpace(area, loc)
+    if verbose:
+        printSpace(area, loc)
+        
     return area
 
 def arrToStr(arr):
@@ -309,7 +311,7 @@ def aStar(area, start, end):
 
         closedList[arrToStr(q)] = [qF, qG, q]
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
 
@@ -317,14 +319,14 @@ def main():
     for (i, x) in enumerate(lines):
         code[i] = x
 
-    area = handler([code, 0, 0, []])
+    area = handler([code, 0, 0, []], verbose)
 
     for (k, v) in zip(area.keys(), area.values()):
         if v == 2:
             end = [int(x) for x in k.split(',')]
             break
 
-    print(f"\nPart 1:\nFewest steps to oxygen system: {aStar(area, [0, 0], end)}")
+    part1 = aStar(area, [0, 0], end)
 
     maximum = float('-inf')
     for (k, v) in zip(area.keys(), area.values()):
@@ -336,8 +338,13 @@ def main():
         if dist > maximum:
             maximum = dist
 
-    print(f"\nPart 2:\nIt will take {maximum} minutes to fill with oxygen")
+    if verbose:
+        print(f"\nPart 1:\nFewest steps to oxygen system: {part1}\n\nPart 2:\nMinutes to fill with oxygen: {maximum}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, maximum]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

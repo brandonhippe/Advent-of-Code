@@ -242,7 +242,7 @@ def printArea(affected):
         
         print('')
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
 
@@ -251,12 +251,15 @@ def main():
         code[i] = x
 
     affectedArea = handlerP1(code)
-    printArea(affectedArea)
-    print(f"\nPart 1:\nNumber of points affected by Tractor Beam: {len(affectedArea)}")
-
     corner = handlerP2(code)
-    print(f"\nPart 2:\nCorner: {corner}\n10000 * Corner's X + Corner's Y: {10000 * corner[0] + corner[1]}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nNumber of points affected by Tractor Beam: {len(affectedArea)}\n\nPart 2:\nCorner: {corner}\n10000 * Corner's X + Corner's Y: {10000 * corner[0] + corner[1]}")
+
+    return [len(affectedArea), 10000 * corner[0] + corner[1]]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -14,8 +14,8 @@ def square(a, _):
     return a * a
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     monkeyBusiness = {}
@@ -48,7 +48,6 @@ def main(filename):
 
             monkeyTests[monkeyNum].append([int(x) for x in re.findall("-?\d+", line)][0])
 
-
     for _ in range(20):
         for monkeyNum, monkeyItems in enumerate(items):
             items[monkeyNum] = []
@@ -64,9 +63,8 @@ def main(filename):
                     items[monkeyTests[monkeyNum][2]].append(item)
 
     result = sorted(monkeyBusiness.values(), reverse=True)
-        
 
-    print(f"\nPart 1:\nMonkey Business after 20 rounds: {result[0] * result[1]}")
+    part1 = result[0] * result[1]
 
     items = itemsP2
     monkeyBusiness = {m: 0 for m in monkeyBusiness.keys()}
@@ -91,10 +89,13 @@ def main(filename):
 
     result = sorted(monkeyBusiness.values(), reverse=True)
 
-    print(f"\nPart 2:\nMonkey Business after 10000 rounds: {result[0] * result[1]}")
+    if verbose:
+        print(f"\nPart 1:\nMonkey Business after 20 rounds: {part1}\n\nPart 2:\nMonkey Business after 10000 rounds: {result[0] * result[1]}")
+
+    return [part1, result[0] * result[1]]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

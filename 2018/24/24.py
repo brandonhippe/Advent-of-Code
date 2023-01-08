@@ -78,8 +78,8 @@ def fight(groups):
 
     return groups
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     groups = []
@@ -92,7 +92,7 @@ def main(filename):
         else:
             groups.append(Group(army, line))
 
-    print(f"\nPart 1:\nTotal remaining units of winning army: {sum([g.units for g in fight(copy.deepcopy(groups))])}")
+    part1 = sum([g.units for g in fight(copy.deepcopy(groups))])
 
     immune = None
     infection = 0
@@ -121,9 +121,15 @@ def main(filename):
         if g.army == "Immune System":
             g.damage += immune
 
-    print(f"\nPart 2:\nTotal remaining immune system units with smallest boost: {sum([g.units for g in fight(gs)])}")
+    part2 = sum([g.units for g in fight(gs)])
+
+    if verbose:
+        print(f"\nPart 1:\nTotal remaining units of winning army: {part1}\n\nPart 2:\nTotal remaining immune system units with smallest boost: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

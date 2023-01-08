@@ -30,11 +30,10 @@ def updateOcto(data, x, y):
     
     return count
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         data = [[int(x) for x in line.strip()] for line in f.readlines()]
 
-    print("Part 1:")
     count = 0
     for day in range(100):
         for i in range(len(data)):
@@ -45,9 +44,8 @@ def main():
             for j in range(len(data[i])):
                 data[i][j] = data[i][j] % 10
 
-    print("Number of Octopi flashes: " + str(count))
+    part1 = count
 
-    print("Part 2:")
     count = 0
     day = 0
     while count != len(data) * len(data[0]):
@@ -62,8 +60,13 @@ def main():
             for j in range(len(data[i])):
                 count += updateOcto(data, j, i)        
 
-    print("First Synchronized Flash: " + str(day + 100))
+    if verbose:
+        print(f"\nPart 1:\nNumber of Octopi flashes: {part1}\n\nPart 2:\nFirst Synchronized Flash: {day + 100}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, day + 100]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

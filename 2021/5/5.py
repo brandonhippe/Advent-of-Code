@@ -1,6 +1,6 @@
 import time
 
-def main():
+def main(verbose):
     with open('input.txt',encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
     
@@ -48,8 +48,13 @@ def main():
             elif tuple(p) not in hvcounted:
                 hvpoints.add(tuple(p))
 
-    print(f"\nPart 1:\nDangerous Points: {len(hvcounted)}\nPart 2:\nDangerous Points: {len(allcounted)}")
+    if verbose:
+        print(f"\nPart 1:\nDangerous Points: {len(hvcounted)}\nPart 2:\nDangerous Points: {len(allcounted)}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [len(hvcounted), len(allcounted)]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

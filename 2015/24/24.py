@@ -24,8 +24,8 @@ def splitableP2(weights, goal):
 
     return False
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         weights = [int(line) for line in f.readlines()]
 
     lowestEntanglement = float('inf')
@@ -37,7 +37,7 @@ def main(filename):
         if lowestEntanglement < float('inf'):
             break
 
-    print(f"\nPart 1:\nLowest quantum entanglement: {lowestEntanglement}")
+    part1 = lowestEntanglement
 
     lowestEntanglement = float('inf')
     for i in range(1, len(weights) + 1):
@@ -48,9 +48,15 @@ def main(filename):
         if lowestEntanglement < float('inf'):
             break
 
-    print(f"\nPart 2:\nLowest quantum entanglement: {lowestEntanglement}")
+    part2 = lowestEntanglement
+
+    if verbose:
+        print(f"\nPart 1:\nLowest quantum entanglement: {part1}\n\nPart 2:\nLowest quantum entanglement: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

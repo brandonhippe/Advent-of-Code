@@ -1,7 +1,7 @@
 import time
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [int(line.strip('\n')) for line in f.readlines()]
 
     linesP2 = lines[:]
@@ -13,7 +13,7 @@ def main(filename):
         ix += jmp
         steps += 1
 
-    print(f"\nPart 1:\nSteps before jumping outside list: {steps}")
+    part1 = steps
 
     lines = linesP2[:]
 
@@ -25,9 +25,15 @@ def main(filename):
         ix += jmp
         steps += 1
 
-    print(f"\nPart 2:\nSteps before jumping outside list: {steps}")
+    part2 = steps
+
+    if verbose:
+        print(f"\nPart 1:\nSteps before jumping outside list: {part1}\n\nPart 2:\nSteps before jumping outside list: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

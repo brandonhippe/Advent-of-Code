@@ -2,7 +2,7 @@ from operator import xor
 import time
 import re
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
@@ -19,10 +19,13 @@ def main():
         if xor(pwd[counts[0] - 1] == c, pwd[counts[1] - 1] == c):
             countP2 += 1
     
-    print(f"\nPart 1:\nValid Passwords: {countP1}")
-    print(f"\nPart 2:\nValid Passwords: {countP2}")
+    if verbose:
+        print(f"\nPart 1:\nValid Passwords: {countP1}\n\nPart 2:\nValid Passwords: {countP2}")
+
+    return [countP1, countP2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds")

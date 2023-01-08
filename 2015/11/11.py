@@ -50,22 +50,29 @@ def increment(pw):
 
     return pw
 
-def main(data = 'cqjxjnds'):
+def main(verbose):
+    data = 'cqjxjnds'
     pw = increment([ord(c) - ord('a') for c in data])
 
     while not valid(pw):
         pw = increment(pw)
 
-    print(f"\nPart 1:\nNew password: {''.join(chr(c + ord('a')) for c in pw)}")
+    part1 = ''.join(chr(c + ord('a')) for c in pw)
 
     pw = increment(pw)
 
     while not valid(pw):
         pw = increment(pw)
 
-    print(f"\nPart 2:\nNew password: {''.join(chr(c + ord('a')) for c in pw)}")
+    part2 = ''.join(chr(c + ord('a')) for c in pw)
+
+    if verbose:
+        print(f"\nPart 1:\nNew password: {part1}\n\nPart 2:\nNew password: {part2}")
+
+    return [part1, part2]
+    
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -52,7 +52,7 @@ def sortStr(s):
 
     return ret
 
-def main():
+def main(verbose):
     with open('input.txt',encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -75,23 +75,26 @@ def main():
             if o[-1] == '\n':
                 output[i] = o[0:-1]
 
-    print("Part 1:")
     count = 0
     for output in outputs:
         for o in output:            
             if len(o) == 2 or len(o) == 3 or len(o) == 4 or len(o) == 7:
                 count += 1
 
-    print("Instances of 1, 4, 7, and 8: " + str(count))
+    part1 = count
 
-    print("Part 2:")
     count = 0
     for i in range(len(patterns)):
         c = code(patterns[i], outputs[i])
         count += c.output
 
-    print("Sum of output values: " + str(count))
+    if verbose:
+        print(f"\nPart 1:\nInstances of 1, 4, 7, and 8: {part1}\n\nPart 2:\nSum of output values: {count}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, count]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

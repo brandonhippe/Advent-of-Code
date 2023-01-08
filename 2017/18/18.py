@@ -66,8 +66,8 @@ def receive(x, y, regs1, regs2=None):
 OPSP1 = {'snd': sound, 'set': setr, 'add': add, 'mul': mul, 'mod': mod, 'rcv': recov, 'jgz': jgz}
 OPSP2 = {'snd': send, 'set': setr, 'add': add, 'mul': mul, 'mod': mod, 'rcv': receive, 'jgz': jgz}
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         instructions = [line.strip('\n') for line in f.readlines()]
 
     registers = defaultdict(lambda: 0)
@@ -87,7 +87,7 @@ def main(filename):
 
         registers['PC'] += 1
 
-    print(f"\nPart 1:\nRecovered sound: {registers['REC']}")
+    part1 = registers['REC']
 
     regs1 = defaultdict(lambda: 0)
     regs2 = defaultdict(lambda: 0)
@@ -122,9 +122,13 @@ def main(filename):
 
         currRegs, otherRegs = otherRegs, currRegs
 
-    print(f"\nPart 2:\nNumber of values sent by program 1: {regs2['sent']}")
+    if verbose:
+        print(f"\nPart 1:\nRecovered sound: {part1}\n\nPart 2:\nNumber of values sent by program 1: {regs2['sent']}")
+
+    return [part1, regs2['sent']]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

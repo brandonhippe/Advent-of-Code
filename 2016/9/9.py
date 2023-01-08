@@ -26,8 +26,8 @@ def determineLen(line, memo):
 
     return length
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         line = f.readline().strip('\n')
     
     searchStart = 0
@@ -47,10 +47,15 @@ def main(filename):
 
         marker = re.search('\([^(]*\)', line[searchStart:])
 
-    print(f"\nPart 1:\nLength of decompressed file: {len(line)}")
-    print(f"\nPart 2:\nLength of fully decompressed file: {determineLen(line, {})}")
+    part2 = determineLen(line, {})
+
+    if verbose:
+        print(f"\nPart 1:\nLength of decompressed file: {len(line)}\n\nPart 2:\nLength of fully decompressed file: {part2}")
+
+    return [len(line), part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

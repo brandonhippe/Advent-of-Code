@@ -3,7 +3,7 @@ import time
 def zeroSort(e):
     return e[0]
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         data = [int(x) for x in f.readline()]
 
@@ -21,7 +21,7 @@ def main():
         numData.append(layerData)
 
     numData.sort(key=zeroSort)
-    print(f"\nPart 1:\n1's * 2's in layer with fewest 0's: {numData[0][1] * numData[0][2]}")
+    part1 = numData[0][1] * numData[0][2]
 
     visibleImg = [0] * (width * height)
     for layer in range(len(data) // (width * height)):
@@ -30,15 +30,20 @@ def main():
             if num != 2:
                 visibleImg[i] = num
 
-    print("\nPart 2:\n")
-    visibleImg.reverse()
-    for y in range(height):
-        for x in range(width):
-            c = '#' if visibleImg[x + y * width] == 1 else ' '
-            print(c,end='')
+    if verbose:
+        print(f"\nPart 1:\n1's * 2's in layer with fewest 0's: {part1}")
+        print("\nPart 2:\n")
+        visibleImg.reverse()
+        for y in range(height):
+            for x in range(width):
+                c = '#' if visibleImg[x + y * width] == 1 else ' '
+                print(c,end='')
 
-        print('')
+            print('')
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, None]
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

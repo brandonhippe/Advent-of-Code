@@ -1,9 +1,10 @@
 import time
 
-def main(data = '3113322113'):
+def main(verbose):
+    data = '3113322113'
     for iteration in range(50):
         if iteration == 40:
-            print(f"\nPart 1:\nLength: {len(data)}")
+            part1 = len(data)
 
         newData = ''
         i = 1
@@ -22,9 +23,15 @@ def main(data = '3113322113'):
         newData += f'{count}{d}'
         data = newData
 
-    print(f"\nPart 2:\nLength: {len(data)}")
+    part2 = len(data)
+
+    if verbose:
+        print(f"\nPart 1:\nLength: {part1}\n\nPart 2:\nLength: {part2}")
+
+    return [part1, part2]
+    
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

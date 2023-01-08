@@ -44,8 +44,8 @@ def calc(regs, nums):
 
     return regs['a'] + nums[0] * nums[1]
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         instructions = [line.strip('\n').split(' ') for line in f.readlines()]
     
     regs = defaultdict(lambda: 0)
@@ -55,8 +55,7 @@ def main(filename):
         regs['PC'] += 1
 
     nums = [int(re.findall('-?\d+', l[1])[0]) for l in instructions[16:18]]
-
-    print(f"\nPart 1:\nValue in register a after program executes: {calc(regs, nums)}")
+    part1 = calc(regs, nums)
 
     regs = defaultdict(lambda: 0)
     regs['c'] = 1
@@ -66,10 +65,15 @@ def main(filename):
         regs['PC'] += 1
 
     nums = [int(re.findall('-?\d+', l[1])[0]) for l in instructions[16:18]]
+    part2 = calc(regs, nums)
 
-    print(f"\nPart 2:\nValue in register a after program executes: {calc(regs, nums)}")
+    if verbose:
+        print(f"\nPart 1:\nValue in register a after program executes: {part1}\n\nPart 2:\nValue in register a after program executes: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

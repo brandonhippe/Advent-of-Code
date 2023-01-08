@@ -110,7 +110,7 @@ class snailFishNumber:
         else:
             return (3 * self.children[0].magnitude()) + (2 * self.children[1].magnitude())
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -137,9 +137,15 @@ def main():
         numbers.append(snailFishNumber('[' + nums[0].numberString() + ',' + nums[1].numberString() + ']'))
         numbers[-1].reduction()
 
-    print('\nPart 1:\nMagnitude of Result: ' + str(numbers[0].magnitude()))
-    print('\nPart 2:\nLargest Magnitude: ' + str(maximum))
+    part1 = numbers[0].magnitude()
+
+    if verbose:
+        print(f"\nPart 1:\nMagnitude of Result: {part1}\n\nPart 2:\nLargest Magnitude: {maximum}")
+
+    return [part1, maximum]
     
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

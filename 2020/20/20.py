@@ -55,8 +55,8 @@ def getRoughness(image, monster):
 
     return (monsters, len(water))
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = '\n'.join(line.strip('\n') for line in f.readlines() if len(line.strip('\n')) != 0)
 
     tiles = {num: tile for num, tile in zip([int(x) for x in re.findall('\d+', data)], [np.asarray([list(l) for l in line.strip('\n').split('\n')]) for line in re.split('Tile \d+:', data)[1:]])}
@@ -91,8 +91,6 @@ def main(filename):
 
                 tiles[corner] = transform(tiles[corner], r)
 
-    print(f"\nPart 1:\nProduct of Corner image IDs: {prod}")
-
     image = assembleImage(corner, tiles, sideInfo, sideMatches)
 
     with open("monster.txt", encoding='UTF-8') as f:
@@ -104,9 +102,13 @@ def main(filename):
         monsters, roughness = getRoughness(transform(image, r), monster)
         r += 1
 
-    print(f"\nPart 2:\nWater Roughness: {roughness}")
+    if verbose:
+        print(f"\nPart 1:\nProduct of Corner image IDs: {prod}\n\nPart 2:\nWater Roughness: {roughness}")
+
+    return [prod, roughness]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

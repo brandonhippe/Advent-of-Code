@@ -152,7 +152,7 @@ def findPathP2(portals):
 
     return -1
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [[x for x in line.strip('\n')] for line in f.readlines()]
 
@@ -185,9 +185,16 @@ def main():
     for portal in portals:
         portal.genNeighbors(lines, portals)
 
-    print(f"\nPart 1:\nShortest Path from AA to ZZ: {findPathP1(portals)}")
-    print(f"\nPart 2:\nShortest Path from AA to ZZ: {findPathP2(portals)}")
+    part1 = findPathP1(portals)
+    part2 = findPathP2(portals)
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nShortest Path from AA to ZZ: {part1}\n\nPart 2:\nShortest Path from AA to ZZ: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -97,26 +97,27 @@ def mostGeodes(oreCost, clayOre, obsOre, obsClay, geoOre, geoObs, maxT):
     return maxGeodes
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     qualitySum = 0
     for line in lines:
         blueprint, oreCost, clayOre, obsOre, obsClay, geoOre, geoObs = [int(x) for x in re.findall('\d+', line)]
         qualitySum += blueprint * bfs(oreCost, clayOre, obsOre, obsClay, geoOre, geoObs, 24)
- 
-    print(f"\nPart 1:\n{qualitySum}")
 
     product = 1
     for line in lines[:3]:
         blueprint, oreCost, clayOre, obsOre, obsClay, geoOre, geoObs = [int(x) for x in re.findall('\d+', line)]
         product *= mostGeodes(oreCost, clayOre, obsOre, obsClay, geoOre, geoObs, 32)
 
-    print(f"\nPart 2:\n{product}")
+    if verbose:
+        print(f"\nPart 1:\n{qualitySum}\n\nPart 2:\n{product}")
+
+    return [qualitySum, product]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

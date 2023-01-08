@@ -42,8 +42,8 @@ def printAcres(acres):
 
     return string
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         acres = np.array([np.array([l for l in line.strip('\n')]) for line in f.readlines()])
 
     gridStates = {}
@@ -54,7 +54,7 @@ def main(filename):
 
         if minutes == 10:
             trees, lumber = counts(acres)
-            print(f"\nPart 1:\nResource collection value after 10 min: {trees * lumber}")
+            part1 = trees * lumber
 
         gridStr = printAcres(acres)
         if gridStr in gridStates:
@@ -63,9 +63,14 @@ def main(filename):
             gridStates[gridStr] = minutes
 
     trees, lumber = counts(acres)
-    print(f"\nPart 2:\nResource collection value after 1000000000 min: {trees * lumber}")
+
+    if verbose:
+        print(f"\nPart 1:\nResource collection value after 10 min: {part1}\n\nPart 2:\nResource collection value after 1000000000 min: {trees * lumber}")
+
+    return [part1, trees * lumber]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

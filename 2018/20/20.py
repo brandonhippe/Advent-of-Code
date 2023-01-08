@@ -148,7 +148,8 @@ def printRooms(rooms, doors, pos):
 
     return string[1:]
 
-def main(filename):
+def main(verbose):
+    filename = "input.txt"
     with open(filename, encoding='UTF-8') as f:
         directions = Direction(f.readline().strip('\n')[1:-1])
 
@@ -161,10 +162,13 @@ def main(filename):
 
     farthest, over1000 = farthestRoom(doors, (0, 0))
 
-    print(f"\nPart 1:\nFarthest room from start: {farthest}")
-    print(f"\nPart 2:\nNumber of rooms over 1000 doors away: {over1000}")
+    if verbose:
+        print(f"\nPart 1:\nFarthest room from start: {farthest}\n\nPart 2:\nNumber of rooms over 1000 doors away: {over1000}")
+
+    return [farthest, over1000]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

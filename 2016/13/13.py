@@ -47,12 +47,20 @@ def aStar(data, goal=None):
 
     return len(under50)
 
-def main(data = 1362, goal = (31, 39)):
-    print(f"\nPart 1:\nShortest path to {goal}: {aStar(data, goal)}")
-    print(f"\nPart 2:\nPositions reached in at most 50 steps: {aStar(data)}")
+def main(verbose):
+    data = 1362
+    goal = (31, 39)
+
+    part1 = aStar(data, goal)
+    part2 = aStar(data)
+    
+    if verbose:
+        print(f"\nPart 1:\nShortest path to {goal}: {part1}\n\nPart 2:\nPositions reached in at most 50 steps: {part2}")
+
+    return [part1, part2]
             
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

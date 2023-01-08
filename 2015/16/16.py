@@ -14,8 +14,8 @@ def lt(a, b):
 def eq(a, b):
     return a == b
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [Sue(line.strip('\n')) for line in f.readlines()]
 
     identifiers = {"children: 3", "cats: 7", "samoyeds: 2", "pomeranians: 3", "akitas: 0", "vizslas: 0", "goldfish: 5", "trees: 3", "cars: 2", "perfumes: 1"}
@@ -24,7 +24,7 @@ def main(filename):
         if len(identifiers.union(s.characteristics)) == len(identifiers):
             possible.append(i + 1)
 
-    print(f"\nPart 1:\nPossible Susans: {possible}")
+    part1 = possible[0]
     
     identifiers = {"children": [eq, 3], "cats": [gt, 7], "samoyeds": [eq, 2], "pomeranians": [lt, 3], "akitas": [eq, 0], "vizslas": [eq, 0], "goldfish": [lt, 5], "trees": [gt, 3], "cars": [eq, 2], "perfumes": [eq, 1]}
     possible = []
@@ -40,9 +40,15 @@ def main(filename):
         if valid:
             possible.append(i + 1)
 
-    print(f"\nPart 2:\nPossible Susans: {possible}")
+    part2 = possible[0]
+
+    if verbose:
+        print(f"\nPart 1:\nPossible Susans: {part1}\n\nPart 2:\nPossible Susans: {part2}")
+
+    return [part1, part2]
+    
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

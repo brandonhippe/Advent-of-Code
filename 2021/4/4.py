@@ -41,7 +41,7 @@ class bingoBoard:
             print(row)
 
 
-def main():
+def main(verbose):
     with open('input.txt',encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -67,40 +67,37 @@ def main():
 
             values.append(temp)
 
-    print("Part 1:")
     finished = False
     for num in calls:
-        print("Called " + str(num))
         for board in boards:
             won = board.mark(num)
             if won == 1:
-                print("\nWinning board:")
-                board.printBoard()
-                print("\nScore: " + str(board.score(num)))
+                part1 = board.score(num)
                 finished = True
                 break
 
         if finished:
             break
 
-    print("\n\nPart 2:")
     for num in calls:
-        print("Called " + str(num))
         for i in range(len(boards) - 1, -1, -1):
             won = boards[i].mark(num)
             if won == 1:
                 if len(boards) == 1:
-                    print("\nLast board:")
-                    boards[i].printBoard()
-                    print("\nScore: " + str(boards[i].score(num)))
+                    part2 = boards[i].score(num)
                 
                 boards.pop(i)
         
         if len(boards) == 0:
             break
 
-    print("\n\nProgram Done")
+    if verbose:
+        print(f"\nPart 1:\nWinning board score: {part1}\n\nPart 2:\nLast board score: {part2}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

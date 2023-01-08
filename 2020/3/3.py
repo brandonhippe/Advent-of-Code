@@ -1,9 +1,8 @@
 import time
 
-from numpy import product
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     x, y = 0, 0
@@ -18,7 +17,7 @@ def main(filename):
         x %= len(lines[0])
         y += dy
 
-    print(f"\nPart 1:\nTrees hit: {count}")
+    part1 = count
 
     product = count
     for dx, dy in [(1, 1), (5, 1), (7, 1), (1, 2)]:
@@ -35,9 +34,13 @@ def main(filename):
 
         product *= count
 
-    print(f"\nPart 2:\nProduct of trees hit at different slopes: {product}")
+    if verbose:
+        print(f"\nPart 1:\nTrees hit: {part1}\n\nPart 2:\nProduct of trees hit at different slopes: {product}")
+
+    return [part1, product]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

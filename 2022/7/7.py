@@ -51,10 +51,9 @@ def smallestDelete(fileSystem, needToDelete):
     return smallest
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
-
 
     fileSystem = Directory("/")
 
@@ -76,15 +75,20 @@ def main(filename):
 
     fileSystem.size()
 
-    print(f"\nPart 1:\nTotal size of directories under 100000: {sumDirectories(fileSystem)}")
+    part1 = sumDirectories(fileSystem)
 
     freeSpace = 70000000 - fileSystem.s
     needToDelete = 30000000 - freeSpace
 
-    print(f"\nPart 2:\nSmallest directory to make space for update: {smallestDelete(fileSystem, needToDelete)}")
+    part2 = smallestDelete(fileSystem, needToDelete)
+
+    if verbose:
+        print(f"\nPart 1:\nTotal size of directories under 100000: {part1}\n\nPart 2:\nSmallest directory to make space for update: {part2}")
+
+    return [part1, part2]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

@@ -1,71 +1,80 @@
-import time
-import heapq
+from time import perf_counter
+import sys
+sys.path.insert(0,"C:/Users/Brandon Hippe/Documents/Coding Projects/Advent-of-Code/Modules")
+from graphAlgorithms import bfs
+        
 
-class searchNode:
-    def __init__(self, pos, end, prev = None):
-        self.pos = pos
-        self.moves = [tuple([p + o for p, o in zip(self.pos, offset)] + [self.pos[-1]]) for offset in [[1, 0], [0, 1], [-1, 0], [0, -1]]]
-        self.swaps = [tuple(list(pos[:-1]) + [l]) for l in range(3) if l != self.pos[-1]]
-        self.h = self.heuristic(end)
-        self.g = 0 if prev is None else (prev.g + (1 if self.pos[-1] == prev.pos[-1] else 7))
-        self.f = self.g + self.h        
+def calcErosion(pos, erosionLevels, depth):
+    if pos[0] == 0:
+        return (pos[1] * 48271 + depth) % 20183
 
-    def heuristic(self, target):
-        layerOffset = 7 if self.pos[-1] != target[-1] else 0
-        return sum([abs(p - t) for p, t in zip(self.pos[:-1], target[:-1])]) + layerOffset
+    if pos[1] == 0:
+        return (pos[0] * 16807 + depth) % 20183
 
-    def __hash__(self):
-        return hash(self.pos)
+    p1 = (pos[0] - 1, pos[1])
+    p2 = (pos[0], pos[1] - 1)
 
-    def __eq__(self, other):
-        return self.pos == other.pos
+    if p1 not in erosionLevels:
+        erosionLevels[p1] = calcErosion(p1, erosionLevels, depth)
 
-    def __lt__(self, other):
-        return (self.f < other.f) or (self.f == other.f and self.h < other.h)
+    if p2 not in erosionLevels:
+        erosionLevels[p2] = calcErosion(p2, erosionLevels, depth)
 
-def erosionLevel(pos, depth, target, calculated):
-    if pos not in calculated:
-        if pos == target:
-            calculated[pos] = depth % 20183
-        elif 0 in pos:
-            calculated[pos] = (sum(p * m for p, m in zip(pos, (16807, 48271))) + depth) % 20183
+    return (erosionLevels[p1] * erosionLevels[p2] + depth) % 20183
+
+
+def nextState(state, area, d, t, **kwargs):
+    *pos, tool = state
+    pos = tuple(pos)
+
+    newStates = []
+
+    for offset in [[1, 0], [-1, 0], [0, 1], [0, -1]]:
+        nPos = tuple(p + o for p, o in zip(pos, offset))
+        if min(nPos) < 0:
+            continue
+
+        if nPos not in area:
+            area[nPos] = calcErosion(nPos, area, d)
+
+        if tool == area[nPos] % 3:
+            newTool = [t for t in range(3) if t != tool and t != area[pos] % 3]
+            newState = tuple(list(pos) + newTool)
+            newStates.append([newState, t + 7])
         else:
-            calculated[pos] = ((erosionLevel((pos[0] - 1, pos[1]), depth, target, calculated) * erosionLevel((pos[0], pos[1] - 1), depth, target, calculated)) + depth) % 20183
+            newState = tuple(list(nPos) + [tool])
+            newStates.append([newState, t + 1])
 
-    return calculated[pos]
+    return newStates
 
-def shortestPath(start, end, erosionLevels, depth):
-    # 0: Neither, 1: Torch, 2: Climbing gear
-    visited = {}
-    openList = [searchNode(start, end)]
 
-    while len(openList) != 0:
-        currPos = heapq.heappop(openList)
+def abort(state, end, **kwargs):
+    return state == end
 
-        if currPos.pos == end:
-            return currPos.g
 
-        visited[currPos] = currPos.f
+def track(**kwargs):
+    return None
 
-        for n in currPos.moves + currPos.swaps:
-            newPos = searchNode(n, end, currPos)
-            if (newPos in visited and visited[newPos] <= newPos.f) or (min(newPos.pos) < 0) or (erosionLevel(newPos.pos[:-1], depth, end[:-1], erosionLevels) % 3 == newPos.pos[-1]):
-                continue
 
-            heapq.heappush(openList, newPos)
+def main(verbose):
+    depth = 5913
+    target = (8, 701)
 
-    return -1
+    erosionLevels = {(0, 0): depth}
 
-def main(depth = 5913, target = (8, 701)):
-    print(f"{depth = }, {target = }")
+    erosionLevels[target] = calcErosion(target, erosionLevels, depth)
+    erosionLevels[target] = depth
 
-    erosionLevels = {}
-    regions = {(x, y): erosionLevel((x, y), depth, target, erosionLevels) % 3 for x in range(target[0] + 1) for y in range(target[1] + 1)}
+    part1 = sum(e % 3 for e in erosionLevels.values())
+    part2 = bfs(startState = (0, 0, 1), end = tuple(list(target) + [1]), area = erosionLevels, d = depth, nextStateFunc = nextState, abortFunc = abort, trackFunc = track)
 
-    print(f"\nPart 1:\nTotal risk level: {sum(regions.values())}")
-    print(f"\nPart 2:\nTime for shortest path to target: {shortestPath((0, 0, 1), tuple(list(target) + [1]), erosionLevels, depth)}")
+    if verbose:
+        print(f"\nPart 1:\nRisk Level: {part1}\n\nPart 2:\nShortest time to reach target: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
-    init_time = time.perf_counter()
-    main()
-    print(f"\nRan in {time.perf_counter() - init_time} seconds.")
+    init_time = perf_counter()
+    main(True)
+    print(f"\nRan in {perf_counter() - init_time} seconds.")

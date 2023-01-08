@@ -1,7 +1,10 @@
-import time
+import time, sys
+sys.path.insert(0,"C:/Users/Brandon Hippe/Documents/Coding Projects/Advent-of-Code/Modules")
+from progressbar import printProgressBar
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     infectedP1 = set()
@@ -27,7 +30,7 @@ def main(filename):
 
         pos = tuple(p + o for p, o in zip(pos, facing))
 
-    print(f"\nPart 1:\nBursts that cause an infection: {infectedBursts}")
+    part1 = infectedBursts
 
     pos = (len(lines[0]) // 2, len(lines) // 2)
     facing = (0, -1)
@@ -35,8 +38,8 @@ def main(filename):
     weakened = set()
     flagged = set()
     for i in range(10_000_000):
-        if i % (100_000) == 0:
-            print(f"{i // 100_000}% finished")
+        if i % (100_000) == 0 and verbose:
+            printProgressBar(i + 1, 10_000_000)
             
         if pos in infectedP2:
             facing = (-facing[1], facing[0])
@@ -54,10 +57,16 @@ def main(filename):
             weakened.add(pos)
 
         pos = tuple(p + o for p, o in zip(pos, facing))
-    
-    print(f"\nPart 2:\nBursts that cause an infection: {infectedBursts}")
+
+    part2 = infectedBursts
+
+    if verbose:
+        print(f"\nPart 1:\nBursts that cause an infection: {part1}\n\nPart 2:\nBursts that cause an infection: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

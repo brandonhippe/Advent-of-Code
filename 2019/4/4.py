@@ -100,12 +100,18 @@ def foundP2(r):
 
     return found
 
-def main():
-    r = [359282, 820401]    
+def main(verbose):
+    r = [359282, 820401]
+    part1 = len(foundP1(r))
+    part2 = len(foundP2(r))
 
-    print(f"Part 1:\nNumber of valid passwords: {len(foundP1(r))}")
-    print(f"Part 2:\nNumber of valid passwords: {len(foundP2(r))}")
+    if verbose:
+        print(f"Part 1:\nNumber of valid passwords: {part1}\nPart 2:\nNumber of valid passwords: {part2}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

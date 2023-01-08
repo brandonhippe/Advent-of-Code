@@ -133,7 +133,7 @@ def handler(data, ampNums):
 
     return pOutput
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
     
@@ -150,7 +150,7 @@ def main():
         if output > largest:
             largest = output
 
-    print(f"\nPart 1:\nMaximum Thruster Signal: {largest}")
+    part1 = largest
 
     orders = list(itertools.permutations(range(5, 10)))
 
@@ -160,8 +160,13 @@ def main():
         if output > largest:
             largest = output
 
-    print(f"\nPart 2:\nMaximum Thruster Signal: {largest}")
+    if verbose:
+        print(f"\nPart 1:\nMaximum Thruster Signal: {part1}\n\nPart 2:\nMaximum Thruster Signal: {largest}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, largest]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -38,8 +38,8 @@ class Room:
 
         return decrypted[:-1]
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         rooms = [Room(line.strip('\n')) for line in f.readlines()]
 
     sectorSums = 0
@@ -48,11 +48,17 @@ def main(filename):
         if room.real:
             sectorSums += room.sectorID
             if room.decrypt() == "northpole object storage":
-                print(f"\nPart 2:\nSector ID of North Pole Object Storage: {room.sectorID}")
+                part2 = room.sectorID
 
-    print(f"\nPart 1:\nSum of sector IDs of real rooms: {sectorSums}")
+    part1 = sectorSums
+
+    if verbose:
+        print(f"\nPart 1:\nSum of sector IDs of real rooms: {part1}\n\nPart 2:\nSector ID of North Pole Object Storage: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -1,8 +1,8 @@
 from time import perf_counter
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [[int(x) for x in line.strip('\n')] for line in f.readlines()]
 
     visible = set()
@@ -37,7 +37,7 @@ def main(filename):
                 visible.add((r, c))
                 val = lines[r][c]
 
-    print(f"\nPart 1:\n{len(visible)}")
+    part1 = len(visible)
 
     maxScore = 0
     for y in range(1, Y - 1):
@@ -83,10 +83,13 @@ def main(filename):
 
             maxScore = max(score, maxScore)
 
-    print(f"\nPart 2:\n{maxScore}")
+    if verbose:
+        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{maxScore}")
+
+    return [part1, maxScore]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

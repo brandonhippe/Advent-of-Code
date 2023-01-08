@@ -60,9 +60,9 @@ def dataPath(nodes, goalNode):
 
     return steps
 
-def main(filename):
+def main(verbose):
     goalNode = (-1, 0)
-    with open(filename, encoding='UTF-8') as f:
+    with open("input.txt", encoding='UTF-8') as f:
         nodes = {}
         for line in f.readlines()[2:]:
             x, y, *otherNums = [int(n) for n in re.findall('\d+', line)]
@@ -78,10 +78,15 @@ def main(filename):
 
             pairs += 1 if n1.used[0] > 0 and n2.avail >= n1.used[0] else 0
 
-    print(f"\nPart 1:\nNumber of viable pairs of nodes: {pairs}")
-    print(f"\nPart 2:\nFewest steps to access data: {dataPath(nodes, goalNode)}")
+    part2 = dataPath(nodes, goalNode)
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of viable pairs of nodes: {pairs}\n\nPart 2:\nFewest steps to access data: {part2}")
+
+    return [pairs, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

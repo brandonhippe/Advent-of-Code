@@ -33,9 +33,8 @@ class CircularLinkedList:
 
             return returnNode
 
-def main(filename):
-    test = len(re.findall('\d+', filename)) == 1
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         players, marbles = [int(x) for x in re.findall('\d+', f.readline().strip())]
     
     circle = CircularLinkedList()
@@ -56,7 +55,7 @@ def main(filename):
         circle.current = circle.current.next
         circle.insert(Node(marble))
 
-    print(f"\nPart 1:\nHigh score: {max(scores)}")
+    part1 = max(scores)
 
     for marble in range(marbles + 1, (marbles * 100) + 1):
         if marble % 23 == 0:
@@ -72,9 +71,15 @@ def main(filename):
         circle.current = circle.current.next
         circle.insert(Node(marble))
 
-    print(f"\nPart 2:\nHigh score: {max(scores)}")
+    part2 = max(scores)
+
+    if verbose:
+        print(f"\nPart 1:\nHigh score: {part1}\n\nPart 2:\nHigh score: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -19,14 +19,20 @@ def volume(box):
 
     return total
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         boxes = [list(sorted(int(x) for x in re.findall('\d+', line))) for line in f.readlines()]
 
-    print(f"\nPart 1:\nTotal wrapping paper needed: {sum(wrappingPaper(box) for box in boxes)}")
-    print(f"\nPart 2:\nTotal ribbon needed: {sum(ribbon(box) for box in boxes)}")
+    part1 = sum(wrappingPaper(box) for box in boxes)
+    part2 = sum(ribbon(box) for box in boxes)
+
+    if verbose:
+        print(f"\nPart 1:\nTotal wrapping paper needed: {part1}\n\nPart 2:\nTotal ribbon needed: {part2}")
+
+    return [part1, part2]
+    
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

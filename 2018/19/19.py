@@ -114,8 +114,8 @@ def factor(num):
 
     return factors
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         program = [line.strip('\n').split(' ') for line in f.readlines()]
 
     bound = int(program[0][1])
@@ -133,7 +133,7 @@ def main(filename):
         registers = OPERATIONS[program[registers[bound]][0]](registers, program[registers[bound]])
         registers[bound] += 1
 
-    print(f"\nPart 1:\nValue left in register 0 after process halts: {sum(factor(registers[5]))}")
+    part1 = sum(factor(registers[5]))
 
     registers = [0] * 6
     registers[0] = 1
@@ -141,9 +141,15 @@ def main(filename):
         registers = OPERATIONS[program[registers[bound]][0]](registers, program[registers[bound]])
         registers[bound] += 1
 
-    print(f"\nPart 2:\nValue left in register 0 after process halts: {sum(factor(registers[5]))}")
+    part2 = sum(factor(registers[5]))
+
+    if verbose:
+        print(f"\nPart 1:\nValue left in register 0 after process halts: {part1}\n\nPart 2:\nValue left in register 0 after process halts: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

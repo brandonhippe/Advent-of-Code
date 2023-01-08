@@ -27,14 +27,20 @@ def encodedChars(line):
 
     return total
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
-    print(f"\nPart 1:\nCharacters of code minus characters in strings: {sum([len(line) for line in lines]) - sum([stringChars(line) for line in lines])}")
-    print(f"\nPart 2:\nCharacters of encoded minus characters in code: {sum([encodedChars(line) for line in lines]) - sum([len(line) for line in lines])}")
+    part1 = sum([len(line) for line in lines]) - sum([stringChars(line) for line in lines])
+    part2 = sum([encodedChars(line) for line in lines]) - sum([len(line) for line in lines])
+
+    if verbose:
+        print(f"\nPart 1:\nCharacters of code minus characters in strings: {part1}\n\nPart 2:\nCharacters of encoded minus characters in code: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

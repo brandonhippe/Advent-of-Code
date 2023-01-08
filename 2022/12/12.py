@@ -1,32 +1,23 @@
 from time import perf_counter
+import sys
+sys.path.insert(0,"C:/Users/Brandon Hippe/Documents/Coding Projects/Advent-of-Code/Modules")
+from graphAlgorithms import bfs
 
 
-def bfs(height, start, end):
-    openList = [[start, 0]]
-    openSet = {start}
-    closedSet = set()
+def nextState(state, height, t, **kwargs):
+    newStates = []
 
-    while len(openList) != 0:
-        pos, g = openList.pop(0)
-        openSet.remove(pos)
+    for nOff in [[1, 0], [-1, 0], [0, 1], [0, -1]]:
+        nPos = tuple(p + o for p, o in zip(state, nOff))
 
-        if (isinstance(end, int) and height[pos] == end) or (isinstance(end, tuple) and pos == end):
-            return g
+        if nPos in height and height[state] - height[nPos] <= 1:
+            newStates.append([nPos, t + 1])
 
-        for noff in [[1, 0], [-1, 0], [0, 1], [0, -1]]:
-            nPos = tuple(p + n for p, n in zip(pos, noff))
-
-            if nPos not in height or (isinstance(end, int) and height[pos] - height[nPos] > 1) or (isinstance(end, tuple) and height[nPos] - height[pos] > 1) or nPos in openSet or nPos in closedSet:
-                continue
-
-            openList.append([nPos, g + 1])
-            openSet.add(nPos)
-
-        closedSet.add(pos)
+    return newStates
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     height = {}
@@ -41,11 +32,15 @@ def main(filename):
             else:
                 height[(x, y)] = ord(l) - ord('a')
 
-    print(f"\nPart 1:\nFewest steps from start to summit: {bfs(height, start, end)}")
-    print(f"\nPart 2:\nShortest scenic path: {bfs(height, end, 0)}")
+    part1, part2 = bfs(startState = end, end = start, height = height, nextStateFunc = nextState, abortFunc = lambda state, end, **kwargs: state == end, trackFunc = lambda state, t, tracked, height, **kwargs: t if tracked is None and height[state] == 0 else tracked)
+
+    if verbose:
+        print(f"\nPart 1:\nFewest steps from start to summit: {part1}\n\nPart 2:\nShortest scenic path: {part2}")
+
+    return [part1, part2]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

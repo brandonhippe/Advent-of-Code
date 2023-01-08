@@ -231,7 +231,7 @@ def arrToStr(arr):
 def strToArr(string):
     return [int(x) for x in string.split(',')]
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [int(l) for l in f.readline().strip().split(',')]
 
@@ -239,9 +239,8 @@ def main():
     for (i, x) in enumerate(lines):
         code[i] = x
 
-    print(f"\nPart 1:\nNumber of panels painted at least once: {len(handler(code, [0]))}")
+    part1 = len(handler(code, [0]))
 
-    print("\nPart 2:\nRegistration Identifier:\n")
     panels = handler(code, [1])
 
     mins = [float('inf')] * 2
@@ -259,14 +258,20 @@ def main():
             if c > maxs[i]:
                 maxs[i] = c
 
-    for y in range(maxs[1], mins[1] - 1, -1):
-        for x in range(mins[0], maxs[0] + 1,):
-            c = panels[arrToStr([x, y])] if arrToStr([x, y]) in panels else 0
-            c = '#' if c == 1 else ' '
-            print(c, end='')
+    if verbose:
+        print(f"\nPart 1:\nNumber of panels painted at least once: {part1}\n\nPart 2:\nRegistration Identifier:\n")
+        for y in range(maxs[1], mins[1] - 1, -1):
+            for x in range(mins[0], maxs[0] + 1,):
+                c = panels[arrToStr([x, y])] if arrToStr([x, y]) in panels else 0
+                c = '#' if c == 1 else ' '
+                print(c, end='')
 
-        print('')
+            print('')
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, None]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

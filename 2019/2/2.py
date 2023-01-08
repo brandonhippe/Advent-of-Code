@@ -25,7 +25,7 @@ def runCode(data):
     return data[0]
 
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
     
@@ -35,7 +35,7 @@ def main():
     tempData[1] = 12
     tempData[2] = 2
 
-    print("\nPart 1:\nValue at index 0: " + str(runCode(tempData)))
+    part1 = runCode(tempData)
 
     target = 19690720
     tempData = data[:]
@@ -50,8 +50,15 @@ def main():
             tempData = data[:]
             num = runCode(tempData)
     
-    print("\nPart 2:\n100 * noun + verb: " + str(100 * data[1] + data[2]))
+    part2 = 100 * data[1] + data[2]
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nValue at index 0: {part1}\n\nPart 2:\n100 * noun + verb: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

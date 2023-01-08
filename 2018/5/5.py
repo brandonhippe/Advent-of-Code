@@ -17,11 +17,11 @@ def reducePolymer(polymer):
 
     return polymer
 
-def main():
+def main(verbose):
     with open("input.txt", encoding='UTF-8') as f:
         polymer = f.readline().strip('\n')
 
-    print(f"\nPart 1:\nLength of reduced polymer: {len(reducePolymer(polymer))}")
+    part1 = len(reducePolymer(polymer))
 
     shortest = float('inf')
     for c in range(ord('a'), ord('z') + 1):
@@ -31,9 +31,13 @@ def main():
         if length < shortest:
             shortest = length
 
-    print(f"\nPart 2\nLength of shortest reduced polyemer: {shortest}")
+    if verbose:
+        print(f"\nPart 1:\nLength of reduced polymer: {part1}\n\nPart 2\nLength of shortest reduced polyemer: {shortest}")
+
+    return [part1, shortest]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time}")

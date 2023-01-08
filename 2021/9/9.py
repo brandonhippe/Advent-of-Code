@@ -31,11 +31,10 @@ def fillRegion(data, visited, x, y):
 
     return size
 
-def main():
+def main(verbose):
     with open('input.txt',encoding='UTF-8') as f:
         data = [[int(x) for x in line.strip()] for line in f.readlines()]
 
-    print("Part 1:")
     count = 0
     for (i, line) in enumerate(data):
         for (j, p) in enumerate(line):
@@ -48,9 +47,6 @@ def main():
             if low:
                 count += p + 1
 
-    print("Sum of risk levels of low points: " + str(count))
-
-    print("Part 2:")
     basins = []
     template = [False] * len(data[0])
     visited = []
@@ -70,11 +66,15 @@ def main():
     basins.sort(reverse=True)
     product = 1
     for (i, b) in enumerate(basins[:3]):
-        print("Basin #" + str(i + 1) + ": " + str(b))
         product *= b
     
-    print("Product of the size of the 3 largest basins: " + str(product))
+    if verbose:
+        print(f"\nPart 1:\nSum of risk levels of low points: {count}\n\nPart 2:\nProduct of the size of the 3 largest basins: {product}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [count, product]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

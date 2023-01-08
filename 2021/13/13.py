@@ -1,6 +1,6 @@
 import time
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -34,14 +34,13 @@ def main():
                 points = newPoints[:]
 
             if folds == 0:
-                print("Part 1:\nNumber of dots visible after first fold: " + str(len(points)))
+                part1 = len(points)
                 folds += 1              
         else:
             digits = [int(num) for num in line.split(',')]
             if not digits in points:
                 points.append(digits)
 
-    print("\nPart 2:")
     mins = [float('inf')] * 2
     maxs = [float('-inf')] * 2
     for point in points:
@@ -52,16 +51,22 @@ def main():
             if j < mins[i]:
                 mins[i] = j
 
-    for y in range(mins[1], maxs[1] + 1):
-        for x in range(mins[0], maxs[0] + 1):
-            c = ' '
-            if [x, y] in points:
-                c = '#'
+    if verbose:
+        print(f"\nPart 1:\nNumber of dots visible after first fold: {part1}\n\nPart 2:\n")
+        for y in range(mins[1], maxs[1] + 1):
+            for x in range(mins[0], maxs[0] + 1):
+                c = ' '
+                if [x, y] in points:
+                    c = '#'
 
-            print(c, end='')
+                print(c, end='')
 
-        print(' ')
+            print('')
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    return [part1, None]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

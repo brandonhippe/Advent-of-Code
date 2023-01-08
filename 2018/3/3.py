@@ -50,7 +50,7 @@ def findOverlaps(claims):
 
     return len(overlaps.keys())
 
-def main():
+def main(verbose):
     with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
@@ -61,10 +61,16 @@ def main():
         for i in range(2):
             claims[-1][i + 2] += claims[-1][i] - 1
 
-    print(f"\nPart 1:\nInches of fabric within 2+ claims: {findOverlaps(claims)}")
-    print(f"\nPart 2:\nOnly claim with no overlaps: {nonOverlap(claims)}")
+    part1 = findOverlaps(claims)
+    part2 = nonOverlap(claims)
+
+    if verbose:
+        print(f"\nPart 1:\nInches of fabric within 2+ claims: {part1}\n\nPart 2:\nOnly claim with no overlaps: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -1,7 +1,7 @@
 import time
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     keypad = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
@@ -18,7 +18,7 @@ def main(filename):
         code *= 10
         code += keypad[pos[1]][pos[0]]
 
-    print(f"\nPart 1:\nCode: {code}")
+    part1 = code
 
     keypad = {(0, 0): '7', (1, 0): '8', (2, 0): '9', (-1, 0): '6', (-2, 0): '5', (0, 1): 'B', (0, 2): 'D', (0, -1): '3', (0, -2): '1', (-1, -1): '2', (1, -1): '4', (-1, 1): 'A', (1, 1): 'C'}
 
@@ -33,9 +33,15 @@ def main(filename):
 
         code += keypad[pos]
 
-    print(f"\nPart 2:\nCode: {code}")
+    part2 = code
+
+    if verbose:
+        print(f"\nPart 1:\nCode: {part1}\n\nPart 2:\nCode: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

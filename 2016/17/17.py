@@ -1,5 +1,4 @@
 import time
-import heapq
 import hashlib
 
 OFFSETS = {'U': (0, -1), 'D': (0, 1), 'L': (-1, 0), 'R': (1, 0)}
@@ -50,11 +49,18 @@ def bfsP2(data):
 
     return maxPath
 
-def main(data = "lpvhkcbi"):
-    print(f"\nPart 1:\nShortest path to vault: {bfsP1(data)}")
-    print(f"\nPart 2:\nLongeset path to vault: {bfsP2(data)}")
+def main(verbose):
+    data = "lpvhkcbi"
+    part1 = bfsP1(data)
+    part2 = bfsP2(data)
+
+    if verbose:
+        print(f"\nPart 1:\nShortest path to vault: {part1}\n\nPart 2:\nLongeset path to vault: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

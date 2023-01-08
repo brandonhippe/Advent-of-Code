@@ -40,8 +40,8 @@ def SieveOfEratosthenes(n):
 
     return primes
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         instructions = [line.strip('\n') for line in f.readlines()]
 
     registers = defaultdict(lambda: 0)
@@ -58,8 +58,6 @@ def main(filename):
 
         multiplies += OPS[op](reg, data, registers)
         registers['PC'] += 1
-
-    print(f"\nPart 1:\nNumber of multiplies: {multiplies}")
 
     registers = defaultdict(lambda: 0)
     registers['a'] = 1
@@ -85,9 +83,13 @@ def main(filename):
         if not primes[n]:
             h += 1
 
-    print(f"\nPart 2:\nValue in h: {h}")
+    if verbose:
+        print(f"\nPart 1:\nNumber of multiplies: {multiplies}\n\nPart 2:\nValue in h: {h}")
+
+    return [multiplies, h]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

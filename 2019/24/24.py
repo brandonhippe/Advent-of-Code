@@ -17,7 +17,7 @@ def getState(bugs):
 
     return string
 
-def part1(bugs):
+def p1(bugs):
     pastBugs = [getState(bugs)]
     while True:
         newBugs = {}
@@ -76,7 +76,7 @@ def genNeighbors(x, y, level=None):
 
     return neighbors
 
-def part2(bugs):
+def p2(bugs):
     for _ in range(200):
         maxLevel = max([abs([int(x) for x in c.split(',')][-1]) for c in bugs.keys()]) + 1
         newBugs = {}
@@ -98,7 +98,7 @@ def part2(bugs):
 
     return len(bugs)
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [[x for x in line.strip('\n')] for line in f.readlines()]
 
@@ -110,9 +110,16 @@ def main():
                 bugsP1[",".join([str(x), str(y)])] = 1
                 bugsP2[",".join([str(x), str(y), '0'])] = 1
 
-    print(f"\nPart 1:\nBiodiversity rating for first repeated state: {part1(bugsP1)}")
-    print(f"\nPart 2:\nNumber of bugs present after 200 minutes: {part2(bugsP2)}")
+    part1 = p1(bugsP1)
+    part2 = p2(bugsP2)
     
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nBiodiversity rating for first repeated state: {part1}\n\nPart 2:\nNumber of bugs present after 200 minutes: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -16,11 +16,10 @@ def moveTail(head, tail):
         return tail
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
-    
     head = [0, 0]
     tail = [0, 0]
     tailVisits = set()
@@ -39,9 +38,7 @@ def main(filename):
             amt -= 1
 
     tailVisits.add(tuple(tail))
-
-
-    print(f"\nPart 1:\nNumber of positions visited by tail of rope: {len(tailVisits)}")
+    part1 = len(tailVisits)
 
     tails = [[0, 0] for _ in range(10)]
     tailVisits = set()
@@ -62,10 +59,13 @@ def main(filename):
 
     tailVisits.add(tuple(tail))
 
-    print(f"\nPart 2:\nNumber of positions visited by tail of rope: {len(tailVisits)}")
+    if verbose:
+        print(f"\nPart 1:\nNumber of positions visited by tail of rope: {part1}\n\nPart 2:\nNumber of positions visited by tail of rope: {len(tailVisits)}")
+
+    return [part1, len(tailVisits)]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

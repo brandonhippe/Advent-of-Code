@@ -14,8 +14,8 @@ def simulate(you, boss):
 
     return hp > 0
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     boss_hp, boss_damage, boss_armor = [[int(x) for x in re.findall('\d+', line)][0] for line in lines[:3]]
@@ -47,10 +47,13 @@ def main(filename):
                     if cost > expensive and not simulate([100, damage, armor], [boss_hp, boss_damage, boss_armor]):
                         expensive = cost
 
-    print(f"\nPart 1:\nCheapest equipment to win: {cheapest}")
-    print(f"\nPart 2:\nMost expensive equipment to lose: {expensive}")
+    if verbose:
+        print(f"\nPart 1:\nCheapest equipment to win: {cheapest}\n\nPart 2:\nMost expensive equipment to lose: {expensive}")
+
+    return [cheapest, expensive]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

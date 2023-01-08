@@ -60,8 +60,8 @@ def flood(clay, water, spring):
 
     return total
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     clay = set()
@@ -80,12 +80,16 @@ def main(filename):
                 clay.add((i, y[0]))
 
     water = {}
-    total = flood(clay, water, (500, 0))
+    part1 = flood(clay, water, (500, 0))
+    part2 = len([w for w in water.keys() if water[w]])
 
-    print(f"\nPart 1:\nTiles reached by water: {total}")
-    print(f"\nPart 2:\nWater tiles left after spring dries: {len([w for w in water.keys() if water[w]])}")
+    if verbose:
+        print(f"\nPart 1:\nTiles reached by water: {part1}\n\nPart 2:\nWater tiles left after spring dries: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

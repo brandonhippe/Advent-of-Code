@@ -3,8 +3,8 @@ from collections import defaultdict
 
 DIRS = {'^': (0, 1),'v': (0, -1), '<': (-1, 0), '>': (1, 0)}
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = f.readline().strip('\n')
 
     pos = (0, 0)
@@ -15,7 +15,7 @@ def main(filename):
         pos = tuple(p + o for p, o in zip(pos, DIRS[d]))
         visited[pos] += 1
 
-    print(f"\nPart 1:\nNumber of houses that receive at least 1 present: {len(visited)}")
+    part1 = len(visited)
 
     pos = [(0, 0), (0, 0)]
     visited = defaultdict(lambda: 0)
@@ -26,7 +26,13 @@ def main(filename):
             pos[n] = tuple(p + o for p, o in zip(pos[n], DIRS[data[i + n]]))
             visited[pos[n]] += 1
 
-    print(f"\nPart 2:\nNumber of houses that receive at least 1 present: {len(visited)}")
+    part2 = len(visited)
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of houses that receive at least 1 present: {part1}\n\nPart 2:\nNumber of houses that receive at least 1 present: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()

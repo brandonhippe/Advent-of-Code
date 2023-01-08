@@ -38,17 +38,17 @@ def printCucumbers(lines):
 
         print(" ")
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
     lines.reverse()
-    for (i, line) in enumerate(lines):
+    for i, line in enumerate(lines):
         lines[i] = line[::-1]
 
-    for (i, line) in enumerate(lines):
+    for i, line in enumerate(lines):
         newStr = ""
-        for (j, l) in enumerate(line):
+        for _, l in enumerate(line):
             if l == ">":
                 newStr += "<"
             elif l == "v":
@@ -60,10 +60,6 @@ def main():
     
     day = 0
     while True:
-        #print("Day: " + str(day))
-        #printCucumbers(lines)
-        #print(" ")
-
         prevStr = []
         for line in lines:
             arr = line[:]
@@ -85,8 +81,13 @@ def main():
         if done:
             break
 
-    print("\nPart 1:\nFirst day no cucumbers move: " + str(day))    
-    
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nFirst day no cucumbers move: {day}")
+
+    return [day]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

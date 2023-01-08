@@ -73,14 +73,20 @@ class Expression:
 
         return product
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [Expression(line.strip('\n')) for line in f.readlines()]
 
-    print(f"\nPart 1:\nSum of evaluated expressions: {sum([e.evalP1() for e in deepcopy(data)])}")
-    print(f"\nPart 2:\nSum of evaluated expressions: {sum([e.evalP2() for e in data])}")
+    part1 = sum([e.evalP1() for e in deepcopy(data)])
+    part2 = sum([e.evalP2() for e in data])
+
+    if verbose:
+        print(f"\nPart 1:\nSum of evaluated expressions: {part1}\n\nPart 2:\nSum of evaluated expressions: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

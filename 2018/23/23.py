@@ -111,16 +111,23 @@ def bestLoc(nanobots):
 
     return bestPos
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         nanobots = [tuple([int(x) for x in re.findall('-?\d+', line)]) for line in f.readlines()]
 
     largestRadius = nanobots[[n[-1] for n in nanobots].index(max([n[-1] for n in nanobots]))]
     inRadius = [n for n in nanobots if manhatDist(largestRadius[:-1], n[:-1]) <= largestRadius[-1]]
-    print(f"\nPart 1:\nNanobots within largest radius: {len(inRadius)}")
-    print(f"\nPart 2:\nManhattan Distance to location in range of most nanobots: {bestLoc(nanobots)}")
+
+    part1 = len(inRadius)
+    part2 = bestLoc(nanobots)
+
+    if verbose:
+        print(f"\nPart 1:\nNanobots within largest radius: {part1}\n\nPart 2:\nManhattan Distance to location in range of most nanobots: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main('input.txt')
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

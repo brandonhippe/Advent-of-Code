@@ -1,8 +1,8 @@
 import time
 from collections import defaultdict
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         instructions = f.readlines()
 
     registers = defaultdict(lambda: 0)
@@ -18,10 +18,15 @@ def main(filename):
         if thisMax > maxVal:
             maxVal = thisMax
 
-    print(f"\nPart 1:\nMaximum value in any register: {max(registers.values())}")
-    print(f"\nPart 2:\nMaximum value in any register at any point: {maxVal}")
+    part1 = max(registers.values())
+
+    if verbose:
+        print(f"\nPart 1:\nMaximum value in any register: {part1}\n\nPart 2:\nMaximum value in any register at any point: {maxVal}")
+
+    return [part1, maxVal]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -76,7 +76,7 @@ def visibleSort(a):
 def bearingSort(a):
     return a.bearing
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -92,7 +92,7 @@ def main():
         a.findVisible(asteroids)
 
     asteroids.sort(key=visibleSort)
-    print(f"\nPart 1:\nBest station location: [{asteroids[-1].locStr}] sees {len(asteroids[-1].sees)}")
+    part1 = [asteroids[-1].locStr, len(asteroids[-1].sees)]
 
     station = asteroids.pop(-1)
     removed = []
@@ -113,8 +113,16 @@ def main():
 
     removed.sort(key=bearingSort)
     removed.reverse()
-    print(f"\nPart 2:\n200th Asteroid Vaporized: {100 * removed[finalIndex].locArr[0] + removed[finalIndex].locArr[1]}")
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    part2 = 100 * removed[finalIndex].locArr[0] + removed[finalIndex].locArr[1]
+
+    if verbose:
+        print(f"\nPart 1:\nBest station location: {part1[0]} sees {part1[1]}\n\nPart 2:\n200th Asteroid Vaporized: {part2}")
+
+    return[part1[1], part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main(True)
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

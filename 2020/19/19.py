@@ -46,8 +46,8 @@ def valid(message, rule, rules, validLens, recursive):
 
     return False
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     rules = {}
@@ -81,10 +81,13 @@ def main(filename):
         elif valid(m, 0, rules, validLens, True):
             countP2 += 1
 
-    print(f"\nPart 1:\nValid messages: {countP1}")
-    print(f"\nPart 2:\nValid messages: {countP2}")
+    if verbose:
+        print(f"\nPart 1:\nValid messages: {countP1}\n\nPart 2:\nValid messages: {countP2}")
+
+    return [countP1, countP2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

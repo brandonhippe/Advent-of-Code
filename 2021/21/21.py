@@ -8,7 +8,7 @@ def stateString(stateArr):
 
     return string
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -38,7 +38,7 @@ def main():
         playerIndex += 1
         playerIndex = playerIndex % 2
         
-    print("\nPart 1:\nProduct of die rolls and losing score: " + str(rolls * playersScores[playerIndex]))
+    part1 = rolls * playersScores[playerIndex]
 
     states = {}
     states[stateString([int(lines[0].split(" starting position: ")[1]), int(lines[1].split(" starting position: ")[1]), 0, 0])] = 1
@@ -90,8 +90,14 @@ def main():
         states = newStates
 
     playerWins.sort()
-    print("\nPart 2:\nThe most universes won in is: " + str(playerWins[-1]))
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nProduct of die rolls and losing score: {part1}\n\nPart 2:\nThe most universes won in is: {playerWins[-1]}")
+
+    return [part1, playerWins[-1]]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main()
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

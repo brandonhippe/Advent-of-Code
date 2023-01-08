@@ -1,5 +1,6 @@
 import time
 from collections import defaultdict
+import os
 
 def findFloor(data):
     counts = defaultdict(lambda: 0)
@@ -8,19 +9,25 @@ def findFloor(data):
 
     return counts['('] - counts[')']
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = f.readline().strip('\n')
 
-    print(f"\nPart 1:\nFloor Santa ends up on: {findFloor(data)}")
+    part1 = findFloor(data)
 
     for n in range(1, len(data) + 1):
         if findFloor(data[:n]) < 0:
             break
 
-    print(f"\nPart 2:\nPosition of first character that sends Santa to the basement: {n}")
+    part2 = n
+
+    if verbose:
+        print(f"\nPart 1:\nFloor Santa ends up on: {part1}\n\nPart 2:\nPosition of first character that sends Santa to the basement: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

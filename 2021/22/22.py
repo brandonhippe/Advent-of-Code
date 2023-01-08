@@ -41,7 +41,7 @@ def countLit(data):
 
     return total
 
-def main():
+def main(verbose):
     with open('input.txt', encoding='UTF-8') as f:
         lines = [line.strip() for line in f.readlines()]
     
@@ -65,9 +65,16 @@ def main():
 
         prisms.append([line[0], bounds])
 
-    print("\nPart 1:\nNumber on in Central Core: " + str(countLit(prismsP1)))
-    print("\nPart 2:\nNumber on in Reactor: " + str(countLit(prisms)))
+    part1 = countLit(prismsP1)
+    part2 = countLit(prisms)
 
-init_time = time.perf_counter()
-main()
-print(f"\nRan in {time.perf_counter() - init_time} seconds")
+    if verbose:
+        print(f"\nPart 1:\nNumber on in Central Core: {part1}\n\nPart 2:\nNumber on in Reactor: {part2}")
+
+    return [part1, part2]
+
+
+if __name__ == "__main__":
+    init_time = time.perf_counter()
+    main()
+    print(f"\nRan in {time.perf_counter() - init_time} seconds")

@@ -23,7 +23,8 @@ def stretchHash(salt, ix):
 
     return result
 
-def main(data = "ihaygndm"):
+def main(verbose):
+    data = "ihaygndm"
     i = 0
     keys = []
     posKeys = []
@@ -56,7 +57,7 @@ def main(data = "ihaygndm"):
 
         i += 1
 
-    print(f"\nPart 1:\nIndex that produces 64th key: {keys[63]}")
+    part1 = keys[63]
 
     i = 0
     keys = []
@@ -90,9 +91,15 @@ def main(data = "ihaygndm"):
 
         i += 1
 
-    print(f"\nPart 2:\nIndex that produces 64th key: {keys[63]}")
+    part2 = keys[63]
+
+    if verbose:
+        print(f"\nPart 1:\nIndex that produces 64th key: {part1}\n\nPart 2:\nIndex that produces 64th key: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

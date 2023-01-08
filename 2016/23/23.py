@@ -3,7 +3,7 @@ import re
 from collections import defaultdict
 import copy
 
-def cpy(regs, instructions, text):
+def cpy(regs, _, text):
     x, y = text
     if len(re.findall('-?\d+', x)) != 0:
         x = int(x)
@@ -12,13 +12,13 @@ def cpy(regs, instructions, text):
 
     regs[y] = x
 
-def inc(regs, instructions, x):
+def inc(regs, _, x):
     regs[x[0]] += 1
 
-def dec(regs, instructions, x):
+def dec(regs, _, x):
     regs[x[0]] -= 1
 
-def jnz(regs, instructions, text):
+def jnz(regs, _, text):
     x, y = text
     
     if len(re.findall('-?\d+', x)) != 0:
@@ -49,7 +49,8 @@ def tgl(regs, instructions, x):
 
 OPS = {"cpy": cpy, "inc": inc, "dec": dec, "jnz": jnz, "tgl": tgl}
 
-def main(filename):
+def main(verbose):
+    filename = "input.txt"
     with open(filename, encoding='UTF-8') as f:
         instructions = [line.strip('\n').split(' ') for line in f.readlines()]
 
@@ -63,7 +64,7 @@ def main(filename):
         OPS[op](regs, instructions, text)
         regs['PC'] += 1
 
-    print(f"\nPart 1:\nValue sent to safe: {regs['a']}")
+    part1 = regs['a']
 
     instructions = instructionsP2
     regs = defaultdict(lambda: 0)
@@ -81,9 +82,15 @@ def main(filename):
             OPS[op](regs, instructions, text)
             regs['PC'] += 1
 
-    print(f"\nPart 2:\nValue sent to safe: {regs['a']}")
+    part2 = regs['a']
+
+    if verbose:
+        print(f"\nPart 1:\nValue sent to safe: {part1}\n\nPart 2:\nValue sent to safe: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

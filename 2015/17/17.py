@@ -15,8 +15,8 @@ def makeSize_memo(containers, s, memo):
 
     return allWays if len(allWays) != 0 else None
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         containers = tuple(sorted([int(line) for line in f.readlines()], reverse=True))
 
     containerCounts = {c: len([c1 for c1 in containers if c1 == c]) for c in containers}
@@ -45,10 +45,13 @@ def main(filename):
             elif len(pos) == smallest:
                 smallestWays += additional
 
-    print(f"\nPart 1:\nCombinations of containers that can hold exactly 150 liters: {totalWays}")
-    print(f"\nPart 2:\nCombinations of fewest containers that can hold exactly 150 liters: {smallestWays}")
+    if verbose:
+        print(f"\nPart 1:\nCombinations of containers that can hold exactly 150 liters: {totalWays}\n\nPart 2:\nCombinations of fewest containers that can hold exactly 150 liters: {smallestWays}")
+
+    return [totalWays, smallestWays]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

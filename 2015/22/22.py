@@ -112,14 +112,20 @@ def simulateP2(you, boss, effects):
 
     return bestCost
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         boss_hp, boss_damage = [[int(x) for x in re.findall('\d+', line)][0] for line in f.readlines()]
 
-    print(f"\nPart 1:\nLeast mana to win: {simulateP1([50, 500], [boss_hp, boss_damage], [])}")
-    print(f"\nPart 2:\nLeast mana to win on hard: {simulateP2([50, 500], [boss_hp, boss_damage], [])}")
+    part1 = simulateP1([50, 500], [boss_hp, boss_damage], [])
+    part2 = simulateP2([50, 500], [boss_hp, boss_damage], [])
+
+    if verbose:
+        print(f"\nPart 1:\nLeast mana to win: {part1}\n\nPart 2:\nLeast mana to win on hard: {part2}")
+
+    return [part1, part2]
+    
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

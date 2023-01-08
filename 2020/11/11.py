@@ -24,8 +24,8 @@ def iterateP2(seats, neighbors):
 
     return newSeats
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     seats = set()
@@ -40,7 +40,7 @@ def main(filename):
         previous = deepcopy(currSeats)
         currSeats = iterateP1(currSeats, seats)
 
-    print(f"\nPart 1:\nNumber of seats occupied after settling: {len(currSeats)}")
+    part1 = len(currSeats)
 
     neighbors = defaultdict(lambda: [])
     for x, y in list(seats):
@@ -63,9 +63,15 @@ def main(filename):
         previous = deepcopy(currSeats)
         currSeats = iterateP2(currSeats, neighbors)
 
-    print(f"\nPart 2:\nNumber of seats occupied after settling: {len(currSeats)}")
+    part2 = len(currSeats)
+
+    if verbose:
+        print(f"\nPart 1:\nNumber of seats occupied after settling: {part1}\n\nPart 2:\nNumber of seats occupied after settling: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

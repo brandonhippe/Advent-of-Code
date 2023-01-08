@@ -21,11 +21,20 @@ def checkSum(data, disk):
 
     return data
 
-def main(data = "01110110101001000", diskP1 = 272, diskP2 = 35651584):
-    print(f"\nPart 1:\nChecksum: {checkSum(data, diskP1)}")
-    print(f"\nPart 1:\nChecksum: {checkSum(data, diskP2)}")
+def main(verbose):
+    data = "01110110101001000"
+    diskP1 = 272
+    diskP2 = 35651584
+
+    part1 = int(checkSum(data, diskP1))
+    part2 = int(checkSum(data, diskP2))
+    
+    if verbose:
+        print(f"\nPart 1:\nChecksum: {part1}\n\nPart 1:\nChecksum: {part2}")
+
+    return [part1, part2]
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

@@ -15,8 +15,8 @@ def iterate(cells):
 
     return set(p for p in neighborCounts.keys() if neighborCounts[p] == 3 or (p in cells and neighborCounts[p] == 2))
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     cellsP1 = set()
@@ -31,10 +31,13 @@ def main(filename):
         cellsP1 = iterate(cellsP1)
         cellsP2 = iterate(cellsP2)
 
-    print(f"\nPart 1:\n3d cubes on after 6 cylces: {len(cellsP1)}")
-    print(f"\nPart 2:\n4d hypercubes on after 6 cycles: {len(cellsP2)}")
+    if verbose:
+        print(f"\nPart 1:\n3d cubes on after 6 cylces: {len(cellsP1)}\n\nPart 2:\n4d hypercubes on after 6 cycles: {len(cellsP2)}")
+
+    return [len(cellsP1), len(cellsP2)]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

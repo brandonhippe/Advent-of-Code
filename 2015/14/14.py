@@ -17,11 +17,11 @@ class Reindeer:
 
         return d + self.speed * time
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         deers = [Reindeer(line) for line in f.readlines()]
 
-    print(f"\nPart 1:\nDistance of winning Reindeer: {max(r.distance(2503) for r in deers)}")
+    part1 = max(r.distance(2503) for r in deers)
 
     points = {r.name: 0 for r in deers}
     for t in range(1, 2504):
@@ -35,9 +35,15 @@ def main(filename):
 
         points[winner] += 1
 
-    print(f"\nPart 2:\nMost points: {max(points.values())}")
+    part2 = max(points.values())
+
+    if verbose:
+        print(f"\nPart 1:\nDistance of winning Reindeer: {part1}\n\nPart 2:\nMost points: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

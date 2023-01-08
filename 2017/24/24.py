@@ -25,15 +25,19 @@ def strongest(components, start, length):
 
     return [best, longest, longestStrength]
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         components = [Component([int(x) for x in re.findall('\d+', line)]) for line in f.readlines()]
 
     strong, _, longestStrength = strongest(components, 0, 0)
-    print(f"\nPart 1:\nStrongest Bridge: {strong}")
-    print(f"\nPart 2:\nStrength of longest bridge: {longestStrength}")
+
+    if verbose:
+        print(f"\nPart 1:\nStrongest Bridge: {strong}\n\nPart 2:\nStrength of longest bridge: {longestStrength}")
+
+    return [strong, longestStrength]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

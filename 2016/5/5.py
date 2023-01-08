@@ -1,7 +1,8 @@
 import time
 import hashlib
 
-def main(data="abbhdwsy"):
+def main(verbose):
+    data="abbhdwsy"
     i = 0
     passcodeP1 = ''
     passcodeP2 = [' '] * 8
@@ -14,10 +15,13 @@ def main(data="abbhdwsy"):
 
         i += 1
 
-    print(f"\nPart 1:\nPasscode: {passcodeP1[:8]}")
-    print(f"\nPart 1:\nPasscode: {''.join(passcodeP2)}")
+    if verbose:
+        print(f"\nPart 1:\nPasscode: {passcodeP1[:8]}\n\nPart 1:\nPasscode: {''.join(passcodeP2)}")
+
+    return [passcodeP1[:8], ''.join(passcodeP2)]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main()
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

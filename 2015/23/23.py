@@ -24,8 +24,8 @@ def jio(regs, vals):
 
 OPS = {'hlf': hlf, 'tpl': tpl, 'inc': inc, 'jmp': jmp, 'jie': jie, 'jio': jio}
 
-def main(filename):
-    with open(filename, encoding='UTF-8') as f:
+def main(verbose):
+    with open("input.txt", encoding='UTF-8') as f:
         instructions = [re.split(',? ', line.strip('\n')) for line in f.readlines()]
 
     regs = defaultdict(lambda: 0)
@@ -35,7 +35,7 @@ def main(filename):
 
         regs['PC'] += 1
 
-    print(f"\nPart 1:\nValue in register b after program runs: {regs['b']}")
+    part1 = regs['b']
 
     regs = defaultdict(lambda: 0)
     regs['a'] = 1
@@ -45,9 +45,15 @@ def main(filename):
 
         regs['PC'] += 1
 
-    print(f"\nPart 2:\nValue in register b after program runs: {regs['b']}")
+    part2 = regs['b']
+
+    if verbose:
+        print(f"\nPart 1:\nValue in register b after program runs: {part1}\n\nPart 2:\nValue in register b after program runs: {part2}")
+
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = time.perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {time.perf_counter() - init_time} seconds.")

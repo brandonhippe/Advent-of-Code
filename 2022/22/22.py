@@ -2,8 +2,8 @@ from time import perf_counter
 from collections import defaultdict
 
 
-def main(filename):
-    with open(filename, encoding="UTF-8") as f:
+def main(verbose):
+    with open("input.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     walls = set()
@@ -66,9 +66,7 @@ def main(filename):
     facing = (facing[1], -facing[0])
     facingScore = {(1, 0): 0, (0, 1): 1, (-1, 0): 2, (0, -1): 3}
 
-
-    print(f"\nPart 1:\n{(1000 * (pos[1] + 1)) + (4 * (pos[0] + 1)) + facingScore[facing]}")
-
+    part1 = (1000 * (pos[1] + 1)) + (4 * (pos[0] + 1)) + facingScore[facing]
 
     # RIGHT: (1, 0), LEFT: (-1, 0), UP: (0, -1), DOWN: (0, 1)
     wrapAround = defaultdict(dict)
@@ -126,10 +124,15 @@ def main(filename):
     facing = (facing[1], -facing[0])
     facingScore = {(1, 0): 0, (0, 1): 1, (-1, 0): 2, (0, -1): 3}
 
-    print(f"\nPart 2:\n{(1000 * (pos[1] + 1)) + (4 * (pos[0] + 1)) + facingScore[facing]}")
+    part2 = (1000 * (pos[1] + 1)) + (4 * (pos[0] + 1)) + facingScore[facing]
+
+    if verbose:
+        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+
+    return [part1, part2]
 
 
 if __name__ == "__main__":
     init_time = perf_counter()
-    main("input.txt")
+    main(True)
     print(f"\nRan in {perf_counter() - init_time} seconds.")

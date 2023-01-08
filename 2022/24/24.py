@@ -83,6 +83,8 @@ def main(verbose):
     if verbose:
         print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
 
+    return [part1, part2]
+
     
 if __name__ == "__main__":
     init_time = perf_counter()
