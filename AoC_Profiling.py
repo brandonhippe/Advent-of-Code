@@ -1,7 +1,7 @@
 import sys, os, re, time, importlib
 from collections import defaultdict
 sys.path.insert(0,"C:/Users/Brandon Hippe/Documents/Coding Projects/Advent-of-Code/Modules")
-from progressbar import printProgressBar
+from Modules.progressbar import printProgressBar
 import matplotlib.pyplot as plt
 
 
