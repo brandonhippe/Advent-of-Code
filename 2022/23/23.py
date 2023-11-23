@@ -65,7 +65,7 @@ def main(verbose):
     part2 = round - 1
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart2:\n{part2}")
+        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
 
     return [part1, part2]
 
