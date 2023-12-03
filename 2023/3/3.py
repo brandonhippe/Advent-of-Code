@@ -23,7 +23,6 @@ def main(verbose):
                 if nPos in symbols and symbols[nPos].isdigit():
                     partNumbers.add(nPos)
 
-    part1 = 0
     partNumberLocs = {}
     while len(partNumbers) != 0:
         x, y = list(partNumbers)[0]
@@ -41,10 +40,10 @@ def main(verbose):
 
         xEnd = x
 
-        part1 += int(num)
         partNumberLocs[(xStart, xEnd, y)] = int(num)
         partNumbers.difference_update(toRemove)
 
+    part1 = sum(partNumberLocs.values())
     part2 = 0
     for pos, symbol in symbols.items():
         if symbol != '*':
