@@ -40,6 +40,8 @@ def main(verbose):
     if verbose:
         print(f"\nPart 1:\nSum of IDs of possible games: {part1}\n\nPart 2:\nSum of power sets of games: {part2}")
 
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = perf_counter()

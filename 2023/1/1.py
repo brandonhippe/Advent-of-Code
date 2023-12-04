@@ -29,6 +29,8 @@ def main(verbose):
     if verbose:
         print(f"\nPart 1:\nCalibration Value: {part1}\n\nPart 2:\nCalibration Value: {part2}")
 
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = perf_counter()

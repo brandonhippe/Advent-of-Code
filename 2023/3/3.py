@@ -64,6 +64,8 @@ def main(verbose):
     if verbose:
         print(f"\nPart 1:\nSum of Part Numbers: {part1}\n\nPart 2:\nSum of Gear Ratios: {part2}")
 
+    return [part1, part2]
+
 
 if __name__ == "__main__":
     init_time = perf_counter()
