@@ -68,7 +68,7 @@ def main(verbose):
     part2 = sum((i + 1) * bets_P2[h] for i, h in enumerate(hands_P2))
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nTotal Winnings: {part1}\n\nPart 2:\nTotal Winnings: {part2}")
 
     return [part1, part2]
 

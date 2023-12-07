@@ -28,7 +28,7 @@ def main(verbose):
     part2 = math.floor(max(roots)) - math.ceil(min(roots)) + 1
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nProduct of ways to beat each record: {part1}\n\nPart 2:\nWays to beat the record: {part2}")
 
     return [part1, part2]
 
