@@ -20,7 +20,7 @@ def main(verbose):
     part2 = sum(extrapolate(seq[::-1]) for seq in data)
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nExtrapolated Value: {part1}\n\nPart 2:\nReverse Extrapolated Value: {part2}")
 
     return [part1, part2]
 
