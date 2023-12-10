@@ -2,20 +2,12 @@ from time import perf_counter
 import re
 
 
-def extrapolate_p1(seq):
+def extrapolate(seq):
     if len(set(seq)) == 1:
         return seq[-1]
     
     diffs = [seq[i] - seq[i - 1] for i in range(1, len(seq))]
-    return seq[-1] + extrapolate_p1(diffs)
-
-
-def extrapolate_p2(seq):
-    if len(set(seq)) == 1:
-        return seq[0]
-    
-    diffs = [seq[i] - seq[i - 1] for i in range(1, len(seq))]
-    return seq[0] - extrapolate_p2(diffs)
+    return seq[-1] + extrapolate(diffs)
 
 
 def main(verbose):
@@ -24,8 +16,8 @@ def main(verbose):
 
     data = [[int(n) for n in re.findall('-?\d+', line)] for line in lines]
 
-    part1 = sum(extrapolate_p1(seq) for seq in data)
-    part2 = sum(extrapolate_p2(seq) for seq in data)
+    part1 = sum(extrapolate(seq) for seq in data)
+    part2 = sum(extrapolate(seq[::-1]) for seq in data)
 
     if verbose:
         print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
