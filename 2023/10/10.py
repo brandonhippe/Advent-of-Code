@@ -1,35 +1,5 @@
 from time import perf_counter
-import heapq
-from math import ceil, floor
-
-
-def floodFill(pipes, startPos):
-    openHeap = []
-    openList = {}
-    closedList = {}
-
-    openHeap.append([0, startPos])
-    openList[startPos] = 0
-
-    while len(openList) != 0:
-        q, pos = heapq.heappop(openHeap)
-        del(openList[pos])
-
-        for n in pipes[pos]:
-            nF = q + 1
-
-            if n in openList and openList[n] <= nF:
-                continue
-
-            if n in closedList and closedList[n] <= nF:
-                continue
-
-            heapq.heappush(openHeap, [nF, n])
-            openList[n] = nF
-
-        closedList[pos] = q
-
-    return closedList
+from math import ceil
 
 
 def main(verbose):
@@ -62,34 +32,34 @@ def main(verbose):
         if animal in connects and pos not in pipes[animal]:
             pipes[animal].append(pos)
 
-    loop = floodFill(pipes, animal)
-    part1 = max(loop.values())
+    pos = animal
+    loop = set()
 
-    loop = set(loop.keys())
-    
-    for t in list(pipes.keys()):
-        if t not in loop:
-            tiles.add(t)
-            del(pipes[t])
+    while pos not in loop:
+        loop.add(pos)
+        pos = pipes[pos][0] if pipes[pos][0] not in loop else pipes[pos][1]
+
+    part1 = ceil(len(loop) / 2)
 
     part2 = 0
+    for y, line in enumerate(lines):
+        inside = 0
+        sides = {-1: False, 1: False}
+        for x, l in enumerate(line):
+            if (x, y) in loop:
+                for k in sides.keys():
+                    if (x, y + k) in pipes[(x, y)]:
+                        sides[k] = ~sides[k]
+            else:
+                part2 += inside
 
-    for t in tiles:
-        for offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            pos = tuple(p + 0.5 * abs(o) for p, o in zip(t, offset[::-1]))
-            count = 0
-            while 0 <= pos[0] < len(lines[0]) and 0 <= pos[1] < len(lines):
-                s1 = tuple(floor(c) for c in pos)
-                s2 = tuple(ceil(c) for c in pos)
+            if all(sides.values()):
+                if inside == 0:
+                    inside = 1
+                else:
+                    inside = 0
 
-                if s1 in pipes and s2 in pipes and s2 in pipes[s1] and s1 in pipes[s2]:
-                    count += 1
-
-                pos = tuple(p + o for p, o in zip(pos, offset))
-
-            if count % 2 == 1:
-                part2 += 1
-                break
+                sides = {-1: False, 1: False}
 
     if verbose:
         print(f"\nPart 1:\nDistance to furthest point on loop: {part1}\n\nPart 2:\nTiles enclosed by loop: {part2}")
