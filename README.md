@@ -20,4 +20,4 @@ Years with completed project(s) and languages:
 
 2022: 1-25 in Python
 
-2023: 1-9 in Python
+2023: 1-10 in Python
