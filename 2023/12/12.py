@@ -55,7 +55,6 @@ def main(verbose):
     with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
-
     groups, nums = [], []
     for line in lines:
         g, ns = line.split(' ')
