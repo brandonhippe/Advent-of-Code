@@ -4,49 +4,48 @@ from functools import cache
 
 
 @cache
-def countGroups(line):
-    return tuple(len(g) for g in re.findall('#+', line))
-
-
-@cache
-def calcCombs(groups, nums):
-    if len(groups) < sum(nums):
-        return 0
-    
-    if len(groups) == 0:
-        return len(nums) == 0
-    
-    if len(nums) == 0:
-        return '#' not in groups
-
-    if '?' not in groups:
-        return countGroups(groups) == nums
-    
+def calcCombs(groups, numbers):
     combs = 0
 
-    ## Get first ?
-    qMarks = [m.start(0) for m in re.finditer('\?', groups)]
+    groupIx = 0
+    while groupIx < len(groups) and len(groups[groupIx]) == 0:
+        groupIx += 1
 
-    before = groups[:qMarks[0]]
-    after = groups[qMarks[0] + 1:]
+    if groupIx == len(groups):
+        return len(numbers) == 0
+    elif len(numbers) == 0:
+        return all(set(g) == {'?'} for g in groups[groupIx:])
 
-    # First ? is a .
-    beforeNums = countGroups(before)
-    if beforeNums == nums[:len(beforeNums)]:
-        # Matches, get combs after
-        combs += calcCombs(after, nums[len(beforeNums):])
+    # If first group is only #'s, check to make sure it matches the first number. If not, return 0
+    # If first group does match first number, check if it is only group. If yes, return 1
+    # Otherwise, remove fir
+    if set(groups[groupIx]) == {'#'}:
+        if len(numbers) == 0 or len(groups[groupIx]) != numbers[0]:
+            return 0
+        
+        if len(groups) == 1 + groupIx:
+            return len(numbers) == 1
+        
+        return calcCombs(groups[groupIx + 1:], numbers[1:])
 
-    # First ? is a #
-    beforeNums = countGroups(before + '#')
-    trimmedNums = nums[:len(beforeNums)]
-    # Match all but last, ? might extend group over where we are
-    if beforeNums[:-1] == trimmedNums[:-1]:
-        if beforeNums[-1] != trimmedNums[-1]:
-            # Flip and continue
-            combs += calcCombs(before + '#' + after, nums)
+    amt = 0
+    for i, c in enumerate(groups[groupIx]):
+        if c == '#':        
+            # If character in first group is #, increase the amount found
+            amt += 1
+        else:
+            # Check if amt found is consistent with first group. Otherwise, try both . and #
+            if amt == 0 or amt == numbers[0]:
+                # Conditions to check a .
+                newGroups = [groups[groupIx][:i], groups[groupIx][i + 1:]] + list(groups[groupIx + 1:])
+                combs += calcCombs(tuple(newGroups), numbers)
 
-        if beforeNums[-1] == trimmedNums[-1] and (len(after) == 0 or after[0] != '#'):
-            combs += calcCombs(after[1:], nums[len(beforeNums):])
+            if amt != numbers[0]:
+                # Conditions to check a #
+                newGroups = [groups[groupIx][:i] + '#' + groups[groupIx][i + 1:]] + list(groups[groupIx + 1:])
+                combs += calcCombs(tuple(newGroups), numbers)
+
+            break
 
     return combs
 
@@ -55,17 +54,21 @@ def main(verbose):
     with open("input.txt", encoding='UTF-8') as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
-    groups, nums = [], []
-    for line in lines:
-        g, ns = line.split(' ')
-        groups.append(g)
-        nums.append(tuple(int(n) for n in ns.split(',')))
-
     part1 = 0
     part2 = 0
-    for g, ns in zip(groups, nums):
-        part1 += calcCombs(g, ns)
-        part2 += calcCombs('?'.join([g] * 5), ns * 5)
+    for line in lines:
+        groups, numbers = line.split(' ')
+        groups = tuple(re.findall('[#?]+', groups))
+        numbers = tuple(int(n) for n in re.findall('\d+', numbers))
+        part1 += calcCombs(groups, numbers)
+
+        groups, numbers = line.split(' ')
+        groups = '?'.join([groups] * 5)
+        numbers = (numbers + ',') * 5
+        groups = tuple(re.findall('[#?]+', groups))
+        numbers = tuple(int(n) for n in re.findall('\d+', numbers))
+        
+        part2 += calcCombs(groups, numbers)
 
     if verbose:
         print(f"\nPart 1:\nSum of possible arrangements: {part1}\n\nPart 2:\nSum of possible arrangements: {part2}")
