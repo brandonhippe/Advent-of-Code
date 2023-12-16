@@ -42,7 +42,7 @@ def main(verbose):
             part2 += boxNum * slot * fLen
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nSum of hashes: {part1}\n\nPart 2:\nFocusing power: {part2}")
 
     return [part1, part2]
 
