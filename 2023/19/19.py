@@ -114,7 +114,7 @@ def main(verbose):
         part2 += product
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nSum of Accepted Ratings: {part1}\n\nPart 2:\nTotal combinations accepted: {part2}")
 
     return [part1, part2]
 

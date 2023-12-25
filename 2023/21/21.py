@@ -1,14 +1,6 @@
 from time import perf_counter
 
 
-def triangle(n):
-    return n * (n + 1) // 2
-
-
-def manhatArea(base):    
-    return 1 + (4 * triangle(base // 2))
-
-
 def bfs(pos, area, maxSteps = float('inf')):
     visited = {}
     openList = {pos}

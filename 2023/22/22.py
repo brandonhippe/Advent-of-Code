@@ -1,7 +1,6 @@
 from time import perf_counter
 import re
 from collections import defaultdict, deque
-from itertools import product
 
 
 def intersect(x1, y1, x2, y2, x3, y3, x4, y4):
@@ -88,7 +87,7 @@ def main(verbose):
         part2 += len(fallen)
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nNumber of safe bricks: {part1}\n\nPart 2:\nTotal number of falling bricks:{part2}")
 
     return [part1, part2]
 

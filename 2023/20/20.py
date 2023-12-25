@@ -84,13 +84,6 @@ def main(verbose):
 
         outputs[name] = connections
 
-    # g = graphviz.Digraph()
-    # for node, nodeList in outputs.items():
-    #     for n in nodeList:
-    #         g.edge(node, n)
-
-    # g.view()
-
     state = []
     for name, connections in outputs.items():
         for connect in connections:
@@ -191,7 +184,7 @@ def main(verbose):
     part2 = chineseRemainderTheorem(rems, cycleLens)
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nTotal Low Pulses * Total High Pulses: {part1}\n\nPart 2:\nButton Presses: {part2}")
 
     return [part1, part2]
 

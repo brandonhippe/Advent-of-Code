@@ -130,12 +130,9 @@ def main(verbose):
 
     part1 = bfs(start, end, nodesP1)
     part2 = bfs(start, end, nodesP2)
-    # part1 = aStar(start, end, nodesP1)
-    # part2 = aStar(start, end, nodesP2)
-    # part2 = 0
 
     if verbose:
-        print(f"\nPart 1:\n{part1}\n\nPart 2:\n{part2}")
+        print(f"\nPart 1:\nLongest Path: {part1}\n\nPart 2:\nLongest Path: {part2}")
 
     return [part1, part2]
 
