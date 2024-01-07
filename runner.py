@@ -23,6 +23,9 @@ if __name__ == "__main__":
         if len(days) > 1:
             printProgressBar(i + 1, len(days))
 
+            if (year, day) in DONT_RUN:
+                continue
+
         sys.path.append(os.path.join(os.getcwd(), str(year)))
         code = importlib.import_module(f'{year}_{day}')
 
