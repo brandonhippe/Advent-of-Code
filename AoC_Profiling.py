@@ -5,40 +5,30 @@ import matplotlib.pyplot as plt
 
 
 IGNORE = ['.git', '.vscode', 'Modules', 'pycache']
-DONT_RUN = {(2016, 8), (2018, 10), (2019, 8), (2019, 11), (2019, 25), (2021, 13), (2022, 10)}
+DONT_RUN = {(2019, 25)}
 
 
 def runCode():
-    with open("aoc_answers.txt", encoding="UTF-8") as f:
-        lines = [line.strip('\n') for line in f.readlines()]
-
-    answers = defaultdict(dict)
-    for line in lines:
-        year, day = [int(x) for x in re.findall('\d+', line.split(': ')[0])]
-        answer = line.split(": ")[1].split(';')
-        for i in range(len(answer)):
-            try:
-                answer[i] = int(answer[i])
-            except ValueError:
-                pass
-
-        answers[year][day] = answer
-
     runtimes = defaultdict(dict)
     results = defaultdict(dict)
     thisDir = os.getcwd()
 
-    total = sum(len(a) for a in answers.values())
+    total = 0
+    for file in os.walk(thisDir):
+        if re.search('Advent-of-Code/\d+$', file[0]):
+            for f in file[2]:
+                if re.search('\d+_\d+.py$', f):
+                    total += 1
 
     count = 1
     for file in os.walk(thisDir):
-        if any(ignore in file[0] for ignore in IGNORE) or len(re.findall('\d+', file[0])) == 0 or len(file[2]) == 0:
+        if not re.search('Advent-of-Code/\d+$', file[0]):
             continue
 
         year = int(re.findall('\d+', file[0])[0])
         
         for f in file[2]:
-            if f.endswith('.py'):
+            if re.search('\d+_\d+.py$', f):
                 day = int(re.findall('\d+', f)[1])
                 printProgressBar(count, total)
                 count += 1
