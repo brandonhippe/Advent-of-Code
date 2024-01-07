@@ -56,6 +56,10 @@ dkms.conf
 **/Modules
 !/Modules
 
+# Advent of Code Inputs
+**/Inputs
+aoc_answers.txt
+
 # Other random things
 *.html
 *.download

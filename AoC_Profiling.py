@@ -1,6 +1,5 @@
-import sys, os, re, time, importlib
+import sys, os, re, importlib
 from collections import defaultdict
-sys.path.insert(0,"C:/Users/Brandon Hippe/Documents/Coding Projects/Advent-of-Code/Modules")
 from Modules.progressbar import printProgressBar
 import matplotlib.pyplot as plt
 
@@ -9,8 +8,8 @@ IGNORE = ['.git', '.vscode', 'Modules', 'pycache']
 DONT_RUN = {(2016, 8), (2018, 10), (2019, 8), (2019, 11), (2019, 25), (2021, 13), (2022, 10)}
 
 
-def main():
-    with open("answers.txt", encoding="UTF-8") as f:
+def runCode():
+    with open("aoc_answers.txt", encoding="UTF-8") as f:
         lines = [line.strip('\n') for line in f.readlines()]
 
     answers = defaultdict(dict)
@@ -29,37 +28,31 @@ def main():
     results = defaultdict(dict)
     thisDir = os.getcwd()
 
-    total = 0
-    for file in os.walk(thisDir):
-        if any(ignore in file[0] for ignore in IGNORE) or len(re.findall('\d+', file[0])) == 0 or len(file[2]) == 0:
-            continue
-        
-        for f in file[2]:
-            if '.py' in f:
-                total += 1
+    total = sum(len(a) for a in answers.values())
 
     count = 1
     for file in os.walk(thisDir):
         if any(ignore in file[0] for ignore in IGNORE) or len(re.findall('\d+', file[0])) == 0 or len(file[2]) == 0:
             continue
 
-        year, day = [int(x) for x in re.findall('\d+', file[0])]
+        year = int(re.findall('\d+', file[0])[0])
         
         for f in file[2]:
-            if '.py' in f:
+            if f.endswith('.py'):
+                day = int(re.findall('\d+', f)[1])
                 printProgressBar(count, total)
                 count += 1
 
                 if (year, day) in DONT_RUN:
-                    break
+                    continue
 
                 sys.path.append(file[0])
                 code = importlib.import_module(f[:-3])
                 os.chdir(file[0])
 
-                init_time = time.perf_counter()
-                results[year][day] = code.main(False)
-                runtimes[year][day] = time.perf_counter() - init_time
+                (p1, p1_elapsed), (p2, p2_elapsed) = code.main(False)
+                results[year][day] = (p1, p2)
+                runtimes[year][day] = (p1_elapsed, p2_elapsed)
 
                 os.chdir(thisDir)
                 sys.path.pop()
@@ -68,32 +61,61 @@ def main():
 
     print("\n")
 
-    combinedTimes = []
-    for k in sorted(results.keys()):
-        x = []
-        y = []
-        for k1 in sorted(results[k].keys()):
-            if results[k][k1] != answers[k][k1]:
-                print(f"\nIncorrect Answer:\n{k} day {k1}:\nExpected: {answers[k][k1]}\nGot: {results[k][k1]}")
+    sorted_runtimes = []
+    for year in sorted(runtimes.keys()):
+        sorted_runtimes += [[year, d] for d in runtimes[year].keys()]
 
-            combinedTimes.append([runtimes[k][k1], k, k1])
+    sorted_runtimes.sort(key=lambda e: sum(runtimes[e[0]][e[1]]), reverse=True)
+    with open("runtimes.txt", 'w') as f:
+        f.write('\n'.join(f"{year} day {day} ran in {sum(runtimes[year][day])} seconds ({runtimes[year][day][0]}, {runtimes[year][day][1]})." for year, day in sorted_runtimes))
 
-            x.append(k1)
-            y.append(runtimes[k][k1])
 
-        plt.plot(x, y, label = k)
+def plotRuntimes():
+    with open("runtimes.txt") as f:
+        lines = [line.strip('\n') for line in f.readlines()]
 
-    combinedTimes.sort(reverse=True, key=lambda e: e[0])
-    
-    with open("runtimes.txt", "w") as f:
-        for i, (t, year, day) in enumerate(combinedTimes):
-            s = f"{i + 1}. {year} day {day} ran in {t} seconds."
-            f.write(s + '\n')
-            print(s)
-    
-    plt.legend()
+    runtimes = defaultdict(dict)
+    totalTimes = defaultdict(lambda: 0)
+    maxRuntime = 0
+    for line in lines:
+        year, day, combined, p1, p2 = [float(n) for n in re.findall('\d+[.]?\d*e?-?\d*', line)]
+        year = int(year)
+        day = int(day)
+
+        runtimes[year][day] = (p1, p2)
+        totalTimes[year] += combined
+        maxRuntime = max(maxRuntime, combined)
+
+    fig, ax = plt.subplots(2, 2)
+    for year in sorted(runtimes.keys()):
+        days = [day for day in range(1, 26) if day in runtimes[year]]
+        ts = [runtimes[year][day] for day in days]
+
+        ax[0][0].plot(days, [t[0] for t in ts], label = str(year))
+        ax[0][1].plot(days, [t[1] for t in ts], label = str(year))
+        ax[1][0].plot(days, [sum(t) for t in ts], label = str(year))
+        bar = ax[1][1].bar(year, totalTimes[year], label = str(year))
+        ax[1][1].bar_label(bar, fmt='%.3f')
+
+    for (ax_y, ax_x), t in zip([(0, 0), (0, 1), (1, 0)], ['Part 1', 'Part 2', 'Combined']):
+        ax[ax_y][ax_x].set_ylim(0, 1.1 * maxRuntime)
+        ax[ax_y][ax_x].set_xlim(1, 25)
+        ax[ax_y][ax_x].set_xlabel('Day')
+        ax[ax_y][ax_x].set_ylabel('Time (s)')
+        ax[ax_y][ax_x].grid(True)
+        ax[ax_y][ax_x].set_title(t)
+        ax[ax_y][ax_x].legend()
+
+    ax[1][1].set_title('Year Total Runtimes')
+    ax[1][1].set_xlabel('Year')
+    ax[1][1].set_ylabel('Time (s)')
+    ax[1][1].set_xticks(list(totalTimes.keys()))
+
     plt.show()
 
 
 if __name__ == "__main__":
-    main()
+    if input("Run Code? (y/n)\n")[0] == 'y':
+        runCode()
+
+    plotRuntimes()

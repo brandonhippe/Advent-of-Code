@@ -9,5 +9,11 @@
         "*.py": "python",
         "*.h": "c",
         "*.c": "c"
-    }
+    },
+    "python.testing.pytestArgs": [
+        "--doctest-modules", 
+        "--doctest-report", "ndiff",
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.autoTestDiscoverOnSaveEnabled": true
 }
