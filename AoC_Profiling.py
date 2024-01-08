@@ -15,14 +15,13 @@ def runCode():
 
     total = 0
     for file in os.walk(thisDir):
-        if re.search('Advent-of-Code/\d+$', file[0]):
-            for f in file[2]:
-                if re.search('\d+_\d+.py$', f):
-                    total += 1
+        for f in file[2]:
+            if re.search('\d+_\d+.py$', f):
+                total += 1
 
     count = 1
     for file in os.walk(thisDir):
-        if not re.search('Advent-of-Code/\d+$', file[0]):
+        if not re.search('\d+$', file[0]):
             continue
 
         year = int(re.findall('\d+', file[0])[0])
