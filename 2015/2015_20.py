@@ -12,7 +12,7 @@ def part1(data):
         if h >= num:
             break
 
-    return [num, i]
+    return i
 
 
 def part2(data):
@@ -29,7 +29,7 @@ def part2(data):
         if h >= num:
             break
 
-    return [num, i]
+    return i
 
 
 def main(verbose = False):
@@ -46,15 +46,15 @@ def main(verbose = False):
         p1 = part1(data)
 
     if verbose:
-        print(f"\nPart 1:\nFirst house to receive at least {p1[0]} presents: {p1[1]}\nRan in {p1_time.elapsed:0.4f} seconds")
+        print(f"\nPart 1:\nFirst house to receive minimum presents: {p1}\nRan in {p1_time.elapsed:0.4f} seconds")
 
     with Timer() as p2_time:
         p2 = part2(data)
 
     if verbose:
-        print(f"\nPart 2:\nFirst house to receive at least {p2[0]} presents: {p2[1]}\nRan in {p2_time.elapsed:0.4f} seconds")
+        print(f"\nPart 2:\nFirst house to receive minimum presents: {p2}\nRan in {p2_time.elapsed:0.4f} seconds")
 
-    return [(p1[1], p1_time.elapsed), (p2[1], p2_time.elapsed)]
+    return [(p1, p1_time.elapsed), (p2, p2_time.elapsed)]
 
 
 if __name__ == "__main__":
