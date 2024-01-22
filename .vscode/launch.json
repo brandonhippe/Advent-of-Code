@@ -13,7 +13,7 @@
             "cwd":"${workspaceFolder}/${relativeFileDirname}"
         },
         {
-            "name": "(gdb) Launch",
+            "name": "C: Current File",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
@@ -35,6 +35,14 @@
                     "ignoreFailures": true
                 }
             ]
-        }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Rust: Current File",
+            "cargo": {
+                "args": ["build", "--manifest-path", "${fileDirname}/../Cargo.toml"]
+            }
+        },
     ]
 }
