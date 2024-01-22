@@ -20,5 +20,5 @@ Years with completed project(s) and languages:
 
 2022: 1-25 in Python
 
-2023: 1-25 in Python
+2023: 1-25 in Python\
       1-4 in Rust
