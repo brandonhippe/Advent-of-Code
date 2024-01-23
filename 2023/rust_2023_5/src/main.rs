@@ -1,12 +1,12 @@
+use regex::Regex;
 use relative_path::RelativePath;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use regex::Regex;
-use std::collections::HashMap;
 
 fn part1(contents: String) -> i64 {
-    let lines: Vec<String> = contents.lines().map(|line| {line.to_string()}).collect();
+    let lines: Vec<String> = contents.lines().map(|line| line.to_string()).collect();
     let re_num = Regex::new(r"(\d+)").unwrap();
     let mut nums: Vec<(i64, i64)> = re_num
         .captures_iter(&lines[0])
@@ -24,12 +24,14 @@ fn part1(contents: String) -> i64 {
             continue;
         }
 
-        let temp_conv: Option<(i64, i64, i64)> = re_conv
-            .captures(line)
-            .map(|caps| {
-                let (_, [t, f, d]) = caps.extract();
-                (t.parse::<i64>().unwrap(), f.parse::<i64>().unwrap(), d.parse::<i64>().unwrap())
-            });
+        let temp_conv: Option<(i64, i64, i64)> = re_conv.captures(line).map(|caps| {
+            let (_, [t, f, d]) = caps.extract();
+            (
+                t.parse::<i64>().unwrap(),
+                f.parse::<i64>().unwrap(),
+                d.parse::<i64>().unwrap(),
+            )
+        });
 
         if temp_conv.is_some() {
             // Add conversion
@@ -56,13 +58,16 @@ fn part1(contents: String) -> i64 {
 }
 
 fn part2(contents: String) -> i64 {
-    let lines: Vec<String> = contents.lines().map(|line| {line.to_string()}).collect();
+    let lines: Vec<String> = contents.lines().map(|line| line.to_string()).collect();
     let re_num = Regex::new(r"(\d+)\s+(\d+)").unwrap();
     let mut nums: Vec<(i64, i64)> = re_num
         .captures_iter(&lines[0])
         .map(|caps| {
             let (_, [s, e]) = caps.extract();
-            (s.parse::<i64>().unwrap(), s.parse::<i64>().unwrap() + e.parse::<i64>().unwrap() - 1)
+            (
+                s.parse::<i64>().unwrap(),
+                s.parse::<i64>().unwrap() + e.parse::<i64>().unwrap() - 1,
+            )
         })
         .collect();
 
@@ -74,12 +79,14 @@ fn part2(contents: String) -> i64 {
             continue;
         }
 
-        let temp_conv: Option<(i64, i64, i64)> = re_conv
-            .captures(line)
-            .map(|caps| {
-                let (_, [t, f, d]) = caps.extract();
-                (t.parse::<i64>().unwrap(), f.parse::<i64>().unwrap(), d.parse::<i64>().unwrap())
-            });
+        let temp_conv: Option<(i64, i64, i64)> = re_conv.captures(line).map(|caps| {
+            let (_, [t, f, d]) = caps.extract();
+            (
+                t.parse::<i64>().unwrap(),
+                f.parse::<i64>().unwrap(),
+                d.parse::<i64>().unwrap(),
+            )
+        });
 
         if temp_conv.is_some() {
             // Add conversion
@@ -105,7 +112,10 @@ fn part2(contents: String) -> i64 {
     return minimum;
 }
 
-fn applyConversions(conversions: &Vec<(i64, i64, i64)>, nums: &mut Vec<(i64, i64)>) -> Vec<(i64, i64)> {
+fn applyConversions(
+    conversions: &Vec<(i64, i64, i64)>,
+    nums: &mut Vec<(i64, i64)>,
+) -> Vec<(i64, i64)> {
     let mut new_nums: Vec<(i64, i64)> = Vec::new();
     while nums.len() != 0 {
         for i in (0..nums.len()).rev() {
@@ -114,7 +124,10 @@ fn applyConversions(conversions: &Vec<(i64, i64, i64)>, nums: &mut Vec<(i64, i64
 
             for (dest_start, src_start, d) in conversions {
                 if *src_start <= start && end < *src_start + *d {
-                    new_nums.push((convert(*dest_start, *src_start, start), convert(*dest_start, *src_start, end)));
+                    new_nums.push((
+                        convert(*dest_start, *src_start, start),
+                        convert(*dest_start, *src_start, end),
+                    ));
                     nums.remove(i);
                     split = true;
                     break;
@@ -138,7 +151,7 @@ fn applyConversions(conversions: &Vec<(i64, i64, i64)>, nums: &mut Vec<(i64, i64
         }
     }
 
-    return new_nums
+    return new_nums;
 }
 
 fn convert(dest_start: i64, from_start: i64, num: i64) -> i64 {
