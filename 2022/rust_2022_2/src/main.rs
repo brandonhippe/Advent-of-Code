@@ -1,19 +1,15 @@
-use regex::Regex;
 use relative_path::RelativePath;
 use std::env;
 use std::fs;
 use std::time::Instant;
 
 fn part1(contents: String) -> i32 {
-    let re_game = regex::Regex::new(r"([A-C]) ([X-Z])").unwrap();
     let games: Vec<(i32, i32)> = contents
         .lines()
         .map(|line| {
-            let caps = re_game.captures(line).unwrap();
-            let (_, [other, you]) = caps.extract();
             (
-                other.chars().next().unwrap() as i32 - 'A' as i32,
-                you.chars().next().unwrap() as i32 - 'X' as i32,
+                line.chars().nth(0).unwrap() as i32 - 'A' as i32,
+                line.chars().nth(2).unwrap() as i32 - 'X' as i32,
             )
         })
         .collect();
@@ -25,15 +21,12 @@ fn part1(contents: String) -> i32 {
 }
 
 fn part2(contents: String) -> i32 {
-    let re_game = regex::Regex::new(r"([A-C]) ([X-Z])").unwrap();
     let games: Vec<(i32, i32)> = contents
         .lines()
         .map(|line| {
-            let caps = re_game.captures(line).unwrap();
-            let (_, [other, res]) = caps.extract();
             (
-                other.chars().next().unwrap() as i32 - 'A' as i32,
-                res.chars().next().unwrap() as i32 - 'X' as i32,
+                line.chars().nth(0).unwrap() as i32 - 'A' as i32,
+                line.chars().nth(2).unwrap() as i32 - 'X' as i32,
             )
         })
         .collect();

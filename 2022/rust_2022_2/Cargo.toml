@@ -7,5 +7,4 @@ edition = "2021"
 
 [dependencies]
 modular = "1.0.0"
-regex = "1.10.3"
 relative-path = "1.9.2"
