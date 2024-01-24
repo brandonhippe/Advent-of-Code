@@ -29,7 +29,7 @@ fn part2(contents: String) -> i32 {
 
     let mut window: i32 = nums[0..3].iter().sum();
     let mut increased = 0;
-    for n in 0..nums.len() - 3{
+    for n in 0..nums.len() - 3 {
         let prev = window;
         window = window - nums[n] + nums[n + 3];
 
