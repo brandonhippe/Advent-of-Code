@@ -1,8 +1,8 @@
+use itertools::Itertools;
 use relative_path::RelativePath;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use itertools::Itertools;
 
 fn part1(contents: String) -> i32 {
     let mut pos = vec![0, 0];
@@ -15,13 +15,13 @@ fn part1(contents: String) -> i32 {
         match dir.as_str() {
             "forward" => {
                 pos[0] += dist;
-            },
+            }
             "down" => {
                 pos[1] += dist;
-            },
+            }
             "up" => {
                 pos[1] -= dist;
-            },
+            }
             &_ => {
                 println!("Unknown direction: {}", dir);
             }
@@ -44,13 +44,13 @@ fn part2(contents: String) -> i32 {
             "forward" => {
                 pos[0] += dist;
                 pos[1] += aim * dist;
-            },
+            }
             "down" => {
                 aim += dist;
-            },
+            }
             "up" => {
                 aim -= dist;
-            },
+            }
             &_ => {
                 println!("Unknown direction: {}", dir);
             }
