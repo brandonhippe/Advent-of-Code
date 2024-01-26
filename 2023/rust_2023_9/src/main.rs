@@ -1,8 +1,8 @@
 use relative_path::RelativePath;
+use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use std::collections::HashSet;
 
 fn part1(contents: String) -> i64 {
     let mut sum: i64 = 0;
@@ -38,12 +38,16 @@ fn extrapolate(nums: Vec<i64>, end: bool) -> i64 {
     }
 
     let mut new_nums: Vec<i64> = Vec::new();
-    
+
     for i in 1..nums.len() {
-        new_nums.push(nums[i] - nums[i-1]);
+        new_nums.push(nums[i] - nums[i - 1]);
     }
 
-    return if end {nums.last().unwrap() + extrapolate(new_nums, end)} else {nums[0] - extrapolate(new_nums, end)};
+    return if end {
+        nums.last().unwrap() + extrapolate(new_nums, end)
+    } else {
+        nums[0] - extrapolate(new_nums, end)
+    };
 }
 
 #[cfg(test)]
