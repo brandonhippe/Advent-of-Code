@@ -9,7 +9,7 @@ fn part1(contents: String) -> i32 {
 
     let mut pattern: HashSet<(usize, usize)> = HashSet::new();
     let mut y = 0;
-    for (y_off, line) in contents.lines().enumerate() {
+    for line in contents.lines() {
         if line.len() == 0 {
             notes_sum += find_reflection(pattern.clone(), 0);
             pattern = HashSet::new();
@@ -38,7 +38,7 @@ fn part2(contents: String) -> i32 {
 
     let mut pattern: HashSet<(usize, usize)> = HashSet::new();
     let mut y = 0;
-    for (y_off, line) in contents.lines().enumerate() {
+    for line in contents.lines() {
         if line.len() == 0 {
             notes_sum += find_reflection(pattern.clone(), 1);
             pattern = HashSet::new();
@@ -107,7 +107,6 @@ fn find_reflection(pattern: HashSet<(usize, usize)>, differences: usize) -> i32 
     }
 
     panic!("No reflection found");
-    return 0;
 }
 
 #[cfg(test)]
