@@ -107,7 +107,7 @@ def main(verbose = False):
         p2 = part2(data)
 
     if verbose:
-        print(f"\nPart 2:\Load on pillars after 1,000,000,000 cycles: {p2}\nRan in {p2_time.elapsed:0.4f} seconds")
+        print(f"\nPart 2:\nLoad on pillars after 1,000,000,000 cycles: {p2}\nRan in {p2_time.elapsed:0.4f} seconds")
 
     return [(p1, p1_time.elapsed), (p2, p2_time.elapsed)]
 
