@@ -149,14 +149,14 @@ fn main() {
 
     let part1_timer = Instant::now();
     println!(
-        "\nPart 1:\nNotes summary: {}\nRan in {:.5?}",
+        "\nPart 1:\nLoad after shifting north: {}\nRan in {:.5?}",
         part1(contents.clone()),
         part1_timer.elapsed()
     );
 
     let part2_timer = Instant::now();
     println!(
-        "\nPart 2:\nNotes summary: {}\nRan in {:.5?}",
+        "\nPart 2:\nLoad after 1,000,000,000 cycles: {}\nRan in {:.5?}",
         part2(contents.clone()),
         part2_timer.elapsed()
     );
