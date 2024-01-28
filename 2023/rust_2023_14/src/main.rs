@@ -43,7 +43,6 @@ fn part2(contents: String) -> i32 {
     let max_ix = contents.lines().count() as i32;
     let mut seen: HashMap<Vec<(i32, i32)>, i32> = HashMap::new();
     let goal_iterations = 1_000_000_000;
-    let mut iteration = 0;
 
     for cycle in 1..=goal_iterations {
         for dir in dir_arr.iter() {
