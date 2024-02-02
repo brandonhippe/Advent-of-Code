@@ -57,7 +57,7 @@ dkms.conf
 !/Modules
 
 # Rust Things
-*example.txt
+*example*.txt
 target
 .rustc_info.json
 .TAG
