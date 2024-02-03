@@ -17,7 +17,7 @@ def part1(data, steps = 64):
 
             area.add((x, y))
     
-    return len([v for v in bfs(pos, area, steps).values() if 0 <= v <= steps and v % 2 == steps % 2])
+    return len([v for v in bfs(pos, area, len(data), steps).values() if 0 <= v <= steps and v % 2 == steps % 2])
 
 
 def part2(data):
@@ -37,25 +37,21 @@ def part2(data):
             area.add((x, y))
 
     dim = len(data)
-    a = []
-    for res in fillmap(dim // 2, dim, dim * 2 + dim // 2 + 1, pos, area):
-        a.append(res)
+    dists = bfs(pos, area, dim, pos[0] + dim * 4)
+    counts = []
+    for i in range(3):
+        steps = pos[0] + dim * 2 * i
+        counts.append(len([v for v in dists.values() if 0 <= v <= steps and v % 2 == steps % 2]))
 
-    i = dim
-    s = a[1] - a[0]
-    r = a[2] - a[1]
-    d = r - s
-    total = a[1]
+    a = (counts[2] - 2 * counts[1] + counts[0]) // 2
+    b = counts[1] - counts[0] - a
+    c = counts[0]
+    n = 26501365 // (2 * dim)
 
-    while i != 26501365 - dim // 2:
-        i += dim
-        total += r
-        r += d
-
-    return total
+    return a * n ** 2 + b * n + c
 
 
-def bfs(pos, area, maxSteps = float('inf')):
+def bfs(pos, area, dim, maxSteps = float('inf')):
     visited = {}
     openList = {pos}
     steps = 0
@@ -69,7 +65,7 @@ def bfs(pos, area, maxSteps = float('inf')):
 
             for offset in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
                 newPos = tuple(p + o for p, o in zip(pos, offset))
-                if newPos in area and newPos not in visited:
+                if (newPos[0] % dim, newPos[1] % dim) in area and newPos not in visited:
                     newOpenList.add(newPos)
                     added += 1
 
@@ -77,26 +73,6 @@ def bfs(pos, area, maxSteps = float('inf')):
         steps += 1
 
     return visited
-
-
-def fillmap(startStep, frame, steps, pos, area):
-    positions = {pos}
-    for i in range(steps):
-        nPositions = set()
-        for pos in positions:
-            for offset in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                areaIndex = tuple((p + o) % frame for p, o in zip(pos, offset))
-                nPos = tuple(p + o for p, o in zip(pos, offset))
-
-                if areaIndex in area:
-                    nPositions.add(nPos)
-
-        positions = nPositions
-
-        if i % frame == startStep - 1:
-            yield len(positions)
-
-    return
 
 
 def main(verbose = False):
