@@ -6,7 +6,6 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
 use nalgebra::DMatrix;
-use nalgebra::linalg::SVD;
 
 fn part1(contents: String) -> i32 {
     let mut valves: HashMap<String, (i32, HashMap<String, i32>)> = HashMap::new();
@@ -186,12 +185,24 @@ fn part2(contents: String) -> i32 {
     }
 
     let laplacian = degree - adj;
-    let v = SVD::new_unordered(laplacian.clone(), false, true);
+    let eigen_decomp = laplacian.symmetric_eigen();
+    let eigenvalues = eigen_decomp.eigenvalues;
+    let eigenvectors = eigen_decomp.eigenvectors;
 
-    let fiedler_vector: Vec<f64> = v.v_t.expect("V_t not calculated").row(arr_dim - 2).iter().map(|f| *f).collect();
-    let avg: f64 = fiedler_vector.iter().sum::<f64>() / arr_dim as f64;
-    let fiedler_vector: Vec<f64> = fiedler_vector.iter().map(|f| *f - avg).collect();
-    let threshold: f64 = 0.386;
+    let mut min_ix = 0;
+    let mut min_2_ix = 0;
+
+    for ix in 0..eigenvalues.len() {
+        if eigenvalues[ix] < eigenvalues[min_ix] {
+            min_2_ix = min_ix;
+            min_ix = ix;
+        } else if eigenvalues[ix] < eigenvalues[min_2_ix] {
+            min_2_ix = ix;
+        }
+    }
+
+    let fiedler_vector = eigenvectors.column(min_2_ix);
+    let threshold: f64 = 0.426;
 
     let split: i32 = sorted_valves.iter().enumerate().filter(|(i, v)| *v != "AA" && fiedler_vector[*i] > 0.0).map(|(i, _)| 1 << i).sum();
     let changing: u16 = sorted_valves.iter().enumerate().filter(|(i, v)| *v != "AA" && fiedler_vector[*i].abs() < threshold).map(|(i, _)| 1 << i).sum();
