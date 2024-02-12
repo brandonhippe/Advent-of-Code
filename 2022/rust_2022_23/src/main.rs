@@ -1,6 +1,6 @@
 use relative_path::RelativePath;
-use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::collections::VecDeque;
 use std::env;
 use std::fs;
@@ -51,7 +51,7 @@ fn part2(contents: String) -> i64 {
         vec![(-1, -1), (-1, 0), (-1, 1)],
         vec![(1, -1), (1, 0), (1, 1)],
     ]);
-    
+
     let mut steps: i64 = 0;
     loop {
         let (new_elves, moved) = move_elves(elves, &mut deltas);
@@ -66,7 +66,10 @@ fn part2(contents: String) -> i64 {
     return steps;
 }
 
-fn move_elves(elves: HashSet<(i64, i64)>, deltas: &mut VecDeque<Vec<(i64, i64)>>) -> (HashSet<(i64, i64)>, bool) {
+fn move_elves(
+    elves: HashSet<(i64, i64)>,
+    deltas: &mut VecDeque<Vec<(i64, i64)>>,
+) -> (HashSet<(i64, i64)>, bool) {
     let mut proposed_moved: HashMap<(i64, i64), (i64, i64)> = HashMap::new();
     let mut spot_counts: HashMap<(i64, i64), i64> = HashMap::new();
     for (x, y) in elves.iter() {
@@ -75,17 +78,22 @@ fn move_elves(elves: HashSet<(i64, i64)>, deltas: &mut VecDeque<Vec<(i64, i64)>>
             .filter(|(dx, dy)| *dx != 0 || *dy != 0)
             .filter(|(dx, dy)| elves.contains(&(x + dx, y + dy)))
             .count();
-        
+
         if neighbor_count == 0 {
             continue;
         }
 
         for delta in deltas.iter() {
-            let count = delta.iter().filter(|(dx, dy)| elves.contains(&(x + dx, y + dy))).count();
-            
+            let count = delta
+                .iter()
+                .filter(|(dx, dy)| elves.contains(&(x + dx, y + dy)))
+                .count();
+
             if count == 0 {
                 proposed_moved.insert((*x, *y), (x + delta[1].0, y + delta[1].1));
-                *spot_counts.entry((x + delta[1].0, y + delta[1].1)).or_insert(0) += 1;
+                *spot_counts
+                    .entry((x + delta[1].0, y + delta[1].1))
+                    .or_insert(0) += 1;
                 break;
             }
         }
