@@ -1,3 +1,5 @@
+# Brandon Hippe Advent of Code
+
 This repository contains all of Brandon Hippe's code for Advent of Code
 
 Years with completed project(s) and languages:
@@ -17,7 +19,7 @@ Years with completed project(s) and languages:
 
 2021: 1-7 in C\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-25 in Python\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-22 in Rust
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-22, 24 in Rust
 
 2022: 1-25 in Python\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-25 in Rust
