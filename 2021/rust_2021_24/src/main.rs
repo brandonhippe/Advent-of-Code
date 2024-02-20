@@ -159,14 +159,14 @@ fn main() {
 
     let part1_timer = Instant::now();
     println!(
-        "\nPart 1:\n {}\nRan in {:.5?}",
+        "\nPart 1:\nLargest valid number: {}\nRan in {:.5?}",
         part1(contents.clone()),
         part1_timer.elapsed()
     );
 
     let part2_timer = Instant::now();
     println!(
-        "\nPart 2:\n {}\nRan in {:.5?}",
+        "\nPart 2:\nSmallest valid number: {}\nRan in {:.5?}",
         part2(contents.clone()),
         part2_timer.elapsed()
     );
