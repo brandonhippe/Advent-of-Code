@@ -108,7 +108,7 @@ def main(verbose = False):
         p1 = part1(data)
 
     if verbose:
-        print(f"\nPart 1:\n{p1}\nRan in {p1_time.elapsed:0.4f} seconds")
+        print(f"\nPart 1:\nFirst step where no sea cucumbers move: {p1}\nRan in {p1_time.elapsed:0.4f} seconds")
 
     with Timer() as p2_time:
         p2 = part2(data)
