@@ -4,9 +4,9 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\input.h"
-#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\vector.h"
-#define fileName "input.txt"
+#include "../../Modules/input.h"
+#include "../../Modules/vector.h"
+#define fileName "../../Inputs/2021_3.txt"
 
 
 int main () {
@@ -66,12 +66,12 @@ int main () {
                 }
             }
 
-            deleteVector(mostCommon);
+            deleteVector(mostCommon, false);
             if (oneset->len >= zeroset->len) {
-                deleteVector(zeroset);
+                deleteVector(zeroset, false);
                 mostCommon = oneset;
             } else {
-                deleteVector(oneset);
+                deleteVector(oneset, false);
                 mostCommon = zeroset;
             }
         }
@@ -88,12 +88,12 @@ int main () {
                 }
             }
 
-            deleteVector(leastCommon);
+            deleteVector(leastCommon, false);
             if (zeroset->len <= oneset->len) {
-                deleteVector(oneset);
+                deleteVector(oneset, false);
                 leastCommon = zeroset;
             } else {
-                deleteVector(zeroset);
+                deleteVector(zeroset, false);
                 leastCommon = oneset;
             }
         }

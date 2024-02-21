@@ -5,13 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\input.h"
-#define fileName "input.txt"
-
-
-size_t ullsize(void *e) {
-    return sizeof(unsigned long long);
-}
+#include "../../Modules/input.h"
+#define fileName "../../Inputs/2021_6.txt"
 
 
 unsigned long long countFish(struct vector *fish) {

@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\input.h"
-#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\set.h"
-#define fileName "input.txt"
+#include "../../Modules/input.h"
+#include "../../Modules/set.h"
+#define fileName "../../Inputs/2021_13.txt"
 
 
 char *pointStr(int x, int y) {

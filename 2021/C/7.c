@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\input.h"
-#define fileName "input.txt"
+#include "../../Modules/input.h"
+#define fileName "../../Inputs/2021_7.txt"
 
 
 bool compareInt(void *e1, void *e2) {
