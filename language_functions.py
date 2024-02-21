@@ -77,7 +77,7 @@ def run_rust(year, day, verbose):
         after_chars = output[ix][t.end():]
         if after_chars == "ms":
             p1_elapsed /= 1000
-        elif after_chars == "Âµs":
+        elif after_chars == "Âµs" or after_chars == "µs":
             p1_elapsed /= 1000000
         elif after_chars == "ns":
             p1_elapsed /= 1000000000
@@ -106,7 +106,7 @@ def run_rust(year, day, verbose):
         after_chars = output[ix][t.end():]
         if after_chars == "ms":
             p2_elapsed /= 1000
-        elif after_chars == "Âµs":
+        elif after_chars == "Âµs" or after_chars == "µs":
             p2_elapsed /= 1000000
         elif after_chars == "ns":
             p2_elapsed /= 1000000000

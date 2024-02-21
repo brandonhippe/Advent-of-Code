@@ -1,4 +1,4 @@
-import sys, os, re, importlib
+import re
 from collections import defaultdict
 from Modules.progressbar import printProgressBar
 import matplotlib.pyplot as plt
@@ -40,7 +40,7 @@ def runCode():
             sorted_runtimes += [[year, d] for d in runtimes[year].keys()]
 
         sorted_runtimes.sort(key=lambda e: sum(runtimes[e[0]][e[1]]), reverse=True)
-        with open(f"{language}_runtimes.txt", 'w') as f:
+        with open(f"runtimes/{language}_runtimes.txt", 'w') as f:
             f.write(f"Runtimes for {language}:\n")
             f.write('\n'.join(f"{year} day {day} ran in {sum(runtimes[year][day])} seconds ({runtimes[year][day][0]}, {runtimes[year][day][1]})." for year, day in sorted_runtimes))
 
@@ -50,7 +50,7 @@ def plotRuntimes():
 
     for language in get_languages():
         language_text = language[0].upper() + language[1:]
-        with open(f"{language}_runtimes.txt") as f:
+        with open(f"runtimes/{language}_runtimes.txt") as f:
             lines = [line.strip('\n') for line in f.readlines()][1:]
 
         runtimes = defaultdict(dict)
@@ -86,9 +86,6 @@ def plotRuntimes():
             ax[ax_y][ax_x].legend()
 
         fig.suptitle(f"{language_text} Runtimes")
-        wm = plt.get_current_fig_manager()
-        wm.window.state('zoomed')
-
         ax[1][1].set_title('Year Total Runtimes')
         ax[1][1].set_xlabel('Year')
         ax[1][1].set_ylabel('Time (s)')
@@ -96,9 +93,11 @@ def plotRuntimes():
 
         figs.append(fig)
 
-    # for fig in figs:
-    #     mng = fig.canvas.manager
-    #     mng.window.showMaximized()
+    # Works in Linux, might not work in windows
+    for fig in figs:
+        plt.figure(fig.number)
+        mng = plt.get_current_fig_manager()
+        mng.resize(*mng.window.maxsize())
 
     plt.show()
 
