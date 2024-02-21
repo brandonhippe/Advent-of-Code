@@ -36,7 +36,7 @@ if __name__ == "__main__":
         from Modules.progressbar import printProgressBar
 
     for language in languages:
-        if len(days) > 1:
+        if len(languages) > 1:
             print(f"Running {language}...")
 
         totalTime = 0

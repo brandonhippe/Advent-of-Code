@@ -15,7 +15,9 @@ def runCode():
             running_languages.append(language)
 
     for language in running_languages:
-        print(f"Running {language}...")
+        if len(running_languages) > 1:
+            print(f"Running {language}...")
+            
         lang = Language(language.lower())
 
         runtimes = defaultdict(dict)
