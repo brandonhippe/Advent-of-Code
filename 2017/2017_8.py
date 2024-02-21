@@ -11,12 +11,11 @@ def part1(data):
     registers = defaultdict(lambda: 0)
     for ins in data:
         ins = ins.replace('\n', '')
-        ins += 'else 0\n'
+        ins += ' else 0\n'
         ins = ins.replace('inc', '+=')
         ins = ins.replace('dec', '-=')
 
         exec(ins, {}, registers)
-        thisMax = max(registers.values())
 
     return max(registers.values())
 
@@ -32,7 +31,7 @@ def part2(data):
     maxVal = float('-inf')
     for ins in data:
         ins = ins.replace('\n', '')
-        ins += 'else 0\n'
+        ins += ' else 0\n'
         ins = ins.replace('inc', '+=')
         ins = ins.replace('dec', '-=')
 
