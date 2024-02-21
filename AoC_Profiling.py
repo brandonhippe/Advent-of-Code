@@ -9,10 +9,12 @@ DONT_RUN = {(2019, 25)}
 
 
 def runCode():
+    running_languages = []
     for language in get_languages():
-        if input(f"Run {language}? (y/n)\n")[0] == 'n':
-            continue
+        if input(f"Run {language}? (y/n)\n")[0] == 'y':
+            running_languages.append(language)
 
+    for language in running_languages:
         print(f"Running {language}...")
         lang = Language(language.lower())
 
@@ -40,7 +42,7 @@ def runCode():
             sorted_runtimes += [[year, d] for d in runtimes[year].keys()]
 
         sorted_runtimes.sort(key=lambda e: sum(runtimes[e[0]][e[1]]), reverse=True)
-        with open(f"runtimes/{language}_runtimes.txt", 'w') as f:
+        with open(f"Runtimes/{language}_runtimes.txt", 'w') as f:
             f.write(f"Runtimes for {language}:\n")
             f.write('\n'.join(f"{year} day {day} ran in {sum(runtimes[year][day])} seconds ({runtimes[year][day][0]}, {runtimes[year][day][1]})." for year, day in sorted_runtimes))
 
@@ -50,7 +52,7 @@ def plotRuntimes():
 
     for language in get_languages():
         language_text = language[0].upper() + language[1:]
-        with open(f"runtimes/{language}_runtimes.txt") as f:
+        with open(f"Runtimes/{language}_runtimes.txt") as f:
             lines = [line.strip('\n') for line in f.readlines()][1:]
 
         runtimes = defaultdict(dict)
