@@ -19,7 +19,7 @@ char *getLine(struct vector *line) {
     char *dataLine = (char*)calloc(len + 2, sizeof(char));
 
     for (int i = 0; i < len; i++) {
-        dataLine[i] = *((char*)line->arr[i]);
+        memcpy(dataLine + i, line->arr[i], sizeof(char));
     }
     
     return dataLine;
@@ -49,6 +49,8 @@ struct vector *multiLine(char *fileName) {
         } else if (*c != -1) {
             appendVector(line, c);
         }
+
+        free(c);
     }
 
     if (line->len != 0) {
@@ -64,25 +66,29 @@ struct vector *multiLine(char *fileName) {
 
 // Function to read single line input from a file, separated by delim
 struct vector *singleLine(char *fileName, char *delim) {
-    struct vector *data = createVector(stringsize, copyElement);
-
     FILE *fp = fopen(fileName, "r");
     if (!fp) {
         return NULL;
     }
 
-    struct vector *line = createVector(charsize, copyElement);
+    char *input_line = (char*)calloc(2, sizeof(char));
+    int ix = 0, max_chars = 1;
 
     while (!feof(fp)) {
-        char *c = (char*)calloc(2, sizeof(char));
-        *c = fgetc(fp);
-        if (*c != -1) {
-            appendVector(line, c);
+        char c = fgetc(fp);
+
+        if (c != -1) {
+            if (ix == max_chars) {
+                input_line = (char*)realloc(input_line, (2 * max_chars + 1) * sizeof(char));
+                max_chars *= 2;
+            }
+
+            input_line[ix] = c;
+            ix++;
         }
     }
 
-    char *input_line = getLine(line);
-    deleteVector(line, false);
+    struct vector *data = createVector(stringsize, copyElement);
 
     char *p = strtok(input_line, delim);
     while (p) {
