@@ -5,28 +5,15 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#include "C:\Users\Brandon Hippe\Documents\Coding Projects\Advent-of-Code\Modules\input.h"
-#define fileName "input.txt"
+#include "../../Modules/input.h"
+#define fileName "../../Inputs/2021_16.txt"
+// #define fileName "example.txt"
 
 
-char *hex2bin(char c) {
-    long n = strtol(&c, NULL, 16);
-    char *b = (char*)calloc(4, sizeof(char));
-
-    for (int i = 0; i < 4; i++) {
-        strcat(b, n % 2 == 0 ? "0" : "1");
-        n /= 2;
-    }
-
-    b = strrev(b);
-    return b;
-}
-
-
-int bin2int(char *b) {
+int bin2int(char *b, int len) {
     int n = 0;
 
-    for (int i = 0; i < strlen(b); i++) {
+    for (int i = 0; i < len; i++) {
         n *= 2;
         n += b[i] == '1' ? 1 : 0;
     }
@@ -35,132 +22,149 @@ int bin2int(char *b) {
 }
 
 
-char *packetEval(char *packet, int *vSum, int *packetBits, long long int *val) {
-    int type = 0, lengthType = 0, subPacketNum = 0, subPacketBits = 0;
+char *parse_packet(char *packet, int *version_sum, long long int *packet_value) {
+    int version = bin2int(packet, 3);
+    int type_id = bin2int(packet + 3, 3);
 
-    int i = 0, numBits;
+    *version_sum += version;
 
-    bool continuing = true;
+    char *p = packet + 6;
 
-    while (continuing) {
-        if (i == 0 || i == 3) {
-            numBits = 3;
-        } else if (i == 6 && type != 4) {
-            numBits = 1;
-        } else if (i >= 6 && type == 4) {
-            numBits = 5;
-        } else if (i == 7) {
-            if (lengthType == 0) {
-                numBits = 15;
-            } else {
-                numBits = 11;
-            }
+    if (type_id == 4) {
+        *packet_value = 0;
+        bool continuing = true;
+
+        while (continuing) {
+            continuing = p[0] == '1';
+            p++;
+            *packet_value <<= 4;
+            *packet_value += bin2int(p, 4);
+            p += 4;
         }
+    } else {
+        int length_type = p[0] - '0';
+        p++;
 
-        *packetBits = *packetBits + numBits;
+        long long int *sub_vals = (long long int*)calloc(1, sizeof(long long int));
+        int allocated = 1, ix = 0;
+        if (length_type == 0) {
+            int length = bin2int(p, 15);
+            p += 15;
 
-        char *selectedBits = (char*)calloc(numBits + 1, sizeof(char));
-        strncpy(selectedBits, packet, numBits);
+            while (length > 0) {
+                while (ix >= allocated) {
+                    sub_vals = (long long int*)realloc(sub_vals, 2 * allocated * sizeof(long long int));
+                    allocated *= 2;
+                }
 
-        if (i == 0) {
-            *vSum = *vSum + bin2int(selectedBits);
-        } else if (i == 3) {
-            type = bin2int(selectedBits);
-        } else if (type == 4) {
-            continuing = packet[0] == '1';
-            *val = *val * 16;
-            *val = *val + bin2int(selectedBits + 1);
-        } else if (i == 6) {
-            lengthType = packet[0] == '1' ? 1 : 0;
+                int p_len = strlen(p);
+                p = parse_packet(p, version_sum, sub_vals + ix);
+                ix++;
+                length -= p_len - strlen(p);
+            }
         } else {
-            packet += numBits;
+            int num_subpackets = bin2int(p, 11);
+            p += 11;
 
-            if (lengthType == 0) {
-                subPacketBits = bin2int(selectedBits);
-            } else {
-                subPacketNum = bin2int(selectedBits);
+            while (num_subpackets > 0) {
+                while (ix >= allocated) {
+                    sub_vals = (long long int*)realloc(sub_vals, 2 * allocated * sizeof(long long int));
+                    allocated *= 2;
+                }
+
+                p = parse_packet(p, version_sum, sub_vals + ix);
+                ix++;
+                num_subpackets--;
             }
-
-            int sPbits = 0, sPnum = 0;
-            long long int *vals = (long long int*)calloc(1, sizeof(long long int));
-            while ((lengthType == 0 && sPbits < subPacketBits) || (lengthType == 1 && sPnum < subPacketNum)) {
-                if (sPnum != 0) {
-                    vals = (long long int*)realloc(vals, sizeof(long long int) * (sPnum + 1));
-                    vals[sPnum] = 0;
-                }
-
-                packet = packetEval(packet, vSum, &sPbits, &vals[sPnum]);
-                sPnum += 1;
-            }
-
-            *packetBits = *packetBits + sPbits;
-            switch (type) {
-            case 0:
-                *val = 0;
-                for (int i = 0; i < sPnum; i++) {
-                    *val = *val + vals[i];
-                }
-                break;
-
-            case 1:
-                *val = 1;
-                for (int i = 0; i < sPnum; i++) {
-                    *val = *val * vals[i];
-                }
-                break;
-            
-            case 2:
-                *val = vals[0];
-                for (int i = 1; i < sPnum; i++) {
-                    *val = vals[i] < *val ? vals[i] : *val;
-                }
-                break;
-
-            case 3:
-                *val = vals[0];
-                for (int i = 1; i < sPnum; i++) {
-                    *val = vals[i] > *val ? vals[i] : *val;
-                }
-                break;
-
-            case 5:
-                *val = vals[0] > vals[1];
-                break;
-
-            case 6:
-                *val = vals[0] < vals[1];
-                break;
-
-            case 7:
-                *val = vals[0] == vals[1];
-                break;
-            }
-
-            break;
         }
 
-        i += numBits;
-        packet += numBits;
+        switch (type_id) {
+            case 0:
+                *packet_value = 0;
+                for (int i = 0; i < ix; i++) {
+                    *packet_value += sub_vals[i];
+                }
+                break;
+            case 1:
+                *packet_value = 1;
+                for (int i = 0; i < ix; i++) {
+                    *packet_value *= sub_vals[i];
+                }
+                break;
+            case 2:
+                *packet_value = sub_vals[0];
+                for (int i = 1; i < ix; i++) {
+                    if (sub_vals[i] < *packet_value) {
+                        *packet_value = sub_vals[i];
+                    }
+                }
+                break;
+            case 3:
+                *packet_value = sub_vals[0];
+                for (int i = 1; i < ix; i++) {
+                    if (sub_vals[i] > *packet_value) {
+                        *packet_value = sub_vals[i];
+                    }
+                }
+                break;
+            case 5:
+                *packet_value = sub_vals[0] > sub_vals[1];
+                break;
+            case 6:
+                *packet_value = sub_vals[0] < sub_vals[1];
+                break;
+            case 7:
+                *packet_value = sub_vals[0] == sub_vals[1];
+                break;
+        }
     }
 
-    return packet;
+    return p;
 }
 
 
 int main () {
-    struct vector *input_data = singleLine(fileName, " ");
-    char *data = (char*)input_data->arr[0];
-    char *bits = (char*)calloc(strlen(data) * 4 + 1, sizeof(char));
-    for (int i = 0; i < strlen(data); i++) {
-        strcat(bits, hex2bin(data[i]));
+    FILE *fp = fopen(fileName, "r");
+    if (!fp) {
+        return -1;
     }
 
-    int *vSum = (int*)calloc(1, sizeof(int)), *packetBits = (int*)calloc(1, sizeof(int));
+    char *input_line = (char*)calloc(2, sizeof(char));
+    int ix = 0, max_chars = 1;
+
+    while (!feof(fp)) {
+        char c = fgetc(fp);
+
+        if (c != -1) {
+            int n = c - '0';
+            if (n > 9) {
+                n = c - 'A' + 10;
+            }
+
+            char *bits = (char*)calloc(5, sizeof(char));
+            for (int i = 3; i >= 0; i--) {
+                bits[i] = (n % 2) + '0';
+                n /= 2;
+            }
+
+            while ((ix + 1) * 4 >= max_chars) {
+                input_line = (char*)realloc(input_line, (2 * max_chars + 1) * sizeof(char));
+                max_chars *= 2;
+            }
+
+            strncat(input_line, bits, 4 * sizeof(char));
+            ix++;
+        }
+    }
+
+    printf("# of input bits: %ld\n", strlen(input_line));
+
+    int *vSum = (int*)calloc(1, sizeof(int));
     long long int *packetValue = (long long int*)calloc(1, sizeof(long long int));
-    packetEval(bits, vSum, packetBits, packetValue);
+    parse_packet(input_line, vSum, packetValue);
 
     printf("\nPart 1:\nSum of version numbers: %d\n", *vSum);
     printf("\nPart 2:\nPacket Value: %lld\n", *packetValue);
 
-    return 1;
+    return 0;
 }
