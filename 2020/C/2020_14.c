@@ -5,12 +5,15 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "input.txt"
+#define fileName "../../Inputs/2020_14.txt"
 #define dataLine 50
 
 void uLtoBin(unsigned long long int inp, int *arr, int numBits);
 unsigned long long int binToUL (int *arr, int numBits);
 int countChar(char *mask, char id);
+unsigned long long int applyBitmask_p1(char *bitmask, unsigned long long int inp);
+void applyBitmask_p2(char *bitmask, unsigned long long int addr, unsigned long long int *addrs, int num);
+int findIndex(unsigned long long int addrs, unsigned long long int *memAddrs, int num);
 
 
 unsigned long long int findAddr() {
@@ -53,7 +56,7 @@ int countChar(char *bitmask, char id) {
 }
 
 
-int readData(unsigned long long int *memAddrs, unsigned long long int *memVals, int numAddr) {
+int readData_p2(unsigned long long int *memAddrs, unsigned long long int *memVals, int numAddr) {
     unsigned long long int val, addr;
 	char textRead[dataLine], bitmask[37], *p, *endp;
 	int addrsAssigned = 0;
@@ -63,7 +66,7 @@ int readData(unsigned long long int *memAddrs, unsigned long long int *memVals, 
 
 	// Check if the file exists or not
     if (inFile == NULL) {
-        return;
+        return -1;
     }
 
 	while(fgets(textRead, dataLine, inFile)) {
@@ -79,7 +82,7 @@ int readData(unsigned long long int *memAddrs, unsigned long long int *memVals, 
 
             int change = pow(2, countChar(bitmask, 'X'));
             unsigned long long int addrs[change];
-            applyBitmask(bitmask, addr, &addrs[0], change);
+            applyBitmask_p2(bitmask, addr, &addrs[0], change);
 
             p = strtok(NULL, " ");
             p = strtok(NULL, " ");
@@ -106,7 +109,7 @@ int readData(unsigned long long int *memAddrs, unsigned long long int *memVals, 
 }
 
 
-void applyBitmask(char *bitmask, unsigned long long int addr, unsigned long long int *addrs, int num) {
+void applyBitmask_p2(char *bitmask, unsigned long long int addr, unsigned long long int *addrs, int num) {
     int addrBin[36], locs[countChar(bitmask, 'X')], found = 0;
     uLtoBin(addr, &addrBin[0], 36);
 
@@ -171,18 +174,122 @@ unsigned long long int binToUL (int *arr, int numBits) {
     return result;
 }
 
-int main () {
-    unsigned long long int numAddr = findAddr();
+unsigned long long int findMaxAddr() {
+	unsigned long int maxAddr = 0, addr;
+	char textRead[dataLine], *p;
 
+	// Open the file
+	FILE *inFile = fopen(fileName, "r");
 
-    unsigned long long int memAddrs[numAddr], memVals[numAddr];
-
-    for (int i = 0; i < numAddr; i++) {
-        memAddrs[i] = 0;
-        memVals[i] = 0;
+	// Check if the file exists or not
+    if (inFile == NULL) {
+        return -1;
     }
 
-    int assigned = readData(&memAddrs[0], &memVals[0], numAddr);
+	while(fgets(textRead, dataLine, inFile)) {
+        int line_len = strlen(textRead);
+        p = strtok(textRead, "[");
+
+        if (strlen(p) < line_len) {
+            p = strtok(NULL, "]");
+            addr = atoi(p);
+
+            if (addr > maxAddr) {
+                maxAddr = addr;
+            }
+        }
+	}
+
+	fclose(inFile);
+
+	return maxAddr + 1;
+}
+
+void readData_p1(unsigned long long int *memory) {
+    unsigned long long int temp;
+    unsigned int addr;
+	char textRead[dataLine], bitmask[37], *p, *endp;
+
+	// Open the file
+	FILE *inFile = fopen(fileName, "r");
+
+	// Check if the file exists or not
+    if (inFile == NULL) {
+        return;
+    }
+
+	while(fgets(textRead, dataLine, inFile)) {
+        if (textRead[1] == 'a') {
+            p = strtok(textRead, " ");
+            p = strtok(NULL, " ");
+            p = strtok(NULL, "\n");
+            strcpy(bitmask, p);
+        } else {
+            p = strtok(textRead, "[");
+            p = strtok(NULL, "]");
+            addr = atoi(p);
+
+            p = strtok(NULL, " ");
+            p = strtok(NULL, " ");
+            temp = strtoul(p, &endp, 10);
+
+            temp = applyBitmask_p1(bitmask, temp);
+            memory[addr] = temp;
+        }
+	}
+
+	fclose(inFile);
+
+    return;
+}
+
+unsigned long long int applyBitmask_p1(char *bitmask, unsigned long long int inp) {
+    int inpBin[36];
+    uLtoBin(inp, &inpBin[0], 36);
+
+    for (int i = 0; i < 36; i++) {
+        if (bitmask[i] == '0') {
+            inpBin[i] = 0;
+        } else if (bitmask[i] == '1') {
+            inpBin[i] = 1;
+        }
+    }
+
+    inp = binToUL(&inpBin[0], 36);
+    return inp;
+}
+
+unsigned long long int part1() {
+    unsigned long long int memSum = 0, *memory, largestAddr = findMaxAddr();
+
+    if (largestAddr < 0) {
+        printf("Error: could not open file.\n");
+        return -1;
+    }
+
+    memory = (unsigned long long int *)calloc(largestAddr, sizeof(unsigned long long int));
+    readData_p1(memory);
+
+    for (unsigned int i = 0; i < largestAddr; i++) {
+        //printf("%lu\n", memory[i]);
+        memSum += memory[i];
+    }
+    
+    return memSum;
+}
+
+unsigned long long int part2() {
+    unsigned long long int numAddr = findAddr();
+    unsigned long long int *memAddrs = (unsigned long long int*)calloc(numAddr, sizeof(unsigned long long int)), *memVals = (unsigned long long int*)calloc(numAddr, sizeof(unsigned long long int));
+
+    // unsigned long long int memAddrs[numAddr], memVals[numAddr];
+
+    // for (int i = 0; i < numAddr; i++) {
+    //     memAddrs[i] = 0;
+    //     memVals[i] = 0;
+    // }
+
+    int assigned = readData_p2(memAddrs, memVals, numAddr);
 
     unsigned long long int memSum = 0;
 
@@ -191,11 +298,23 @@ int main () {
         memSum += memVals[i];
     }
 
+    return memSum;
 
-    printf("The sum of all values left in memory is: %llu\n", memSum);
+}
 
+int main () {
+    clock_t t; 
+    t = clock(); 
+    unsigned long long int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nThe sum of all values left in memory is: %llu\nRan in %f seconds\n", p1, t_p1);
 
-	printf("\nProgram Done");
+    t = clock();
+    unsigned long long int p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nThe sum of all values left in memory is: %llu\nRan in %f seconds\n", p2, t_p2);
 
-	return 1;
+	return 0;
 }
