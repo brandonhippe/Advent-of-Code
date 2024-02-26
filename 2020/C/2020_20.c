@@ -5,41 +5,45 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "input.txt"
-#define testFile "input1.txt"
+#define fileName "../../Inputs/2020_20.txt"
 #define outputFile "input2.txt"
 #define monsterFile "monster.txt"
 #define monsterLen 21
-#define test false
 
 int size, side, dataLine;
 
 
 typedef struct tile {
-    int id, match[8], type, sides[4], loc;
-    char image[101];
+    int id, match[8], type, loc;
+    struct tile *sides[4];
+    char image[102];
 } Tile;
 
-struct tile *createTile(struct tile *t, int id_, char *img) {
+void createTile(struct tile *t, int id_, char *img) {
     t->id = id_;
     t->type = 0;
     t->loc = -1;
-    strcpy(t->image, img);
+    if (strlen(img) > 101) {
+        printf("Error: Image too large: %ld.\n", strlen(img));
+        return;
+    }
+
+    strncpy(t->image, img, strlen(img));
 
     for (int i = 0; i < 8; i++) {
         t->match[i] = 0;
         t->sides[i / 2] = 0;
     }
 
-    return t;
+    return;
 }
 
 void printTile(struct tile *t) {
     printf("Id: %d\n", t->id);
-    char *img = (char*)calloc((dataLine * dataLine) + 1, sizeof(char)), *p = img, *temp = (char*)calloc(dataLine + 1, sizeof(char));
+    char *img = (char*)calloc((dataLine * dataLine) + 2, sizeof(char)), *p = img, *temp = (char*)calloc(dataLine + 2, sizeof(char));
     strcpy(img, t->image);
 
-    while (p[0] != '\n') {
+    while (strlen(p) > 0) {
         strncpy(temp, p, dataLine);
         printf("%s\n", temp);
         p += dataLine * sizeof(char);
@@ -64,7 +68,7 @@ int findLines() {
 	char textRead[dataLine + 2];
 
 	// Open the file
-	FILE *inFile = fopen((test) ? testFile : fileName, "r");
+	FILE *inFile = fopen(fileName, "r");
 
 	// Check if the file exists or not
     if (inFile == NULL) {
@@ -73,7 +77,7 @@ int findLines() {
 
 	while(fgets(textRead, dataLine + 2, inFile)) {
         if (textRead[1] == 'i') {
-            ++numLines;
+            numLines++;
         }
 	}
 
@@ -82,12 +86,12 @@ int findLines() {
 	return numLines;
 }
 
-void readData(int *tiles) {
+void readData(struct tile **tiles) {
     int tNum = -1, id_;
 	char textRead[dataLine + 2], *img = (char*)calloc((dataLine * dataLine) + 2, sizeof(char));
 
 	// Open the file
-	FILE *inFile = fopen((test) ? testFile : fileName, "r");
+	FILE *inFile = fopen(fileName, "r");
 
 	// Check if the file exists or not
     if (inFile == NULL) {
@@ -97,19 +101,21 @@ void readData(int *tiles) {
 	while(fgets(textRead, dataLine + 2, inFile)) {
         if (textRead[0] == 'T') {
             if (tNum >= 0) {
-                struct tile *t = (struct tile*)calloc(1, sizeof(struct tile));
-                t = createTile(t, id_, img);
-                tiles[tNum] = t;
+                img[strlen(img) - 1] = '\0';
+                createTile(tiles[tNum], id_, img);
+                strcpy(img, "");
             }
 
             char *p = strchr(textRead, ' ');
             id_ = atoi(p);
             ++tNum;
-            strcpy(img, "");
         } else {
             strncat(img, textRead, dataLine);
         }
 	}
+
+    img[strlen(img) - 1] = '\0';
+    createTile(tiles[tNum], id_, img);
 
 	fclose(inFile);
 
@@ -117,14 +123,18 @@ void readData(int *tiles) {
 }
 
 char *flip(char *str, int slen) {
-    char *res = (char*)calloc(strlen(str) + 1, sizeof(char)), *p = str + ((slen - 1) * slen);
+    char *res = (char*)calloc(strlen(str) + 10, sizeof(char)), *p = str + ((slen - 1) * slen);
+    
+    // printf("Str len: %ld\n", strlen(str));
 
     while (p >= str) {
+        // printf("P len: %ld\n", strlen(p));
         strncat(res, p, slen);
         p -= slen;
     }
 
-    strcat(res, "\n");
+    // strcat(res, "\n");
+    // printf("Res len: %ld\n", strlen(res));
 
     return res;
 }
@@ -146,12 +156,28 @@ char *rotate(char *str, int slen) {
         index++;
     }
 
-    strcat(res, "\n");
+    // strcat(res, "\n");
 
     return res;
 }
 
-void shiftArr(int *arr, int len, int amt) {
+void shiftArr(struct tile **arr, int len, int amt) {
+    while (amt > 0) {
+        struct tile *temp = arr[0];
+
+        for (int i = 0; i < len - 1; i++) {
+            arr[i] = arr[i + 1];
+        }
+
+        arr[len - 1] = temp;
+
+        amt--;
+    }
+
+    return;
+}
+
+void shiftArr_int(int *arr, int len, int amt) {
     while (amt > 0) {
         int temp = arr[0];
 
@@ -171,7 +197,7 @@ int indexFrom2d(int x, int y) {
     return (y * side) + x;
 }
 
-void matchSides(int *tiles) {
+void matchSides(struct tile **tiles) {
     for (int n = 0; n < size; n++) {
         struct tile *t = tiles[n];
 
@@ -198,7 +224,7 @@ void matchSides(int *tiles) {
     return;
 }
 
-void genMatches(struct tile *t, int *tiles, int tloc) {
+void genMatches(struct tile *t, struct tile **tiles, int tloc) {
     t->loc = tloc;
 
     if ((t->match[1] == 1 || t->match[4] == 1) && t->sides[2] == 0) {
@@ -241,7 +267,7 @@ void genMatches(struct tile *t, int *tiles, int tloc) {
                     }
 
                     strcpy(t1->image, (or % 2 == 0) ? flip(t1->image, dataLine) : rotate(t1->image, dataLine));
-                    shiftArr(t1->match, 8, 1);
+                    shiftArr_int(t1->match, 8, 1);
                     shiftArr(t1->sides, 4, or % 2);
                 }
 
@@ -296,7 +322,7 @@ void genMatches(struct tile *t, int *tiles, int tloc) {
                     }
 
                     strcpy(t1->image, (or % 2 == 0) ? flip(t1->image, dataLine) : rotate(t1->image, dataLine));
-                    shiftArr(t1->match, 8, 1);
+                    shiftArr_int(t1->match, 8, 1);
                     shiftArr(t1->sides, 4, or % 2);
                 }
 
@@ -386,32 +412,8 @@ void writeFile(char *img) {
 	return;
 }
 
-void readImg(char *img) {
-	char textRead[dataLine];
-
-	// Open the file
-	FILE *inFile = fopen(outputFile, "r");
-
-	// Check if the file exists or not
-    if (inFile == NULL) {
-        return;
-    }
-
-	while(fgets(textRead, dataLine, inFile)) {
-        strncat(img, textRead, side);
-	}
-
-	fclose(inFile);
-
-	return;
-}
-
-int roughness() {
-    char *img = (char*)calloc(dataLine * dataLine, sizeof(char));
-    readImg(img);
-
-    char *monster = (char*)calloc(monsterLen * 3 + 1, sizeof(char));
-    genMonster(monster);
+int roughness(char *img) {
+    char monster[] = "                  # #    ##    ##    ### #  #  #  #  #  #   ";
 
     for (int or = 0; or < 8; or++) {
         for (int i = 0; i < side - 2; i++) {
@@ -419,10 +421,9 @@ int roughness() {
                 int start = i * side + j, mIndex = 0;
 
                 bool found = true;
-                while (monster[mIndex]) {
+                while (monster[mIndex] && found) {
                     if (monster[mIndex] == '#' && img[start + side * (mIndex / (monsterLen - 1)) + (mIndex % (monsterLen - 1))] == '.') {
                         found = false;
-                        break;
                     }
 
                     mIndex++;
@@ -444,15 +445,11 @@ int roughness() {
         strcpy(img, (or % 2 == 0) ? flip(img, side) : rotate(img, side));
     }
 
-    printf("\n\n\nMonsters found in the water:\n");
-
     char *p = img;
     for (int i = 0; i < side; i++) {
         char *temp = (char*)calloc(dataLine, sizeof(char));
         strncpy(temp, p, side);
         p += side;
-
-        printf("%s\n", temp);
     }
 
     int i = 0, count = 0;
@@ -464,17 +461,9 @@ int roughness() {
     return count;
 }
 
-int main() {
-    dataLine = 10;
-    size = findLines(), side = sqrt(size);
-    printf("Number of tiles: %d\n\n", size);
-
-
-    int *tiles = (int*)calloc(size, sizeof(struct tile));
-    readData(tiles);
-
-
+unsigned long long int part1(struct tile **tiles) {
     matchSides(tiles);
+
     for (int i = 0; i < size; i++) {
         struct tile *t = tiles[i];
         int zeros = 0;
@@ -486,35 +475,19 @@ int main() {
         t->type = zeros / 2;
     }
 
-    unsigned long long int product = 1, corners = 0;
+    unsigned long long int product = 1;
     for (int i = 0; i < size; i++) {
         struct tile *t = tiles[i];
-        printTile(t);
 
         if (t->type == 2) {
             product *= t->id;
-            corners++;
         }
     }
 
+    return product;
+}
 
-/*
-    for (int i = 0; i < side; i++) {
-        for (int j = 0; j < side; j++) {
-            for (int k = 0; k < size; k++) {
-                int index = indexFrom2d(j, i);
-                if (k == index) {
-                    struct tile *t = tiles[index];
-                    printf(" %d ", t->id);
-                }
-            }
-        }
-        printf("\n");
-    }
-*/
-
-    printf("Corners: %d\nProduct of corner IDs: %llu\n\n", corners, product);
-
+int part2(struct tile **tiles) {
     struct tile *c0;
 
     for (int i = 0; i < size; i++) {
@@ -522,7 +495,7 @@ int main() {
         if (t->type == 2) {
             for (int or = 0; or < 8 && t->match[1] + t->match[3] + t->match[4] + t->match[6] != 4; or++) {
                 strcpy(t->image, (or % 2 == 0) ? flip(t->image, dataLine) : rotate(t->image, dataLine));
-                shiftArr(t->match, 8, 1);
+                shiftArr_int(t->match, 8, 1);
             }
 
             c0 = t;
@@ -531,7 +504,6 @@ int main() {
     }
 
     genMatches(c0, tiles, 0);
-
     struct tile *curr = 0, *next = c0;
 
     do {
@@ -546,35 +518,52 @@ int main() {
             } else {
                 curr = curr->sides[1];
             }
-
-            printf("%d  ", curr->id);
         } while (curr->sides[1] != 0);
 
         while (curr->sides[3] != 0) {
             curr = curr->sides[3];
         }
-
-        printf("\n");
     } while (curr->sides[2] != 0);
 
-    printf("\n\n");
-
-    char *img = (char*)calloc(8 * 8 * side * side + 1, sizeof(char));
+    char *img = (char*)calloc(8 * 8 * side * side + 2, sizeof(char));
     formatImg(c0, img);
 
     char *p = img;
     while (p < img + strlen(img)) {
-        char *temp = (char *)calloc(8 * side + 1, sizeof(char));
+        char *temp = (char *)calloc(8 * side + 2, sizeof(char));
         strncpy(temp, p, 8 * side);
-        printf("%s\n", temp);
         p += 8 * side;
     }
-    writeFile(img);
 
-    side = (test) ? 24 : 96;
+    side = 96;
     dataLine = 100;
 
-    printf("\n\nWater Roughness: %d\n", roughness());
+    return roughness(img);
+}
 
-    return 1;
+int main() {
+    dataLine = 10;
+    size = findLines(), side = sqrt(size);
+
+    struct tile **tiles = (struct tile **)calloc(size, sizeof(struct tile *));
+    for (int i = 0; i < size; i++) {
+        tiles[i] = (struct tile *)calloc(1, sizeof(struct tile));
+    }
+
+    readData(tiles);
+
+    clock_t t;
+    t = clock(); 
+    unsigned long long int p1 = part1(tiles);
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nProduct of corner IDs: %llu\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock();
+    int p2 = part2(tiles);
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nWater Roughness: %d\nRan in %f seconds\n", p2, t_p2);
+
+    return 0;
 }
