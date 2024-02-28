@@ -5,10 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define realData "input.txt"
-#define testData "input1.txt"
+#define fileName "../../Inputs/2020_21.txt"
 #define dataLine 600
-#define test false
 
 
 typedef struct food {
@@ -18,20 +16,18 @@ typedef struct food {
 
 typedef struct allergen {
     char name[50];
-    int foods[50], ing;
+    struct food **foods;
+    struct ingredient *ing;
 } Allergen;
 
 typedef struct ingredient {
     char name[50];
-    int foods[50], pAllergen[10];
+    struct food **foods;
+    struct allergen **pAllergen;
 } Ingredient;
 
-typedef struct alphaPtr {
-    int value;
-    char name[50];
-} AlphaPtr;
-
-struct food *createFood(struct food *f, char *ing, char *all) {
+struct food *createFood(char *ing, char *all) {
+    struct food *f = (struct food*)calloc(1, sizeof(struct food));
     for (int i = 0; i < 5; i++) {
         f->aP[i] = 0;
     }
@@ -44,7 +40,7 @@ struct food *createFood(struct food *f, char *ing, char *all) {
 
 void printFood(struct food *f) {
     if (f) {
-        printf("Address: %d\nIngredients: %s\nKnown Allergens: %s\n\n\n", f, f->ingredients, f->allergens);
+        printf("Address: %p\nIngredients: %s\nKnown Allergens: %s\n\n\n", f, f->ingredients, f->allergens);
     } else {
         printf("***NULL FOOD***\n\n\n");
     }
@@ -52,7 +48,10 @@ void printFood(struct food *f) {
     return;
 }
 
-struct allergen *createAllergen(struct allergen *a, char *name) {
+struct allergen *createAllergen(char *name) {
+    struct allergen *a = (struct allergen*)calloc(1, sizeof(struct allergen));
+    a->foods = (struct food**)calloc(50, sizeof(struct food*));
+
     for (int i = 0; i < 50; i++) {
         a->foods[i] = 0;
     }
@@ -74,8 +73,12 @@ void printAllergen(struct allergen *a) {
                 printf(", ");
             }
 
-            printf("%d", a->foods[index]);
+            printf("%p", a->foods[index]);
             index++;
+        }
+
+        if (a->ing) {
+            printf("\nIngredient: %s", a->ing->name);
         }
     } else {
         printf("***NULL ALLERGEN***");
@@ -86,10 +89,13 @@ void printAllergen(struct allergen *a) {
     return;
 }
 
-struct ingredient *createIngredient(struct ingredient *ing, char *name, int* allergenArr) {
-    for (int i = 0; i < 50; i++) {
-        ing->foods[i] = 0;
-        ing->pAllergen[i % 10] = allergenArr[i % 10];
+struct ingredient *createIngredient(char *name, struct allergen ** allergenArr) {
+    struct ingredient *ing = (struct ingredient*)calloc(1, sizeof(struct ingredient));
+    ing->foods = (struct food**)calloc(50, sizeof(struct food*));
+    ing->pAllergen = (struct allergen**)calloc(10, sizeof(struct allergen*));
+
+    for (int i = 0; i < 10; i++) {
+        ing->pAllergen[i] = allergenArr[i];
     }
 
     strcpy(ing->name, name);
@@ -99,26 +105,38 @@ struct ingredient *createIngredient(struct ingredient *ing, char *name, int* all
 
 void printIngredient(struct ingredient *ing) {
     if (ing) {
-        printf("Ingredient: %s\nFoods: ", ing->name);
+        bool first = true;
 
-        int index = 0;
-        while (ing->foods[index] != 0) {
-            if (index != 0) {
+        printf("Ingredient: %s\nFoods: ", ing->name);
+        for (int index = 0; index < 50; index++) {
+            struct food *f = ing->foods[index];
+            if (!f) {
+                continue;
+            }
+
+            if (!first) {
                 printf(", ");
             }
 
-            printf("%d", ing->foods[index]);
+            first = false;
+            printf("%p", f);
             index++;
         }
 
-        index = 0;
+        first = true;
+
         printf("\nPossible Allergens: ");
-        while (ing->pAllergen[index] != 0) {
-            if (index != 0) {
+        for (int index = 0; index < 10; index++){
+            struct allergen *a = ing->pAllergen[index];
+            if (!a) {
+                continue;
+            }
+
+            if (!first) {
                 printf(", ");
             }
 
-            struct allergen *a = ing->pAllergen[index];
+            first = false;
             printf("%s", a->name);
             index++;
         }
@@ -129,13 +147,6 @@ void printIngredient(struct ingredient *ing) {
     printf("\n\n\n");
 
     return;
-}
-
-struct alphaPtr *createPtr(struct alphaPtr *a, int val, char *all) {
-    a->value = val;
-    strcpy(a->name, all);
-
-    return a;
 }
 
 bool inCSV(char *check, char *csv) {
@@ -164,7 +175,7 @@ int numLines() {
 	int size = 0;
 
 	// Open the file
-	FILE *inFile = fopen((test) ? testData : realData, "r");
+	FILE *inFile = fopen(fileName, "r");
 
 	// Check if the file exists or not
     if (inFile == NULL) {
@@ -180,12 +191,12 @@ int numLines() {
 	return size;
 }
 
-void readData(int *foods) {
+void readData(struct food **foods) {
 	char textRead[dataLine];
 	int size = 0;
 
 	// Open the file
-	FILE *inFile = fopen((test) ? testData : realData, "r");
+	FILE *inFile = fopen(fileName, "r");
 
 	// Check if the file exists or not
     if (inFile == NULL) {
@@ -202,6 +213,10 @@ void readData(int *foods) {
             int len = strlen(q);
             if (q[len - 1] == '\n') {
                 len -= 2;
+            }
+
+            if (q[len - 1] == ')') {
+                len--;
             }
 
             strncat(all, q, len);
@@ -224,9 +239,7 @@ void readData(int *foods) {
             p = strtok(NULL, " ");
         }
 
-        struct food *f = (struct food*)calloc(1, sizeof(struct food));
-        f = createFood(f, ing, all);
-        foods[size] = f;
+        foods[size] = createFood(ing, all);
         size++;
 	}
 
@@ -235,7 +248,7 @@ void readData(int *foods) {
 	return;
 }
 
-char *findAllergens(int *foods, int numFoods) {
+char *findAllergens(struct food **foods, int numFoods) {
     char *allergenNames = (char*)calloc(1, sizeof(char));
 
     for (int i = 0; i < numFoods; i++) {
@@ -264,13 +277,12 @@ char *findAllergens(int *foods, int numFoods) {
     return allergenNames;
 }
 
-void genAllergens(char *allergenNames, int *allergens, int *foods, int numAllergens, int numFoods) {
+void genAllergens(char *allergenNames, struct allergen **allergens, struct food **foods, int numAllergens, int numFoods) {
     int allIndex = 0;
     char *curr = strtok(allergenNames, ",");
 
     while (curr) {
-        struct allergen *a = (struct allergen*)calloc(1, sizeof(struct allergen));
-        a = createAllergen(a, curr);
+        struct allergen *a = createAllergen(curr);
         allergens[allIndex] = a;
 
         int index = 0;
@@ -292,7 +304,7 @@ void genAllergens(char *allergenNames, int *allergens, int *foods, int numAllerg
     return;
 }
 
-char *findIngredients(int *foods, int numFoods) {
+char *findIngredients(struct food **foods, int numFoods) {
     char *ingredientNames = (char*)calloc(1, sizeof(char));
 
     for (int i = 0; i < numFoods; i++) {
@@ -302,8 +314,6 @@ char *findIngredients(int *foods, int numFoods) {
         char *temp = strtok(fIng, ",");
 
         while (temp) {
-            char *start = ingredientNames, *p = start;
-
             if (!inCSV(temp, ingredientNames)) {
                 int pLen = strlen(ingredientNames);
                 ingredientNames = (char*)realloc(ingredientNames, strlen(ingredientNames) + strlen(temp) + 2);
@@ -323,8 +333,8 @@ char *findIngredients(int *foods, int numFoods) {
     return ingredientNames;
 }
 
-void genIngredients(char *ingredientNames, int *ingredients, int *foods, int *allergens, int numIngredients, int numFoods, int numAllergens) {
-    int *allergenArr = (int*)calloc(10, sizeof(int));
+void genIngredients(char *ingredientNames, struct ingredient **ingredients, struct food **foods, struct allergen **allergens, int numIngredients, int numFoods, int numAllergens) {
+    struct allergen **allergenArr = (struct allergen **)calloc(10, sizeof(struct allergen *));
     for (int i = 0; i < numAllergens; i++) {
         allergenArr[i] = allergens[i];
     }
@@ -333,8 +343,7 @@ void genIngredients(char *ingredientNames, int *ingredients, int *foods, int *al
     char *curr = strtok(ingredientNames, ",");
 
     while (curr) {
-        struct ingredient *ing = (struct ingredient*)calloc(1, sizeof(struct ingredient));
-        ing = createIngredient(ing, curr, allergenArr);
+        struct ingredient *ing = createIngredient(curr, allergenArr);
         ingredients[ingIndex] = ing;
 
         int index = 0;
@@ -356,43 +365,7 @@ void genIngredients(char *ingredientNames, int *ingredients, int *foods, int *al
     return;
 }
 
-void quickSort(int *arr, int start, int end) {
-    if (start >= end) {
-        return;
-    }
-
-    int pivotIndex = partition(arr, start, end);
-    quickSort(arr, start, pivotIndex - 1);
-    quickSort(arr, pivotIndex + 1, end);
-
-    return;
-}
-
-int partition(int *arr, int start, int end) {
-    int pivotValue, pivotIndex = start;
-    pivotValue = arr[end];
-
-    for (int i = start; i < end - 1; i++) {
-        if (arr[i] > pivotValue) {
-            swap(arr, i, pivotIndex);
-            pivotIndex++;
-        }
-    }
-
-    swap(arr, end, pivotIndex);
-
-    return pivotIndex;
-}
-
-void swap(int *arr, int a, int b) {
-    int temp = arr[a];
-    arr[a] = arr[b];
-    arr[b] = temp;
-
-    return;
-}
-
-char *sortAllergens(char * allergenNames, int numAllergens) {
+char *sortAllergens(char *allergenNames, int numAllergens) {
     char *sorted = (char*)calloc(strlen(allergenNames), sizeof(char)), *unsorted = (char*)calloc(strlen(allergenNames), sizeof(char));
     strcpy(unsorted, allergenNames);
     int index = 0;
@@ -457,17 +430,166 @@ char *sortAllergens(char * allergenNames, int numAllergens) {
     return sorted;
 }
 
+int part1(struct food **foods, struct allergen **allergens, struct ingredient **ingredients, char *sortedAllergens, int numAllergens, int numIngredients) {
+    for (int i = 0; i < numIngredients; i++) {
+        struct ingredient *ing = ingredients[i];
+        char *ingName = (char*)calloc(strlen(ing->name), sizeof(char));
+        strcpy(ingName, ing->name);
+
+        for (int j = 0; j < numAllergens; j++) {
+            if (ing->pAllergen[j] == NULL) {
+                continue;
+            }
+
+            struct allergen *a = ing->pAllergen[j];
+            char *allName = (char*)calloc(strlen(a->name), sizeof(char));
+            strcpy(allName, a->name);
+
+            bool inAll = true;
+            for (int index = 0; index < 50; index++) {
+                struct food *f = a->foods[index];
+                if (f && !inCSV(ingName, f->ingredients)) {
+                    inAll = false;
+                    break;
+                }
+            }
+
+            if (!inAll) {
+                ing->pAllergen[j] = NULL;
+            }
+        }
+    }
+
+    int count = 0;
+    for (int i = 0; i < numIngredients; i++) {
+        struct ingredient *ing = ingredients[i];
+
+        bool valid = false;
+        for (int j = 0; j < 10; j++) {
+            if (ing->pAllergen[j] != 0) {
+                valid = true;
+                break;
+            }
+        }
+
+        if (!valid) {
+            int index = 0;
+            for (int j = 0; j < 50; j++) {
+                if (ing->foods[j] == 0) {
+                    continue;
+                }
+
+                count++;
+                index++;
+            }
+        }
+    }
+
+    return count;
+}
+
+char *part2(struct allergen **allergens, struct ingredient **ingredients, char *sortedAllergens, int numAllergens, int numIngredients) {
+    bool done;
+    do {
+        done = true;
+
+        for (int i = 0; i < numAllergens; i++) {
+            struct allergen *a = allergens[i];
+
+            if (a->ing != 0) {
+                continue;
+            }
+
+            for (int j = 0; j < numIngredients; j++) {
+                struct ingredient *pos = ingredients[j];
+
+                bool found = false;
+                for (int index = 0; index < 10; index++){
+                    if (pos->pAllergen[index] == a) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    if (a->ing == 0) {
+                        a->ing = pos;
+                    } else {
+                        a->ing = 0;
+                        break;
+                    }
+                }
+            }
+
+            if (a->ing) {
+                struct ingredient *pos = a->ing;
+                for (int index = 0; index < 10; index++) {
+                    if (pos->pAllergen[index] != a) {
+                        pos->pAllergen[index] = 0;
+                    }
+                }
+
+                for (int j = 0; j < numIngredients; j++) {
+                    struct ingredient *pos_2 = ingredients[j];
+
+                    if (pos_2 == a->ing) {
+                        continue;
+                    }
+
+                    int index;
+                    for (index = 0; index < 10; index++) {
+                        if (pos_2->pAllergen[index] == a) {
+                            pos->pAllergen[index] = 0;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                done = false;
+            }
+        }
+    } while (!done);
+
+    char *res = (char*)calloc(1, sizeof(char));
+    char *p = sortedAllergens, *start = p;
+    int index = 0;
+    while (strlen(p) != 0) {
+        if (p[0] == ',') {
+            char *temp = (char*)calloc(p - start + 1, sizeof(char));
+
+            strncpy(temp, start, p - start);
+
+            for (int i = 0; i < numAllergens; i++) {
+                struct allergen *a = allergens[i];
+
+                if (strcmp(a->name, temp) == 0) {
+                    struct ingredient *i_ = a->ing;
+
+                    res = (char*)realloc(res, strlen(res) + strlen(i_->name) + 2);
+                    if (index != 0) {
+                        strcat(res, ",");
+                    }
+
+                    strcat(res, i_->name);
+                    break;
+                }
+            }
+
+            start = p + 1;
+            index++;
+        }
+
+        p++;
+    }
+
+    return res;
+}
+
 
 int main() {
     int numFoods = numLines();
-    int *foods = (int*)calloc(numFoods, sizeof(int));
+    struct food **foods = (struct food **)calloc(numFoods, sizeof(struct food *));
     readData(foods);
-
-    for (int i = 0; i < numFoods; i++) {
-        printFood(foods[i]);
-    }
-
-    printf("\n\n\n");
 
     char *allergenNames = findAllergens(foods, numFoods);
 
@@ -481,14 +603,8 @@ int main() {
     char *sortedAllergens = sortAllergens(allergenNames, numAllergens);
     strcat(sortedAllergens, ",");
 
-    int *allergens = (int*)calloc(numAllergens, sizeof(int));
+    struct allergen **allergens = (struct allergen **)calloc(numAllergens, sizeof(struct allergen *));
     genAllergens(allergenNames, allergens, foods, numAllergens, numFoods);
-
-    for (int i = 0; i < numAllergens; i++) {
-        printAllergen(allergens[i]);
-    }
-
-    printf("\n\n\n");
 
     char *ingredientNames = findIngredients(foods, numFoods);
 
@@ -499,169 +615,21 @@ int main() {
         }
     }
 
-    int *ingredients = (int*)calloc(numIngredients, sizeof(int));
+    struct ingredient **ingredients = (struct ingredient **)calloc(numIngredients, sizeof(struct ingredient *));
     genIngredients(ingredientNames, ingredients, foods, allergens, numIngredients, numFoods, numAllergens);
 
-    for (int i = 0; i < numIngredients; i++) {
-        printIngredient(ingredients[i]);
-    }
+    clock_t t;
+    t = clock(); 
+    int p1 = part1(foods, allergens, ingredients, sortedAllergens, numAllergens, numIngredients);
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nNumber of instances of ingredients that cannot be allergens: %d\nRan in %f seconds\n", p1, t_p1);
 
-    printf("\n\n\n");
+    t = clock();
+    char *p2 = part2(allergens, ingredients, sortedAllergens, numAllergens, numIngredients);
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nCanonical dangerous ingredient list: %s\nRan in %f seconds\n", p2, t_p2);
 
-    for (int i = 0; i < numIngredients; i++) {
-        struct ingredient *ing = ingredients[i];
-        char *ingName = (char*)calloc(strlen(ing->name), sizeof(char));
-        strcpy(ingName, ing->name);
-
-        for (int j = 0; j < numAllergens; j++) {
-            if (ing->pAllergen[j] == 0) {
-                continue;
-            }
-
-            struct allergen *a = ing->pAllergen[j];
-            char *allName = (char*)calloc(strlen(a->name), sizeof(char));
-            strcpy(allName, a->name);
-
-            bool inAll = true;
-            int index = 0;
-            while (a->foods[index] != 0) {
-                struct food *f = a->foods[index];
-                if (!inCSV(ingName, f->ingredients)) {
-                    inAll = false;
-                    break;
-                }
-
-                index++;
-            }
-
-            if (!inAll) {
-                ing->pAllergen[j] = 0;
-            }
-        }
-
-        quickSort(ing->pAllergen, 0, 9);
-        printIngredient(ing);
-    }
-
-    printf("\n\n\n");
-
-    int count = 0;
-    for (int i = 0; i < numIngredients; i++) {
-        struct ingredient *ing = ingredients[i];
-        if (ing->pAllergen[0] == 0) {
-            int index = 0;
-            while (ing->foods[index] != 0) {
-                count++;
-                index++;
-            }
-        }
-    }
-
-    printf("Number of instances of ingredients that cannot be allergens: %d\n\n", count);
-
-    bool done;
-    do {
-        done = true;
-
-        for (int i = 0; i < numAllergens; i++) {
-            struct allergen *a = allergens[i];
-
-            for (int j = 0; j < numIngredients; j++) {
-                struct ingredient *pos = ingredients[j];
-
-                int index = 0;
-                bool found = false;
-                while (pos->pAllergen[index] != 0) {
-                    if (pos->pAllergen[index] == a) {
-                        found = true;
-                        break;
-                    }
-
-                    index++;
-                }
-
-                if (found) {
-                    if (a->ing == 0) {
-                        a->ing = pos;
-                    } else {
-                        a->ing = 0;
-                        break;
-                    }
-                }
-            }
-
-            if (a->ing == 0) {
-                done = false;
-            } else {
-                struct ingredient *pos = a->ing;
-                int index = 0;
-                while (pos->pAllergen[index] != 0) {
-                    if (pos->pAllergen[index] != a) {
-                        pos->pAllergen[index] = 0;
-                    }
-
-                    index++;
-                }
-
-                quickSort(pos->pAllergen, 0, 9);
-
-                for (int j = 0; j < numIngredients; j++) {
-                    if (j == a->ing) {
-                        continue;
-                    }
-
-                    struct ingredient *pos = ingredients[j];
-
-                    int index = 0;
-                    bool found = false;
-                    while (pos->pAllergen[index] != 0) {
-                        if (pos->pAllergen[index] == a) {
-                            found = true;
-                            break;
-                        }
-
-                        index++;
-                    }
-
-                    if (found) {
-                        pos->pAllergen[index] = 0;
-                        quickSort(pos->pAllergen, 0, 9);
-                    }
-                }
-            }
-        }
-    } while (!done);
-
-    printf("Cannonical dangerous ingredient list: ");
-    char *p = sortedAllergens, *start = p;
-    int index = 0;
-    while (strlen(p) != 0) {
-        if (p[0] == ',') {
-            if (index != 0) {
-                printf(",");
-            }
-
-            char *temp = (char*)calloc(p - start + 1, sizeof(char));
-
-            strncpy(temp, start, p - start);
-
-            for (int i = 0; i < numAllergens; i++) {
-                struct allergen *a = allergens[i];
-
-                if (strcmp(a->name, temp) == 0) {
-                    struct ingredient *i_ = a->ing;
-
-                    printf("%s", i_->name);
-                    break;
-                }
-            }
-
-            start = p + 1;
-            index++;
-        }
-
-        p++;
-    }
-
-    return 1;
+    return 0;
 }
