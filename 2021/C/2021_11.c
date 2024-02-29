@@ -60,8 +60,39 @@ int flashOcto(struct dict *octopi, int fx, int fy) {
     return flashes;
 }
 
+int part1() {
+    struct vector *input_data = multiLine(fileName);
+    struct dict *octopi = createDict(stringsize, intsize, copyElement);
 
-int main () {
+    for (int y = 0; y < input_data->len; y++) {
+        char *line = (char*)input_data->arr[y];
+        for (int x = 0; x < strlen(line); x++) {
+            char *c = (char*)calloc(2, sizeof(char));
+            strncpy(c, line + x, 1);
+            int *n = (int*)calloc(1, sizeof(int));
+            *n = atoi(c);
+            addDict(octopi, pointStr(x, y), n);
+        }
+    }
+
+    struct vector *locs = keys2vector(octopi);
+    int flashes = 0;
+    for (int steps = 0; steps < 100; steps++) {
+        for (int i = 0; i < locs->len; i++) {
+            struct vector *posVec = strPoint((char*)locs->arr[i]);
+            int *octo = (int*)getDictVal(octopi, locs->arr[i]), x = *(int*)posVec->arr[0], y = *(int*)posVec->arr[1];
+            *octo = *octo + 1;
+
+            if (*octo == 10) {
+                flashes += flashOcto(octopi, x, y);
+            }
+        }
+    }
+
+    return flashes;
+}
+
+int part2() {
     struct vector *input_data = multiLine(fileName);
     struct dict *octopi = createDict(stringsize, intsize, copyElement);
 
@@ -79,10 +110,6 @@ int main () {
     struct vector *locs = keys2vector(octopi);
     int steps = 0, flashes = 0;
     while (true) {
-        if (steps == 100) {
-            printf("\nPart 1:\nFlashes in 100 steps: %d\n", flashes);
-        }
-
         for (int i = 0; i < locs->len; i++) {
             struct vector *posVec = strPoint((char*)locs->arr[i]);
             int *octo = (int*)getDictVal(octopi, locs->arr[i]), x = *(int*)posVec->arr[0], y = *(int*)posVec->arr[1];
@@ -109,7 +136,23 @@ int main () {
         }
     }
 
-    printf("\nPart 2:\nNumber of steps to synchronous octopi flash: %d\n", steps);
+    return steps;
+}
 
-    return 1;
+
+int main () {
+    clock_t t;
+    t = clock(); 
+    int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nFlashes in 100 steps: %d\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock(); 
+    int p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nNumber of steps to synchronous octopi flash: %d\nRan in %f seconds\n", p2, t_p2);
+
+    return 0;
 }
