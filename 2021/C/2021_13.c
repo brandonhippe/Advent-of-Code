@@ -17,8 +17,84 @@ char *pointStr(int x, int y) {
     return str;
 }
 
+int part1() {
+    struct vector *input_data = multiLine(fileName);
 
-int main () {
+    struct set *points = createSet(stringsize, copyElement);
+    int i = 0;
+    for (i = 0; i < input_data->len; i++) {
+        char *line = (char*)input_data->arr[i];
+        if (strlen(line) == 0) {
+            break;
+        }
+
+        addSet(points, line);
+    }
+
+    i++;
+
+    int minx, maxx, miny, maxy;
+    struct set *newPoints = createSet(stringsize, copyElement);
+    char *instruction = (char*)copyElement(input_data->arr[i], stringsize(input_data->arr[i])), *p = strtok(instruction, "=");
+    char dir = p[strlen(p) - 1];
+    p = strtok(NULL, "=");
+    int fold = atoi(p);
+
+    struct vector *folding = set2vector(points);
+    for (int k = 0; k < folding->len; k++) {
+        char *point = (char*)copyElement(folding->arr[k], stringsize(folding->arr[k]));
+        int x, y;
+
+        p = strtok(point, ",");
+        x = atoi(p);
+        p = strtok(NULL, ",");
+        y = atoi(p);
+
+        if (dir == 'x') {
+            if (x > fold) {
+                x = fold - (x - fold);
+            }
+        } else {
+            if (y > fold) {
+                y = fold - (y - fold);
+            }
+        }
+
+        if (k == 0) {
+            minx = x;
+            maxx = x;
+            miny = y;
+            maxy = y;
+        } else {
+            if (x < minx) {
+                minx = x;
+            }
+
+            if (x > maxx) {
+                maxx = x;
+            }
+
+            if (y < miny) {
+                miny = y;
+            }
+
+            if (y > maxy) {
+                maxy = y;
+            }
+        }
+
+        addSet(newPoints, pointStr(x, y));
+    }
+
+    deleteSet(points, true);
+    points = newPoints;
+
+    return points->len;
+}
+
+
+char *part2() {
+
     struct vector *input_data = multiLine(fileName);
 
     struct set *points = createSet(stringsize, copyElement);
@@ -90,20 +166,34 @@ int main () {
 
         deleteSet(points, true);
         points = newPoints;
-
-        if (j == 0) {
-            printf("\nPart 1:\nNumber of dots after first fold: %d\n", points->len);
-        }
     }
 
-    printf("\nPart 2:\n");
+    char *res = (char*)calloc((maxy - miny + 2) * (maxx - minx + 2), sizeof(char));
     for (int y = miny; y <= maxy; y++) {
+        strcat(res, "\n");
+
         for (int x = minx; x <= maxx; x++) {
-            printf("%c", (inSet(points, pointStr(x, y))) ? '#' : ' ');
+            strcat(res, (inSet(points, pointStr(x, y))) ? "#" : " ");
         }
-        
-        printf("\n");
     }
 
-    return 1;
+    return res;
+}
+
+
+int main () {
+    clock_t t;
+    t = clock(); 
+    int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nNumber of dots after first fold: %d\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock(); 
+    char *p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nMessage: %s\nRan in %f seconds\n", p2, t_p2);
+
+    return 0;
 }
