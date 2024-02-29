@@ -122,8 +122,7 @@ char *parse_packet(char *packet, int *version_sum, long long int *packet_value) 
     return p;
 }
 
-
-int main () {
+int part1() {
     FILE *fp = fopen(fileName, "r");
     if (!fp) {
         return -1;
@@ -157,14 +156,66 @@ int main () {
         }
     }
 
-    printf("# of input bits: %ld\n", strlen(input_line));
+    int *vSum = (int*)calloc(1, sizeof(int));
+    long long int *packetValue = (long long int*)calloc(1, sizeof(long long int));
+    parse_packet(input_line, vSum, packetValue);
+    return *vSum;
+}
+
+long long int part2() {
+    FILE *fp = fopen(fileName, "r");
+    if (!fp) {
+        return -1;
+    }
+
+    char *input_line = (char*)calloc(2, sizeof(char));
+    int ix = 0, max_chars = 1;
+
+    while (!feof(fp)) {
+        char c = fgetc(fp);
+
+        if (c != -1) {
+            int n = c - '0';
+            if (n > 9) {
+                n = c - 'A' + 10;
+            }
+
+            char *bits = (char*)calloc(5, sizeof(char));
+            for (int i = 3; i >= 0; i--) {
+                bits[i] = (n % 2) + '0';
+                n /= 2;
+            }
+
+            while ((ix + 1) * 4 >= max_chars) {
+                input_line = (char*)realloc(input_line, (2 * max_chars + 1) * sizeof(char));
+                max_chars *= 2;
+            }
+
+            strncat(input_line, bits, 4 * sizeof(char));
+            ix++;
+        }
+    }
 
     int *vSum = (int*)calloc(1, sizeof(int));
     long long int *packetValue = (long long int*)calloc(1, sizeof(long long int));
     parse_packet(input_line, vSum, packetValue);
+    return *packetValue;
+}
 
-    printf("\nPart 1:\nSum of version numbers: %d\n", *vSum);
-    printf("\nPart 2:\nPacket Value: %lld\n", *packetValue);
+
+int main () {
+    clock_t t;
+    t = clock(); 
+    int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nSum of version numbers: %d\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock(); 
+    long long int p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nPacket Value: %lld\nRan in %f seconds\n", p2, t_p2);
 
     return 0;
 }
