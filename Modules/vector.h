@@ -79,8 +79,7 @@ void appendVector(struct vector *v, void *e) {
         v->arr = (void**)realloc(v->arr, v->cap * sizeof(void*));
     }
 
-    v->arr[v->len] = calloc(1, v->e_size(e));
-    memcpy(v->arr[v->len], e, v->e_size(e));
+    v->arr[v->len] = v->e_cpy(e, v->e_size(e));
     v->len++;
 }
 
