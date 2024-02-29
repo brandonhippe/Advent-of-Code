@@ -181,8 +181,7 @@ int sfMag(struct snailfish *sf) {
     return 3 * sfMag(sf->left) + 2 * sfMag(sf->right);
 }
 
-
-int main () {
+int part1() {
     struct vector *input_data = multiLine(fileName), *snailfishes = createVector(snailfishSize, copyElement);
 
     for (int i = 0; i < input_data->len; i++) {
@@ -198,9 +197,17 @@ int main () {
         sf = reduceSf(newSf);
     }
 
-    //printf("%s\n", printSf(sf));
-    printf("\nPart 1:\nMagnitude of snailfish sum: %d\n", sfMag(sf));
+    return sfMag(sf);
+}
 
+int part2() {
+    struct vector *input_data = multiLine(fileName), *snailfishes = createVector(snailfishSize, copyElement);
+
+    for (int i = 0; i < input_data->len; i++) {
+        appendVector(snailfishes, readSf((char*)input_data->arr[i], NULL));
+    }
+
+    struct snailfish *sf = copySf(snailfishes->arr[0], NULL);
     int maxMag = 0;
     for (int i = 0; i < snailfishes->len; i++) {
         for (int j = 0; j < snailfishes->len; j++) {
@@ -221,7 +228,23 @@ int main () {
         }
     }
 
-    printf("\nPart 2:\nMaximum magnitude of sum of 2 snailfish numbers: %d\n", maxMag);
+    return maxMag;
+}
+
+
+int main () {
+    clock_t t;
+    t = clock(); 
+    int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nMagnitude of snailfish sum: %d\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock(); 
+    int p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nMaximum magnitude of sum of 2 snailfish numbers: %d\nRan in %f seconds\n", p2, t_p2);
 
     return 0;
 }
