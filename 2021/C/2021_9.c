@@ -61,8 +61,7 @@ bool intcmp(void *e1, void *e2) {
     return *(int*)e1 <= *(int*)e2;
 }
 
-
-int main () {
+int part1() {
     struct vector *input_data = multiLine(fileName);
     struct dict *area = createDict(stringsize, intsize, copyElement);
 
@@ -106,7 +105,52 @@ int main () {
         }
     }
 
-    printf("\nPart 1:\nRisk level of all low points: %d\n", risk);
+    return risk;
+}
+
+int part2() {
+    struct vector *input_data = multiLine(fileName);
+    struct dict *area = createDict(stringsize, intsize, copyElement);
+
+    for (int i = 0; i < input_data->len; i++) {
+        char *l = (char*)input_data->arr[i];
+        for (int j = 0; j < strlen(l); j++) {
+            int *n = (int*)calloc(1, sizeof(int));
+            char *p = (char*)calloc(1, sizeof(char));
+            strncpy(p, &l[j], 1);
+            *n = atoi(p);
+            addDict(area, pointStr(j, i), n);
+        }
+    }
+
+    struct vector *points = keys2vector(area);
+    struct set *lowPoints = createSet(stringsize, copyElement);
+    int risk = 0;
+
+    for (int i = 0; i < points->len; i++) {
+        char *posStr = (char*)calloc(strlen((char*)points->arr[i]), sizeof(char));
+        strcpy(posStr, (char*)points->arr[i]);
+        struct vector *point = strPoint(posStr);
+        int x = *(int*)point->arr[0], y = *(int*)point->arr[1], val = *(int*)getDictVal(area, points->arr[i]);
+
+        bool lowest = true;
+        for (int j = -1; j <= 1; j += 2) {
+            if (inDict(area, pointStr(x, y + j)) && *(int*)getDictVal(area, pointStr(x, y + j)) <= val) {
+                lowest = false;
+                break;
+            }
+
+            if (inDict(area, pointStr(x + j, y)) && *(int*)getDictVal(area, pointStr(x + j, y)) <= val) {
+                lowest = false;
+                break;
+            }
+        }
+
+        if (lowest) {
+            addSet(lowPoints, points->arr[i]);
+            risk += val + 1;
+        }
+    }
 
     struct vector *lowP = set2vector(lowPoints), *basins = createVector(intsize, copyElement);
     for (int i = 0; i < lowP->len; i++) {
@@ -116,7 +160,23 @@ int main () {
     }
 
     basins = sortVector(basins, intcmp);
-    printf("\nPart 2:\nProduct of 3 largest basins: %d * %d * %d = %d\n", *(int*)basins->arr[basins->len - 1], *(int*)basins->arr[basins->len - 2], *(int*)basins->arr[basins->len - 3], *(int*)basins->arr[basins->len - 1] * *(int*)basins->arr[basins->len - 2] * *(int*)basins->arr[basins->len - 3]);
+    return *(int*)basins->arr[basins->len - 2], *(int*)basins->arr[basins->len - 3], *(int*)basins->arr[basins->len - 1] * *(int*)basins->arr[basins->len - 2] * *(int*)basins->arr[basins->len - 3];
+}
 
-    return 1;
+
+int main () {
+    clock_t t;
+    t = clock(); 
+    int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nRisk level of all low points: %d\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock(); 
+    int p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nProduct of 3 largest basins: %d\nRan in %f seconds\n", p2, t_p2);
+
+    return 0;
 }
