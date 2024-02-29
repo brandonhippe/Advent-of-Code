@@ -9,7 +9,6 @@
 #include "../../Modules/set.h"
 #define fileName "../../Inputs/2021_5.txt"
 
-
 char *pointStr(int x, int y) {
     int sizex = ceil(log10(x + 1)), sizey = ceil(log10(y + 1));
     char *str = (char*)calloc(sizex + sizey + 2, sizeof(char));
@@ -17,13 +16,11 @@ char *pointStr(int x, int y) {
     return str;
 }
 
-
 int *placePoints(struct vector *lines) {
     struct set *points = createSet(stringsize, copyElement), *intersections = createSet(stringsize, copyElement);
     struct set *hvpoints = createSet(stringsize, copyElement), *hvintersections = createSet(stringsize, copyElement);
 
     for (int i = 0; i < lines->len; i++) {
-        printf("%d/%d\r", i + 1, lines->len);
         struct vector *line = (struct vector *)lines->arr[i];
         int x = *(int*)line->arr[0], y = *(int*)line->arr[1], xend = *(int*)line->arr[2], yend = *(int*)line->arr[3], xdiff = *(int*)line->arr[4], ydiff = *(int*)line->arr[5];
         bool hv = xdiff == 0 || ydiff == 0;
@@ -67,8 +64,6 @@ int *placePoints(struct vector *lines) {
         }
     }
 
-    printf("\n");
-
     int *intPoints = (int*)calloc(2, sizeof(int));
     intPoints[0] = hvintersections->len;
     intPoints[1] = intersections->len;
@@ -81,8 +76,7 @@ int *placePoints(struct vector *lines) {
     return intPoints;
 }
 
-
-int main () {
+int part1() {
     struct vector *input_data = multiLine(fileName), *all = createVector(sizeofVector, createCopyVector);
 
     for (int i = 0; i < input_data->len; i++) {
@@ -131,9 +125,75 @@ int main () {
     all->arr[463] = all->arr[0];
     all->arr[0] = temp;
 
-    int *intPoints = placePoints(all);
+    return placePoints(all)[0];
+}
 
-    printf("\nPart 1:\nDangerous Points: %d\n\nPart 2:\nDangerous Points: %d\n", intPoints[0], intPoints[1]);
+int part2() {
+    struct vector *input_data = multiLine(fileName), *all = createVector(sizeofVector, createCopyVector);
 
-    return 1;
+    for (int i = 0; i < input_data->len; i++) {
+        char *str = (char*)input_data->arr[i], *p;
+        int size = 0, start = -1, ix = 0;
+        struct vector *line = createVector(intsize, copyElement);
+
+        for (int j = 0; j < strlen(str); j++) {
+            if (isdigit(str[j]) != 0) {
+                if (start == -1) {
+                    start = j;
+                }
+
+                size += 1;
+            } else if (start >= 0) {
+                p = (char*)calloc(size, sizeof(char));
+                strncpy(p, str + start, size);
+                int *n = (int*)calloc(1, sizeof(int));
+                *n = atoi(p);
+                appendVector(line, n);
+                size = 0;
+                ix++;
+                start = -1;
+                free(p);
+            }
+        }
+
+        p = (char*)calloc(size, sizeof(char));
+        strncpy(p, str + start, size);
+        int *n = (int*)calloc(1, sizeof(int));
+        *n = atoi(p);
+        appendVector(line, n);
+        free(p);
+
+        int *xinc = (int*)calloc(1, sizeof(int)), *yinc = (int*)calloc(1, sizeof(int));
+        *xinc = (*(int*)line->arr[0] == *(int*)line->arr[2]) ? 0 : ((*(int*)line->arr[0] < *(int*)line->arr[2]) ? 1 : -1);
+        *yinc = (*(int*)line->arr[1] == *(int*)line->arr[3]) ? 0 : ((*(int*)line->arr[1] < *(int*)line->arr[3]) ? 1 : -1);
+        appendVector(line, xinc);
+        appendVector(line, yinc);
+        free(input_data->arr[i]);
+
+        appendVector(all, line);
+    }
+
+    void *temp = all->arr[463];
+    all->arr[463] = all->arr[0];
+    all->arr[0] = temp;
+
+    return placePoints(all)[1];
+}
+
+
+int main () {
+    clock_t t;
+    t = clock(); 
+    int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nDangerous Points: %d\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock(); 
+    int p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nDangerous Points: %d\nRan in %f seconds\n", p2, t_p2);
+
+    return 0;
 }
