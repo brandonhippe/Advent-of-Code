@@ -75,18 +75,12 @@ void deleteVector(struct vector *v, bool delEls) {
 // Function to append an element to a vector
 void appendVector(struct vector *v, void *e) {
     if (v->len == v->cap) {
-        void **newArr = (void**)calloc(2 * v->cap, sizeof(void*));
-        
-        for (int i = 0; i < v->len; i++) {
-            newArr[i] = v->arr[i];
-        }
-
-        free(v->arr);
-        v->arr = newArr;
         v->cap *= 2;
+        v->arr = (void**)realloc(v->arr, v->cap * sizeof(void*));
     }
 
-    v->arr[v->len] = e;
+    v->arr[v->len] = calloc(1, v->e_size(e));
+    memcpy(v->arr[v->len], e, v->e_size(e));
     v->len++;
 }
 

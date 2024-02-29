@@ -44,7 +44,7 @@ struct vector *multiLine(char *fileName) {
         if (*c == '\n') {
             char *l = getLine(line);
             appendVector(data, l);
-            deleteVector(line, false);
+            deleteVector(line, true);
             line = createVector(charsize, copyElement);
         } else if (*c != -1) {
             appendVector(line, c);
