@@ -121,7 +121,6 @@ int part2() {
 }
 
 int main () {
-
     clock_t t;
     t = clock(); 
     int p1 = part1();
