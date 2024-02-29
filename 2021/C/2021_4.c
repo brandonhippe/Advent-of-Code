@@ -197,9 +197,7 @@ int main () {
     int p2 = part2();
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
-    printf("\nPart 2:\ncore of board that wins last: %d\nRan in %f seconds\n", p2, t_p2);
-
-    // printf("\nPart 1:\nScore of board that wins first: %d\n\nPart 2:\nScore of board that wins last: %d\n", firstScore, lastScore);
+    printf("\nPart 2:\nScore of board that wins last: %d\nRan in %f seconds\n", p2, t_p2);
 
     return 0;
 }
