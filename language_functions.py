@@ -1,4 +1,4 @@
-import sys, os, re, importlib, subprocess
+import sys, platform, os, re, importlib, subprocess
 
 class Language:
     def __init__(self, lang):
@@ -141,10 +141,81 @@ def exists_rust(year, day):
     return os.path.exists(f"{year}{os.sep}rust_{year}_{day}")
 
 
+def run_c(year, day, verbose):
+    thisDir = os.getcwd()
+
+    os.chdir(f"{year}{os.sep}C")
+    exe_name = f"{year}_{day}"
+    if platform.system() == "Windows":
+        exe_name += ".exe"
+    output = subprocess.run(f'gcc {year}_{day}.c -o {exe_name} -lm && ./{exe_name}', shell=True, capture_output=True, text=True).stdout.split("\n")
+    os.chdir(thisDir)
+
+    output_start = output.index("Part 1:") - 1
+    output = output[output_start:]
+
+    if verbose:
+        print("\n".join(output))
+
+    for ix in range(len(output)):
+        t = re.search("\d+\.\d+", output[ix])
+        if not t:
+            continue
+        
+        p1_ix = ix
+        p1_elapsed = float(t.group(0))        
+        break
+    
+    p1 = ""
+    for ix in range(0, p1_ix): 
+        if output[ix].startswith("Part"):
+            try:
+                p1 = output[ix + 1].split(":")[1].strip()
+            except IndexError:
+                pass
+
+            break
+
+    for ix in range(p1_ix + 1, len(output)):
+        t = re.search("\d+\.\d+", output[ix])
+        if not t:
+            continue
+        
+        p2_ix = ix
+        p2_elapsed = float(t.group(0))        
+        break
+    
+    p2 = ""
+    for ix in range(p1_ix + 1, p2_ix):
+        if output[ix].startswith("Part"):
+            try:
+                p2 = output[ix + 1].split(":")[1].strip()
+            except IndexError:
+                pass
+
+            break
+
+    return (p1, p1_elapsed), (p2, p2_elapsed)
+
+def discover_c(path):
+    c_scripts = []
+    for file in os.walk(path):
+        for f in file[2]:
+            if re.search('^\d+_\d+.c$', f):
+                year, day = re.findall('\d+', f)
+                c_scripts.append((int(year), int(day)))
+
+    return c_scripts
+
+def exists_c(year, day):
+    return os.path.exists(f"{year}{os.sep}C{os.sep}{year}_{day}.c")
+
+
 def get_languages():
-    return list(language_funcs.keys())
+    return list(sorted(language_funcs.keys()))
 
 language_funcs = {
+    "c": [run_c, discover_c, exists_c],
     "python": [run_python, discover_python, exists_python],
     "rust": [run_rust, discover_rust, exists_rust],
 }
