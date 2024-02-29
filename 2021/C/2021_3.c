@@ -8,8 +8,7 @@
 #include "../../Modules/vector.h"
 #define fileName "../../Inputs/2021_3.txt"
 
-
-int main () {
+int part1() {
     struct vector *input_data = multiLine(fileName);
     struct vector *data = createVector(intsize, copyElement);
 
@@ -46,12 +45,28 @@ int main () {
         mask /= 2;
     }
 
-    printf("\nPart 1:\nGamma (%d) * Epsilon (%d) = %d\n", gamma, epsilon, gamma * epsilon);
+    return gamma * epsilon;
+}
+
+int part2() {
+    struct vector *input_data = multiLine(fileName);
+    struct vector *data = createVector(intsize, copyElement);
+
+    for (int i = 0; i < input_data->len; i++) {
+        int *d = (int*)calloc(1, sizeof(1));
+        char *str = input_data->arr[i];
+        for (int j = 0; j < strlen(str); j++) {
+            *d *= 2;
+            *d += (str[j] == '1') ? 1 : 0;
+        }
+
+        appendVector(data, d);
+    }
 
     struct vector *mostCommon = createCopyVector(data, sizeof(struct vector));
     struct vector *leastCommon = createCopyVector(data, sizeof(struct vector));
 
-    mask = 0b100000000000;
+    int mask = 0b100000000000;
 
     while (mask > 0) {
         if (mostCommon->len > 1) {
@@ -102,7 +117,23 @@ int main () {
     }
 
     int o2 = *(int*)mostCommon->arr[0], co2 = *(int*)leastCommon->arr[0];
-    printf("\nPart 2:\nO2 Rating (%d) * CO2 Rating (%d) = %d\n", o2, co2, o2 * co2);
+    return o2 * co2;
+}
 
-    return 1;
+int main () {
+
+    clock_t t;
+    t = clock(); 
+    int p1 = part1();
+    t = clock() - t; 
+    double t_p1 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 1:\nGamma * Epsilon: %d\nRan in %f seconds\n", p1, t_p1);
+
+    t = clock(); 
+    int p2 = part2();
+    t = clock() - t;
+    double t_p2 = ((double)t) / CLOCKS_PER_SEC;
+    printf("\nPart 2:\nO2 Rating * CO2 Rating: %d\nRan in %f seconds\n", p2, t_p2);
+
+    return 0;
 }
