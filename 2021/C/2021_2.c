@@ -102,5 +102,5 @@ int main () {
     printf("\nPart 2:\nAnswer: %d\nRan in %f seconds\n", p2, t_p2);
 
 
-    return 1;
+    return 0;
 }
