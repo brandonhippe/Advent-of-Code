@@ -5,6 +5,11 @@ DONT_RUN = {(2019, 25)}
 
 
 if __name__ == "__main__":
+    if sys.argv[1] == "--help" or sys.argv[1] == "-h":
+        print("Usage: python(3) runner.py [year] [day] [--languages|-l] [language]")
+        print("Example: python(3) runner.py 2015 1 --languages python")
+        exit(0)
+
     ix = 1
     years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
     days = [n + 1 for n in range(25)]
@@ -55,4 +60,4 @@ if __name__ == "__main__":
                 (_, p1_elapsed), (_, p2_elapsed) = lang.run(year, day, len(days) == 1)
                 totalTime += p1_elapsed + p2_elapsed
 
-        print(f"\n{language} Total time: {totalTime:.4f} seconds")
+        print(f"\n{language}: Total time: {totalTime:.4f} seconds")
