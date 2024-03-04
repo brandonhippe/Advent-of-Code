@@ -91,15 +91,8 @@ void* popVector(struct vector *v) {
     v->len--;
 
     if (v->cap > 1 && v->len <= v->cap / 4) {
-        void **newarr = (void**)calloc(v->cap / 2, sizeof(void*));
-
-        for (int i = 0; i < v->len; i++) {
-            newarr[i] = v->arr[i];
-        }
-
-        free(v->arr);
-        v->arr = newarr;
         v->cap /= 2;
+        v->arr = (void**)realloc(v->arr, v->cap * sizeof(void*));
     }
 
     return e;

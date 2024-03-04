@@ -18,7 +18,7 @@ size_t doulbesize(void *e);
 
 // Creates a copy of an element
 void *copyElement(void *e, size_t size) {
-    void *newE = calloc(1, size + 1);
+    void *newE = calloc(1, size + 2);
     memcpy(newE, e, size);
     return newE;
 }
