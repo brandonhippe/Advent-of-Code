@@ -1,8 +1,8 @@
 use relative_path::RelativePath;
+use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use std::collections::HashSet;
 
 fn part1(contents: String) -> i64 {
     let nums: HashSet<i64> = contents
@@ -15,7 +15,7 @@ fn part1(contents: String) -> i64 {
             return num * (2020 - num);
         }
     }
-    
+
     return -1;
 }
 
@@ -27,7 +27,7 @@ fn part2(contents: String) -> i64 {
 
     for num in nums.iter() {
         for num2 in nums.iter() {
-            if num == num2 || num + num2 >= 2020{
+            if num == num2 || num + num2 >= 2020 {
                 continue;
             }
 
