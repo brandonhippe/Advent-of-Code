@@ -147,8 +147,6 @@ int part2() {
         }
     }
 
-    printf("part2\n");
-
     int sxVel = 1;
     while (triangleNum(sxVel) < xMin) {
         sxVel++;
