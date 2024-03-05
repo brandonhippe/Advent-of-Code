@@ -196,13 +196,14 @@ int arr_index(int *arr, int size, int val) {
     return -1;
 }
 
-char *part1() {
+int part1() {
     int *data = readData();
     struct deque *order = createDeque();
     for (int i = 0; i < 9; i++) {
         pushBack(order, data[i]);
     }
-
+    
+    free(data);
     int moves = 100;
 
     for (int i = 0; i < moves; i++) {
@@ -233,21 +234,21 @@ char *part1() {
 
     rotate_left(order, find_front(order, 1) + 1);
 
-    char *str = (char*)calloc(10, sizeof(char));
+    int result = 0;
     for (int i = 0; i < 8; i++) {
-        char t[2];
-        sprintf(t, "%d", popFront(order));
-        strcat(str, t);
+        result = result * 10 + popFront(order);
     }
 
-    return str;
+    free(order->cups);
+    free(order);
+    return result;
 }
 
 unsigned long long part2() {
     int *data = readData();
     int moves = 10000000;
 
-    int cups[1000001];
+    int *cups = (int*)calloc(1000001, sizeof(int));
     int i, j, dest, afterDest, held, afterHeld;
     int removed[3];
 
@@ -263,6 +264,8 @@ unsigned long long part2() {
             cups[i] = 10;
         }
     }
+
+    free(data);
 
     for (i = 10; i < 1000000; i++) {
         cups[i] = i + 1;
@@ -302,10 +305,10 @@ unsigned long long part2() {
 int main() {
     clock_t t;
     t = clock(); 
-    char *p1 = part1();
+    int p1 = part1();
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
-    printf("\nPart 1:\nCup order: %s\nRan in %f seconds\n", p1, t_p1);
+    printf("\nPart 1:\nCup order: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
     unsigned long long p2 = part2();

@@ -146,11 +146,22 @@ def run_c(year, day, verbose):
 
     os.chdir(f"{year}{os.sep}C")
     exe_name = f"{year}_{day}"
+    exe_slash = "/"
     if platform.system() == "Windows":
         exe_name += ".exe"
-    output = subprocess.run(f'gcc {year}_{day}.c -o {exe_name} -lm && ./{exe_name}', shell=True, capture_output=True, text=True).stdout.split("\n")
+        exe_slash = "\\"
+    
+    subprocess.run(f"gcc {year}_{day}.c -o {exe_name} -lm", shell=True, check=True)
+    output = subprocess.run(f'.{exe_slash}{exe_name}', shell=True, capture_output=True, text=True)
     os.chdir(thisDir)
 
+    if output.stderr:
+        raise ValueError(output.stderr)
+    
+    if not output.stdout:
+        raise ValueError(f"No output from C program: {year} day {day}")
+    
+    output = output.stdout.split("\n")
     output_start = output.index("Part 1:") - 1
     output = output[output_start:]
 
@@ -221,4 +232,4 @@ language_funcs = {
 }
 
 if __name__ == "__main__":
-    Language("rust").run(2023, 1, True)
+    Language("c").run(2021, 17, True)

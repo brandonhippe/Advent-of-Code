@@ -51,20 +51,15 @@ void readData(int *nums) {
     return;
 }
 
-void quickSort(int *sortArray, int start, int end) {
-	int pivotIndex;
+void swap (int *array, int a, int b) {
+	int temp;
 
-	// Stop recursively calling quickSort
-	if (start >= end) {
-		return;
-	}
-
-	// Selects a pivot value, puts all values less than pivot value on left of pivot, all values larger than pivot on right of pivot, returns where the pivot ended up
-	findPivotIndex(sortArray, start, end, &pivotIndex);
-
-	// Sort all items before pivot index, then all items after pivot index
-	quickSort(sortArray, start, pivotIndex - 1);
-	quickSort(sortArray, pivotIndex + 1, end);
+	// Only swap if indecies are different
+    if (a != b) {
+        temp = array[a];
+        array[a] = array[b];
+        array[b] = temp;
+    }
 }
 
 void findPivotIndex(int *sortArray, int start, int end, int *pivotIndex) {
@@ -87,15 +82,20 @@ void findPivotIndex(int *sortArray, int start, int end, int *pivotIndex) {
     swap(sortArray, *pivotIndex, end);
 }
 
-void swap (int *array, int a, int b) {
-	int temp;
+void quickSort(int *sortArray, int start, int end) {
+	int pivotIndex;
 
-	// Only swap if indecies are different
-    if (a != b) {
-        temp = array[a];
-        array[a] = array[b];
-        array[b] = temp;
-    }
+	// Stop recursively calling quickSort
+	if (start >= end) {
+		return;
+	}
+
+	// Selects a pivot value, puts all values less than pivot value on left of pivot, all values larger than pivot on right of pivot, returns where the pivot ended up
+	findPivotIndex(sortArray, start, end, &pivotIndex);
+
+	// Sort all items before pivot index, then all items after pivot index
+	quickSort(sortArray, start, pivotIndex - 1);
+	quickSort(sortArray, pivotIndex + 1, end);
 }
 
 int part1(int *nums, int numLines) {

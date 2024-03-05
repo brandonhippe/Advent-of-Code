@@ -68,6 +68,7 @@ struct vector *multiLine(char *fileName) {
 struct vector *singleLine(char *fileName, char *delim) {
     FILE *fp = fopen(fileName, "r");
     if (!fp) {
+        printf("File not found\n");
         return NULL;
     }
 
@@ -79,11 +80,12 @@ struct vector *singleLine(char *fileName, char *delim) {
 
         if (c != -1) {
             if (ix == max_chars) {
-                input_line = (char*)realloc(input_line, (2 * max_chars + 1) * sizeof(char));
                 max_chars *= 2;
+                input_line = (char*)realloc(input_line, (max_chars + 8) * sizeof(char));
             }
 
             input_line[ix] = c;
+            input_line[ix + 1] = '\0';
             ix++;
         }
     }

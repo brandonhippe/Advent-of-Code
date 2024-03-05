@@ -9,10 +9,14 @@
 #include "../../Modules/set.h"
 #define fileName "../../Inputs/2021_17.txt"
 
-
 char *pointStr(int x, int y) {
-    int sizex = ceil(log10(abs(x) + 1)), sizey = ceil(log10(abs(y) + 1));
-    char *str = (char*)calloc(sizex + sizey + 2, sizeof(char));
+    int sizex = x == 0 ? 1 : ceil(log10(abs(x) + 1));
+    int sizey = y == 0 ? 1 : ceil(log10(abs(y) + 1));
+    char *str = (char*)calloc(sizex + sizey + 4, sizeof(char));
+    if (str == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
     sprintf(str, "%d,%d", x, y);
     return str;
 }
@@ -22,25 +26,50 @@ int triangleNum(int x) {
     return x * (x + 1) / 2;
 }
 
+int *min_max(char *str) {
+    int *arr = (int*)calloc(2, sizeof(int));
+    char *temp = (char*)calloc(strlen(str) + 1, sizeof(char));
+    strcpy(temp, str);
+
+    char *p = strtok(temp, "..");
+    arr[0] = atoi(p);
+    p = strtok(NULL, "..");
+    arr[1] = atoi(p);
+
+    free(temp);
+    return arr;
+}
+
 int part1() {
-    struct vector *input_data = singleLine(fileName, "=");
+    struct vector *input_data = multiLine(fileName);
 
     int xMin, xMax, yMin, yMax;
 
-    char *p = strtok(input_data->arr[1], "..");
-    xMin = atoi(p);
-    p = strtok(NULL, "..");
-    xMax = atoi(p);
+    char *p = (char*)calloc(strlen(input_data->arr[0]) + 1, sizeof(char));
+    strcpy(p, input_data->arr[0]);
+    char *str1 = strtok(p, "=");
+    str1 = strtok(NULL, "=");
+    int *x_min_max = min_max(str1);
+    free(p);
 
-    p = strtok(input_data->arr[2], "..");
-    yMin = atoi(p);
-    p = strtok(NULL, "..");
-    yMax = atoi(p);
+    char *str2 = strtok(input_data->arr[0], "=");
+    str2 = strtok(NULL, "=");
+    str2 = strtok(NULL, "=");
+    int *y_min_max = min_max(str2);
+
+    xMin = x_min_max[0];
+    xMax = x_min_max[1];
+    yMin = y_min_max[0];
+    yMax = y_min_max[1];
+
+    free(x_min_max);
+    free(y_min_max);
 
     struct set *target = createSet(stringsize, copyElement);
     for (int y = yMin; y <= yMax; y++) {
         for (int x = xMin; x <= xMax; x++) {
-            addSet(target, pointStr(x, y));
+            char *str = pointStr(x, y);
+            addSet(target, str);
         }
     }
 
@@ -80,24 +109,36 @@ int part1() {
             }
         }
     }
+
+    deleteSet(target, true);
 
     return highest;
 }
 
 int part2() {
-    struct vector *input_data = singleLine(fileName, "=");
+    struct vector *input_data = multiLine(fileName);
 
     int xMin, xMax, yMin, yMax;
+    
+    char *p = (char*)calloc(strlen(input_data->arr[0]) + 1, sizeof(char));
+    strcpy(p, input_data->arr[0]);
+    char *str1 = strtok(p, "=");
+    str1 = strtok(NULL, "=");
+    int *x_min_max = min_max(str1);
+    free(p);
 
-    char *p = strtok(input_data->arr[1], "..");
-    xMin = atoi(p);
-    p = strtok(NULL, "..");
-    xMax = atoi(p);
+    char *str2 = strtok(input_data->arr[0], "=");
+    str2 = strtok(NULL, "=");
+    str2 = strtok(NULL, "=");
+    int *y_min_max = min_max(str2);
 
-    p = strtok(input_data->arr[2], "..");
-    yMin = atoi(p);
-    p = strtok(NULL, "..");
-    yMax = atoi(p);
+    xMin = x_min_max[0];
+    xMax = x_min_max[1];
+    yMin = y_min_max[0];
+    yMax = y_min_max[1];
+
+    free(x_min_max);
+    free(y_min_max);
 
     struct set *target = createSet(stringsize, copyElement);
     for (int y = yMin; y <= yMax; y++) {
@@ -105,6 +146,8 @@ int part2() {
             addSet(target, pointStr(x, y));
         }
     }
+
+    printf("part2\n");
 
     int sxVel = 1;
     while (triangleNum(sxVel) < xMin) {
@@ -142,6 +185,8 @@ int part2() {
             }
         }
     }
+
+    deleteSet(target, true);
 
     return landed;
 }
