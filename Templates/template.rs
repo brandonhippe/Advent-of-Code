@@ -33,15 +33,17 @@ mod tests {
 }
 
 fn main() {
-    let day = "".to_string();
     let year = "".to_string();
+    let day = "".to_string();
 
     let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with(format!("rust_{}_{}", year, day)) {
-        RelativePath::new(format!("../../Inputs/{}_{}.txt", year, day))
+    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+        format!("../../Inputs/{}_{}.txt", year, day)
     } else {
-        RelativePath::new(format!("/Inputs/{}_{}.txt", year, day))
+        format!("/Inputs/{}_{}.txt", year, day)
     };
+
+    let relative_path = RelativePath::new(&path_str);
 
     let contents = fs::read_to_string(relative_path.to_path(&root))
         .expect("Should have been able to read the file");
