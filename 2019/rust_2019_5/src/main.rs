@@ -11,9 +11,19 @@ fn part1(contents: String) -> i64 {
             .map(|x| x.parse::<i64>().unwrap())
             .collect::<Vec<i64>>(),
     );
-    instructions.set_handler(handler_p1);
 
-    instructions.run();
+    let mut input_given = false;
+
+    while !instructions.run() {
+        if !input_given {
+            input_given = true;
+            instructions.set_input(1);
+            instructions.run();
+        } else {
+            panic!("Program did not halt");
+        }
+    }
+
     return instructions.get_output().pop().unwrap();
 }
 
@@ -24,18 +34,20 @@ fn part2(contents: String) -> i64 {
             .map(|x| x.parse::<i64>().unwrap())
             .collect::<Vec<i64>>(),
     );
-    instructions.set_handler(handler_p2);
+    
+    let mut input_given = false;
 
-    instructions.run();
+    while !instructions.run() {
+        if !input_given {
+            input_given = true;
+            instructions.set_input(5);
+            instructions.run();
+        } else {
+            panic!("Program did not halt");
+        }
+    }
+
     return instructions.get_output().pop().unwrap();
-}
-
-fn handler_p1(instructions: &mut Intcode) {
-    instructions.set_input(1);
-}
-
-fn handler_p2(instructions: &mut Intcode) {
-    instructions.set_input(5);
 }
 
 fn main() {

@@ -13,7 +13,9 @@ fn part1(contents: String) -> i64 {
     );
     instructions.insert(1, 12);
     instructions.insert(2, 2);
-    instructions.run();
+    if !instructions.run() {
+        panic!("Program did not halt");
+    }
 
     return *instructions.get(0).unwrap();
 }
@@ -30,7 +32,9 @@ fn part2(contents: String) -> i64 {
             let mut temp_instructions = instructions.clone();
             temp_instructions.insert(1, n1);
             temp_instructions.insert(2, n2);
-            temp_instructions.run();
+            if !temp_instructions.run() {
+                panic!("Program did not halt");
+            }
 
             if *temp_instructions.get(0).unwrap() == 19690720 {
                 return 100 * n1 + n2;

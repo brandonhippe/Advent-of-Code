@@ -6,7 +6,7 @@ pub struct Intcode {
     pc: i64,
     input: i64,
     outputs: Vec<i64>,
-    handler: fn(&mut Intcode) -> (),
+    input_given: bool,
 }
 
 impl Intcode {
@@ -20,12 +20,8 @@ impl Intcode {
             pc: 0,
             input: 0,
             outputs: Vec::new(),
-            handler: default_handler,
+            input_given: false,
         }
-    }
-
-    pub fn set_handler(&mut self, handler: fn(&mut Intcode) -> ()){
-        self.handler = handler;
     }
 
     pub fn insert(&mut self, k: i64, v: i64) {
@@ -34,6 +30,7 @@ impl Intcode {
 
     pub fn set_input(&mut self, input: i64) {
         self.input = input;
+        self.input_given = true;
     }
 
     pub fn get_output(&self) -> Vec<i64> {
@@ -44,11 +41,15 @@ impl Intcode {
         return self.mem.get(&k);
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> bool {
         loop {
+            if !self.mem.contains_key(&self.pc) {
+                return false;
+            }
+
             let opcode: i64 = *self.mem.get(&self.pc).unwrap();
             if opcode == 99 {
-                break;
+                return true;
             }
 
             let (res_reg, op_a, op_b) = self.parse_op(opcode);
@@ -66,7 +67,11 @@ impl Intcode {
                 },
                 3 => {
                     // INPUT
-                    (self.handler)(self);
+                    if !self.input_given {
+                        return false;
+                    }
+
+                    self.input_given = false;
                     self.mem.insert(res_reg, self.input);
                     self.pc += 2;
                 },
@@ -100,8 +105,6 @@ impl Intcode {
 
     fn parse_op(&self, opcode: i64) -> (i64, Option<i64>, Option<i64>) {
         let op1 = *self.mem.get(&(self.pc + 1)).unwrap();
-        let op2 = *self.mem.get(&(self.pc + 2)).unwrap();
-        let op3 = *self.mem.get(&(self.pc + 3)).unwrap();
 
         let mode_1 = (opcode / 100) % 10;
         let mode_2 = (opcode / 1000) % 10;
@@ -112,8 +115,10 @@ impl Intcode {
                 return (op1, None, None);
             },
             _ => {
+                let op2 = *self.mem.get(&(self.pc + 2)).unwrap();
+
                 return (
-                    op3,
+                    *self.mem.get(&(self.pc + 3)).unwrap(),
                     match mode_1 {
                         0 => self.mem.get(&op1).cloned(),
                         1 => Some(op1),
@@ -128,10 +133,6 @@ impl Intcode {
             },
         }
     }
-}
-
-fn default_handler(ic: &mut Intcode) {
-    ic.run();
 }
 
 
