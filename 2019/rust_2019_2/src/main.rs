@@ -1,0 +1,73 @@
+use intcode_rust::Intcode;
+use relative_path::RelativePath;
+use std::env;
+use std::fs;
+use std::time::Instant;
+
+fn part1(contents: String) -> i64 {
+    let mut instructions: Intcode = Intcode::new(
+        contents
+            .split(",")
+            .map(|x| x.parse::<i64>().unwrap())
+            .collect::<Vec<i64>>(),
+    );
+    instructions.insert(1, 12);
+    instructions.insert(2, 2);
+    instructions.run();
+
+    return *instructions.get(0).unwrap();
+}
+
+fn part2(contents: String) -> i64 {
+    let instructions: Intcode = Intcode::new(
+        contents
+            .split(",")
+            .map(|x| x.parse::<i64>().unwrap())
+            .collect::<Vec<i64>>(),
+    );
+    for n1 in 0..=99 {
+        for n2 in 0..=99 {
+            let mut temp_instructions = instructions.clone();
+            temp_instructions.insert(1, n1);
+            temp_instructions.insert(2, n2);
+            temp_instructions.run();
+
+            if *temp_instructions.get(0).unwrap() == 19690720 {
+                return 100 * n1 + n2;
+            }
+        }
+    }
+
+    return -1;
+}
+
+fn main() {
+    let year = "2019".to_string();
+    let day = "2".to_string();
+
+    let root = env::current_dir().unwrap();
+    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+        format!("../../Inputs/{}_{}.txt", year, day)
+    } else {
+        format!("/Inputs/{}_{}.txt", year, day)
+    };
+
+    let relative_path = RelativePath::new(&path_str);
+
+    let contents = fs::read_to_string(relative_path.to_path(&root))
+        .expect("Should have been able to read the file");
+
+    let part1_timer = Instant::now();
+    println!(
+        "\nPart 1:\nResult after running program: {}\nRan in {:.5?}",
+        part1(contents.clone()),
+        part1_timer.elapsed()
+    );
+
+    let part2_timer = Instant::now();
+    println!(
+        "\nPart 2:\n100 * noun + verb: {}\nRan in {:.5?}",
+        part2(contents.clone()),
+        part2_timer.elapsed()
+    );
+}
