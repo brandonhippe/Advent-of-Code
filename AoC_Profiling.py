@@ -1,4 +1,5 @@
 import re
+import math
 from collections import defaultdict
 from Modules.progressbar import printProgressBar
 import matplotlib.pyplot as plt
@@ -60,6 +61,7 @@ def plotRuntimes():
         runtimes = defaultdict(dict)
         totalTimes = defaultdict(lambda: 0)
         maxRuntime = 0
+        minRuntime = float('inf')
         for line in lines:
             year, day, combined, p1, p2 = [float(n) for n in re.findall('\d+[.]?\d*e?-?\d*', line)]
             year = int(year)
@@ -68,20 +70,21 @@ def plotRuntimes():
             runtimes[year][day] = (p1, p2)
             totalTimes[year] += combined
             maxRuntime = max(maxRuntime, combined)
+            minRuntime = min(minRuntime, combined)
 
         fig, ax = plt.subplots(2, 2)
         for year in sorted(runtimes.keys()):
             days = [day for day in range(1, 26) if day in runtimes[year]]
             ts = [runtimes[year][day] for day in days]
 
-            ax[0][0].plot(days, [t[0] for t in ts], label = str(year))
-            ax[0][1].plot(days, [t[1] for t in ts], label = str(year))
-            ax[1][0].plot(days, [sum(t) for t in ts], label = str(year))
+            ax[0][0].semilogy(days, [t[0] for t in ts], label = str(year))
+            ax[0][1].semilogy(days, [t[1] for t in ts], label = str(year))
+            ax[1][0].semilogy(days, [sum(t) for t in ts], label = str(year))
             bar = ax[1][1].bar(year, totalTimes[year], label = str(year))
             ax[1][1].bar_label(bar, fmt='%.3f')
 
         for (ax_y, ax_x), t in zip([(0, 0), (0, 1), (1, 0)], ['Part 1', 'Part 2', 'Combined']):
-            ax[ax_y][ax_x].set_ylim(0, 1.1 * maxRuntime)
+            ax[ax_y][ax_x].set_ylim(minRuntime / 10, 10 ** (1.1 * math.log10(maxRuntime)))
             ax[ax_y][ax_x].set_xlim(1, 25)
             ax[ax_y][ax_x].set_xlabel('Day')
             ax[ax_y][ax_x].set_ylabel('Time (s)')
