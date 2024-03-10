@@ -1,11 +1,11 @@
 use relative_path::RelativePath;
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::collections::BinaryHeap;
-use std::cmp::Reverse;
 
 fn part1(contents: String) -> String {
     let mut steps: HashMap<char, Vec<char>> = HashMap::new();
@@ -77,7 +77,10 @@ fn part2(contents: String, num_workers: i64, base_time: i64) -> i64 {
     while available.len() > 0 || workers.len() > 0 {
         if workers.len() < num_workers as usize && available.len() > 0 {
             let step = available.pop().unwrap().0;
-            workers.push(Reverse(Worker { time: curr_time + base_time + (step as i64 - 'A' as i64) + 1, step: step }));
+            workers.push(Reverse(Worker {
+                time: curr_time + base_time + (step as i64 - 'A' as i64) + 1,
+                step: step,
+            }));
         } else {
             let finished_worker = workers.pop().unwrap().0;
             curr_time = finished_worker.time;
@@ -90,7 +93,6 @@ fn part2(contents: String, num_workers: i64, base_time: i64) -> i64 {
             }
         }
     }
-
 
     return curr_time;
 }
