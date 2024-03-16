@@ -38,7 +38,7 @@ def part2(data, width = 25, height = 6):
     for y in range(height):
         img += '\n'
         for x in range(width):
-            img += '#' if visibleImg[x + y * width] == 1 else ' '
+            img += '█' if visibleImg[x + y * width] == 1 else ' '
 
     return img
 
