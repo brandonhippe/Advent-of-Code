@@ -43,7 +43,7 @@ def part2(data):
         s += '\n'
         for x in range(mins[0], maxs[0] + 1,):
             c = panels[arrToStr([x, y])] if arrToStr([x, y]) in panels else 0
-            s += '#' if c == 1 else ' '
+            s += '█' if c == 1 else ' '
 
     return s
 
