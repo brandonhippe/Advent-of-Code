@@ -4,6 +4,7 @@ use std::collections::HashMap;
 pub struct Intcode {
     mem: HashMap<i64, i64>,
     pc: i64,
+    rel_base: i64,
     input: i64,
     outputs: Vec<i64>,
     input_given: bool,
@@ -18,6 +19,7 @@ impl Intcode {
                 .map(|(i, x)| (i as i64, x))
                 .collect(),
             pc: 0,
+            rel_base: 0,
             input: 0,
             outputs: Vec::new(),
             input_given: false,
@@ -43,7 +45,7 @@ impl Intcode {
 
     pub fn run(&mut self) -> bool {
         loop {
-            if !self.mem.contains_key(&self.pc) {
+            if !self.mem.contains_key(&self.pc) || self.pc < 0 {
                 return false;
             }
 
@@ -59,12 +61,12 @@ impl Intcode {
                     // ADD
                     self.mem.insert(res_reg, op_a.unwrap() + op_b.unwrap());
                     self.pc += 4;
-                },
+                }
                 2 => {
                     // MULT
                     self.mem.insert(res_reg, op_a.unwrap() * op_b.unwrap());
                     self.pc += 4;
-                },
+                }
                 3 => {
                     // INPUT
                     if !self.input_given {
@@ -74,30 +76,45 @@ impl Intcode {
                     self.input_given = false;
                     self.mem.insert(res_reg, self.input);
                     self.pc += 2;
-                },
+                }
                 4 => {
                     // OUTPUT
-                    self.outputs.push(self.mem.get(&res_reg).unwrap().clone());
+                    self.outputs.push(res_reg);
                     self.pc += 2;
-                },
+                }
                 5 => {
                     // JMP IF TRUE
-                    self.pc = if op_a.unwrap() != 0 { op_b.unwrap() } else { self.pc + 3 };
-                },
+                    self.pc = if op_a.unwrap() != 0 {
+                        op_b.unwrap()
+                    } else {
+                        self.pc + 3
+                    };
+                }
                 6 => {
                     // JMP IF FALSE
-                    self.pc = if op_a.unwrap() == 0 { op_b.unwrap() } else { self.pc + 3 };
-                },
+                    self.pc = if op_a.unwrap() == 0 {
+                        op_b.unwrap()
+                    } else {
+                        self.pc + 3
+                    };
+                }
                 7 => {
                     // LESS THAN
-                    self.mem.insert(res_reg, if op_a.unwrap() < op_b.unwrap() { 1 } else { 0 });
+                    self.mem
+                        .insert(res_reg, if op_a.unwrap() < op_b.unwrap() { 1 } else { 0 });
                     self.pc += 4;
-                },
+                }
                 8 => {
                     // EQUALS
-                    self.mem.insert(res_reg, if op_a.unwrap() == op_b.unwrap() { 1 } else { 0 });
+                    self.mem
+                        .insert(res_reg, if op_a.unwrap() == op_b.unwrap() { 1 } else { 0 });
                     self.pc += 4;
-                },
+                }
+                9 => {
+                    // RELATIVE BASE OFFSET
+                    self.rel_base += res_reg;
+                    self.pc += 2;
+                }
                 _ => panic!("Opcode {} is invalid", opcode),
             };
         }
@@ -108,33 +125,69 @@ impl Intcode {
 
         let mode_1 = (opcode / 100) % 10;
         let mode_2 = (opcode / 1000) % 10;
-        let _mode_3 = (opcode / 10000) % 10;
+        let mode_3 = (opcode / 10000) % 10;
 
         match opcode % 100 {
-            3 | 4 => {
-                return (op1, None, None);
-            },
+            3 => {
+                return (
+                    match mode_1 {
+                        0 => op1,
+                        2 => op1 + self.rel_base,
+                        _ => panic!("Invalid mode {}", mode_1),
+                    },
+                    None,
+                    None,
+                );
+            }
+            4 | 9 => {
+                let res_reg = match mode_1 {
+                    0 => self.mem.get(&op1).or(Some(&0)).cloned(),
+                    1 => Some(op1),
+                    2 => self.mem.get(&(op1 + self.rel_base)).or(Some(&0)).cloned(),
+                    _ => panic!("Invalid mode {}", mode_1),
+                };
+
+                return (res_reg.unwrap(), None, None);
+            }
             _ => {
-                let op2 = *self.mem.get(&(self.pc + 2)).unwrap();
+                let op2 = *self.mem.get(&(self.pc + 2)).or(Some(&0)).unwrap();
+                let op3 = *self.mem.get(&(self.pc + 3)).or(Some(&0)).unwrap();
 
                 return (
-                    *self.mem.get(&(self.pc + 3)).unwrap(),
+                    match mode_3 {
+                        0 => op3,
+                        2 => op3 + self.rel_base,
+                        _ => panic!("Invalid mode {}", mode_3),
+                    },
                     match mode_1 {
-                        0 => self.mem.get(&op1).cloned(),
+                        0 => self.mem.get(&op1).or(Some(&0)).cloned(),
                         1 => Some(op1),
+                        2 => Some(
+                            self.mem
+                                .get(&(op1 + self.rel_base))
+                                .or(Some(&0))
+                                .cloned()
+                                .unwrap(),
+                        ),
                         _ => panic!("Invalid mode {}", mode_1),
                     },
                     match mode_2 {
-                        0 => self.mem.get(&op2).cloned(),
+                        0 => self.mem.get(&op2).or(Some(&0)).cloned(),
                         1 => Some(op2),
+                        2 => Some(
+                            self.mem
+                                .get(&(op2 + self.rel_base))
+                                .or(Some(&0))
+                                .cloned()
+                                .unwrap(),
+                        ),
                         _ => panic!("Invalid mode {}", mode_2),
                     },
                 );
-            },
+            }
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
