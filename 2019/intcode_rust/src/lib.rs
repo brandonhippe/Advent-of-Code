@@ -39,6 +39,10 @@ impl Intcode {
         return self.outputs.clone();
     }
 
+    pub fn clear_output(&mut self) {
+        self.outputs.clear();
+    }
+
     pub fn get(&self, k: i64) -> Option<&i64> {
         return self.mem.get(&k);
     }
