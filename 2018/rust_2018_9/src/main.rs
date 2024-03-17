@@ -1,25 +1,31 @@
 use relative_path::RelativePath;
+use std::collections::VecDeque;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use std::collections::VecDeque;
 
 fn part1(contents: String) -> i64 {
-    return contents.lines().map(|line| {
-        let mut parts = line.split_whitespace();
-        let players = parts.next().unwrap().parse::<i64>().unwrap();
-        let last_marble = parts.nth(5).unwrap().parse::<i64>().unwrap();
-        max_score(players, last_marble)
-    }).sum::<i64>();
+    return contents
+        .lines()
+        .map(|line| {
+            let mut parts = line.split_whitespace();
+            let players = parts.next().unwrap().parse::<i64>().unwrap();
+            let last_marble = parts.nth(5).unwrap().parse::<i64>().unwrap();
+            max_score(players, last_marble)
+        })
+        .sum::<i64>();
 }
 
 fn part2(contents: String) -> i64 {
-    return contents.lines().map(|line| {
-        let mut parts = line.split_whitespace();
-        let players = parts.next().unwrap().parse::<i64>().unwrap();
-        let last_marble = parts.nth(5).unwrap().parse::<i64>().unwrap();
-        max_score(players, last_marble * 100)
-    }).sum::<i64>();
+    return contents
+        .lines()
+        .map(|line| {
+            let mut parts = line.split_whitespace();
+            let players = parts.next().unwrap().parse::<i64>().unwrap();
+            let last_marble = parts.nth(5).unwrap().parse::<i64>().unwrap();
+            max_score(players, last_marble * 100)
+        })
+        .sum::<i64>();
 }
 
 fn max_score(players: i64, last_marble: i64) -> i64 {
