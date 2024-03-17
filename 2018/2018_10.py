@@ -89,7 +89,7 @@ def printPoints(points):
     for y in range(mins[1], maxs[1] + 1):
         line = ''
         for x in range(mins[0], maxs[0] + 1):
-            line += '#' if ",".join([str(x), str(y)]) in points else ' '
+            line += '█' if ",".join([str(x), str(y)]) in points else ' '
 
         s = '\n'.join([s, line])
 
