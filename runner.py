@@ -41,11 +41,9 @@ if __name__ == "__main__":
         from Modules.progressbar import printProgressBar
 
     for language in languages:
-        if len(languages) > 1:
-            print(f"Running {language}...")
-
         totalTime = 0
         lang = Language(language.lower())
+        anyRan = False
         for j, year in enumerate(years):
             for i, day in enumerate(days):
                 if len(days) > 1:
@@ -57,7 +55,13 @@ if __name__ == "__main__":
                 if not lang.exists(year, day):
                     continue
 
+                anyRan = True
+
+                if len(languages) > 1 and not anyRan:
+                    print(f"Running {language}...")
+
                 (_, p1_elapsed), (_, p2_elapsed) = lang.run(year, day, len(days) == 1)
                 totalTime += p1_elapsed + p2_elapsed
 
-        print(f"\n{language}: Total time: {totalTime:.4f} seconds")
+        if anyRan:
+            print(f"\n{language}: Total time: {totalTime:.4f} seconds")
