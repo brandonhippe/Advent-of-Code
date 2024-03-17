@@ -5,7 +5,7 @@ DONT_RUN = {(2019, 25)}
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == "--help" or sys.argv[1] == "-h":
+    if len(sys.argv) > 1 and (sys.argv[1] == "--help" or sys.argv[1] == "-h"):
         print("Usage: python(3) runner.py [year] [day] [--languages|-l] [language]")
         print("Example: python(3) runner.py 2015 1 --languages python")
         exit(0)
@@ -44,24 +44,26 @@ if __name__ == "__main__":
         totalTime = 0
         lang = Language(language.lower())
         anyRan = False
-        for j, year in enumerate(years):
-            for i, day in enumerate(days):
-                if len(days) > 1:
-                    printProgressBar(j * 25 + i + 1, len(days) * len(years))
 
-                    if (year, day) in DONT_RUN:
-                        continue
-                    
-                if not lang.exists(year, day):
+        inLang = set()
+        for year in years:
+            for day in days:
+                if (year, day) in DONT_RUN or not lang.exists(year, day):
                     continue
 
-                anyRan = True
+                inLang.add((year, day))
+        
+        if len(inLang) == 0:
+            continue
 
-                if len(languages) > 1 and not anyRan:
-                    print(f"Running {language}...")
+        if len(languages) > 1:
+            print(f"Running {language}...")
 
-                (_, p1_elapsed), (_, p2_elapsed) = lang.run(year, day, len(days) == 1)
-                totalTime += p1_elapsed + p2_elapsed
+        for (i, (year, day)) in enumerate(inLang):
+            if len(inLang) > 1:
+                printProgressBar(i + 1, len(inLang))
 
-        if anyRan:
-            print(f"\n{language}: Total time: {totalTime:.4f} seconds")
+            (_, p1_elapsed), (_, p2_elapsed) = lang.run(year, day, len(days) == 1)
+            totalTime += p1_elapsed + p2_elapsed
+
+        print(f"\n{language}: Total time: {totalTime:.4f} seconds\n\n")
