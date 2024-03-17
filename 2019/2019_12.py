@@ -10,12 +10,6 @@ def part1(data, steps = 1000):
     1940
     """
 
-    # lines = [line.strip("<>\n") for line in data]
-
-    # moons = []
-    # for line in lines:
-    #     moons.append(moon([int(x.split("=")[-1]) for x in line.split(",")], len(moons)))
-
     moons = [moon([int(x.split("=")[-1]) for x in line.strip('<>').split(",")], len(data)) for line in data]
 
     for _ in range(steps):
@@ -31,6 +25,8 @@ def part1(data, steps = 1000):
 def part2(data):
     """ 2019 Day 12 Part 2
 
+    >>> part2(['<x=-1, y=0, z=2>', '<x=2, y=-10, z=-7>', '<x=4, y=-8, z=8>', '<x=3, y=5, z=-1>'])
+    2772
     >>> part2(['<x=-8, y=-10, z=0>', '<x=5, y=5, z=10>', '<x=2, y=-7, z=3>', '<x=9, y=-8, z=-3>'])
     4686774924
     """
