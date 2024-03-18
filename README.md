@@ -11,7 +11,7 @@ Years with completed project(s) and languages:
 2017: 1-25 in Python  
 
 2018: 1-25 in Python  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-11 in Rust  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-12 in Rust  
 
 2019: 1-25 in Python  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-14 in Rust  
