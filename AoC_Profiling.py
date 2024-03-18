@@ -12,12 +12,12 @@ DONT_RUN = {(2019, 25)}
 def runCode():
     running_languages = []
     for language in get_languages():
-        if input(f"Run {language}? (y/n)\n")[0] == 'y':
+        if input(f"\nRun {language}? (y/n)\n")[0] == 'y':
             running_languages.append(language)
 
     for language in running_languages:
         if len(running_languages) > 1:
-            print(f"Running {language}...")
+            print(f"\nRunning {language}...")
             
         lang = Language(language.lower())
 

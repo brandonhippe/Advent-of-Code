@@ -9,6 +9,12 @@ class Language:
             self.exists_func = language_funcs[lang][2]
         except KeyError:
             raise ValueError(f"Language {lang} not supported")
+        
+    def __hash__(self) -> int:
+        return self.lang.__hash__()
+    
+    def __repr__(self) -> str:
+        return self.lang
 
     def run(self, year, day, verbose):
         if self.exists(year, day):
