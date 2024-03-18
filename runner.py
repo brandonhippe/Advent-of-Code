@@ -1,4 +1,5 @@
 import sys
+import re
 from itertools import product
 from language_functions import Language, get_languages
 
@@ -83,9 +84,10 @@ if __name__ == "__main__":
     common = False
     progressBar = False
     field = None
+    year_days = set()
 
     ix = 1
-    while ix < len(sys.argv):
+    while ix < len(sys.argv):        
         arg = sys.argv[ix]
         ix += 1
 
@@ -103,9 +105,33 @@ if __name__ == "__main__":
             print_help()
 
         if field == 'y':
-            years.append(int(arg))
+            nums = re.findall(r'\d+', arg)
+            if len(nums) == 0:
+                print("Error: invalid year")
+                print_help()
+            elif len(nums) == 1:
+                years.append(int(nums[0]))
+            else:
+                for n1, n2 in zip(nums[:-1], nums[1:]):
+                    if f"{n1}-{n2}" in arg:
+                        years.extend(range(int(n1), int(n2) + 1))
+                    else:
+                        years.append(int(n1))
+                        days.append(int(n2))
         elif field == 'd':
-            days.append(int(arg))
+            nums = re.findall(r'\d+', arg)
+            if len(nums) == 0:
+                print("Error: invalid year")
+                print_help()
+            elif len(nums) == 1:
+                days.append(int(nums[0]))
+            else:
+                for n1, n2 in zip(nums[:-1], nums[1:]):
+                    if f"{n1}-{n2}" in arg:
+                        days.extend(range(int(n1), int(n2) + 1))
+                    else:
+                        days.append(int(n1))
+                        days.append(int(n2))
         elif field == 'l':
             if arg[0] == '~':
                 valid_languages.remove(arg[1:])
