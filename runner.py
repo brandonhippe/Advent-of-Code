@@ -30,9 +30,10 @@ def contiguous_groups(l):
 
 
 def run(language_year_days: dict, progressBar):
-    year_days_langs = {tuple(sorted(list(year_days))): [] for year_days in language_year_days.values()}
+    year_days_langs = {tuple(sorted(list(year_days))): [] for year_days in language_year_days.values() if len(year_days) != 0}
     for lang, year_days in language_year_days.items():
-        year_days_langs[tuple(sorted(list(year_days)))].append(lang)
+        if len(year_days) != 0:
+            year_days_langs[tuple(sorted(list(year_days)))].append(lang)
     
     for year_days, langs in year_days_langs.items():
         print(f"Running {', '.join(l.lang for l in langs)} for:")
