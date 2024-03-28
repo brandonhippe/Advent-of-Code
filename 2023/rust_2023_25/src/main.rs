@@ -1,4 +1,6 @@
-use nalgebra::DMatrix;
+use ndarray::Array2;
+use numpy::IntoPyArray;
+use pyo3::prelude::*;
 use relative_path::RelativePath;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -30,10 +32,10 @@ fn part1(contents: String) -> i64 {
         }
     }
 
-    let mapping: Vec<String> = connections.keys().map(|s| s.to_string()).collect();
     let arr_dim = connections.len();
-    let mut degree: DMatrix<f64> = DMatrix::from_element(arr_dim, arr_dim, 0.0);
-    let mut adj: DMatrix<f64> = DMatrix::from_element(arr_dim, arr_dim, 0.0);
+    let mut degree: Array2<f64> = Array2::zeros((arr_dim, arr_dim));
+    let mut adj: Array2<f64> = Array2::zeros((arr_dim, arr_dim));
+    let mapping: Vec<String> = connections.keys().cloned().collect();
 
     for (i, k) in mapping.iter().enumerate() {
         degree[(i, i)] = connections.get(k).unwrap().len() as f64;
@@ -45,26 +47,23 @@ fn part1(contents: String) -> i64 {
     }
 
     let laplacian = degree - adj;
-    let eigen_decomp = laplacian.symmetric_eigen();
-    let eigenvalues = eigen_decomp.eigenvalues;
-    let eigenvectors = eigen_decomp.eigenvectors;
+    pyo3::prepare_freethreaded_python();
 
-    let mut min_ix = 0;
-    let mut min_2_ix = 0;
+    let fiedler_vector: Vec<f64> = Python::with_gil(|py| {
+        let np_lin_alg = PyModule::import(py, "numpy.linalg")?;
+        let laplacian_py = laplacian.into_pyarray(py).to_object(py);
+        let vh = np_lin_alg
+            .getattr("svd")?
+            .call1((laplacian_py,))?
+            .getattr("Vh")?;
+        let fiedler_vector = vh.get_item(-2)?.to_object(py);
+        fiedler_vector.extract::<Vec<f64>>(py)
+    })
+    .unwrap();
 
-    for ix in 0..eigenvalues.len() {
-        if eigenvalues[ix] < eigenvalues[min_ix] {
-            min_2_ix = min_ix;
-            min_ix = ix;
-        } else if eigenvalues[ix] < eigenvalues[min_2_ix] {
-            min_2_ix = ix;
-        }
-    }
-
-    let fiedler_vector = eigenvectors.column(min_2_ix);
-    let g_size = fiedler_vector.iter().filter(|x| x > &&0.0).count() as i64;
-
-    return g_size * (arr_dim as i64 - g_size);
+    let g_size: i64 = fiedler_vector.iter().filter(|x| x > &&0.0).count() as i64;
+    let other_size: i64 = arr_dim as i64 - g_size;
+    return g_size * other_size;
 }
 
 fn part2(_contents: String) -> String {
