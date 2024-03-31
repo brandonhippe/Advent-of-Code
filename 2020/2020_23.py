@@ -30,7 +30,8 @@ def part2(data):
     cups = [cups[0]] + [cups[cups.index(i) + 1] if cups.index(i) < len(cups) - 1 else 10 for i in range(1, 10)] + [i + 1 for i in range(10, 1_000_000)] + [cups[0]]
 
     for _ in range(10_000_000):
-        held = cups[cups[0]]
+        current = cups[0]
+        held = cups[current]
         afterHeld = held
         removed = []
         for _ in range(3):
@@ -45,10 +46,12 @@ def part2(data):
 
         afterDest = cups[dest + 1]
 
-        cups[cups[0]] = afterHeld
         cups[dest + 1] = held
         cups[removed[-1]] = afterDest
-        cups[0] = cups[cups[0]]
+        
+        cups[current] = afterHeld
+        cups[0] = afterHeld
+        # print(cups[:10])
 
     return cups[1] * cups[cups[1]]
 
