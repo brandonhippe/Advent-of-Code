@@ -1,8 +1,8 @@
 use relative_path::RelativePath;
+use std::collections::VecDeque;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use std::collections::VecDeque;
 
 fn part1(contents: String) -> i64 {
     let mut cups = VecDeque::new();
@@ -61,7 +61,7 @@ fn part2(contents: String) -> i64 {
     for i in 10..1_000_000 {
         cups[i] = i as i64 + 1;
     }
-    
+
     cups[1_000_000] = input[0];
 
     for _ in 0..10_000_000 {
@@ -99,16 +99,14 @@ mod tests {
 
     #[test]
     fn p1_test() {
-        let contents =
-            "389125467".to_string();
+        let contents = "389125467".to_string();
 
         assert_eq!(part1(contents), 67384529);
     }
 
     #[test]
     fn p2_test() {
-        let contents =
-            "389125467".to_string();
+        let contents = "389125467".to_string();
 
         assert_eq!(part2(contents), 149245887792);
     }
