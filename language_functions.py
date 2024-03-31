@@ -64,10 +64,17 @@ def run_rust(year, day, verbose):
     thisDir = os.getcwd()
 
     os.chdir(f"{year}{os.sep}rust_{year}_{day}")
-    output = subprocess.run('cargo run -r', shell=True, capture_output=True, text=True).stdout.split("\n")
+    output = subprocess.run('cargo run -r', shell=True, capture_output=True, text=True)
     os.chdir(thisDir)
+    
+    if not output.stdout:
+        raise ValueError(f"No output from C program: {year} day {day}")
 
-    output_start = output.index("Part 1:") - 1
+    output = output.stdout.split("\n")
+    try:
+        output_start = output.index("Part 1:") - 1
+    except ValueError:
+        raise ValueError(f"Could not find output start for rust {year} day {day}")
     output = output[output_start:]
 
     if verbose:
@@ -168,7 +175,10 @@ def run_c(year, day, verbose):
         raise ValueError(f"No output from C program: {year} day {day}")
     
     output = output.stdout.split("\n")
-    output_start = output.index("Part 1:") - 1
+    try:
+        output_start = output.index("Part 1:") - 1
+    except ValueError:
+        raise ValueError(f"Could not find output start for C {year} day {day}")
     output = output[output_start:]
 
     if verbose:
