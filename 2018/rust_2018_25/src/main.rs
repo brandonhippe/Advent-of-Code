@@ -84,7 +84,7 @@ fn main() {
 
     let part2_timer = Instant::now();
     println!(
-        "\nPart 2:\n {}\nRan in {:.5?}",
+        "\nPart 2:\n{}\nRan in {:.5?}",
         part2(contents.clone()),
         part2_timer.elapsed()
     );
