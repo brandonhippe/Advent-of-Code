@@ -247,13 +247,7 @@ fn part1(contents: String) -> i64 {
         }
 
         let mut found: bool = false;
-        for dir in room_connections
-            .get(&curr_room)
-            .unwrap()
-            .get(&checkpoint.0)
-            .unwrap()
-            .chars()
-        {
+        for dir in checkpoint.1.chars() {
             program.set_input(dir as i64);
             found = program.run();
         }
