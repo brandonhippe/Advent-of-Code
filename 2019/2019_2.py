@@ -1,3 +1,6 @@
+from intcode import Intcode
+
+
 def part1(data, replace = True):
     """ 2019 Day 2 Part 1
 
@@ -7,58 +10,54 @@ def part1(data, replace = True):
     30
     """
 
-    lines = [int(x) for x in data[0].split(',')]
+    intcode = Intcode({i: int(x) for i, x in enumerate(data[0].split(','))})
 
     if replace:
-        lines[1] = 12
-        lines[2] = 2
+        intcode.set_data(1, 12)
+        intcode.set_data(2, 2)
 
-    return runCode(lines)
+    if not intcode.runCode():
+        raise ValueError("Intcode did not halt properly")
+    
+    return intcode.get_data(0)
 
 
 def part2(data):
     """ 2019 Day 2 Part 2
     """
 
-    lines = [int(x) for x in data[0].split(',')]
+    intcode = Intcode({i: int(x) for i, x in enumerate(data[0].split(','))})
 
     target = 19690720
-    num = runCode(lines[:])
-    lines[1] -= 1
+    num = 0
+
+    noun = intcode.get_data(1)
+    verb = intcode.get_data(2)
+
     while num != target:
-        lines[1] += 1
-        lines[2] = 0
-
-        while num < target and lines[2] + 1 < len(lines):
-            lines[2] += 1
-            num = runCode(lines[:])
-    
-    return 100 * lines[1] + lines[2]
-
-
-def runCode(data):
-    i = 0
-    while data[i] != 99:
-        opCode = data[i]
-        operands = data[i + 1:i + 3]
-        store = data[i + 3]
-
-        if opCode == 1:
-            value = 0
-            for index in operands:
-                value += data[index]
-
-            data[store] = value
-        elif opCode == 2:
-            value = 1
-            for index in operands:
-                value *= data[index]
-
-            data[store] = value
+        if not intcode.runCode():
+            raise ValueError("Intcode did not halt properly")
         
-        i += 4
+        num = intcode.get_data(0)
+        while num < target and verb + 1 < len(intcode.data):
+            verb += 1
+            intcode.reset()
+            intcode.set_data(1, noun)
+            intcode.set_data(2, verb)
 
-    return data[0]
+            if not intcode.runCode():
+                raise ValueError("Intcode did not halt properly")
+            
+            num = intcode.get_data(0)
+
+        if num != target:
+            noun += 1
+            verb = 0
+            intcode.reset()
+            intcode.set_data(1, noun)
+
+
+    return 100 * noun + verb
 
 
 def main(verbose = False):
