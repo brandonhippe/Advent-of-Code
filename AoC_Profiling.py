@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from language_functions import Language, get_languages
 
 
-DONT_RUN = {(2019, 25)}
+DONT_RUN = {}
 
 
 def runCode():

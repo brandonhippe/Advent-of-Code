@@ -4,7 +4,7 @@ from itertools import product
 from language_functions import Language, get_languages
 
 
-DONT_RUN = {(2019, 25)}
+DONT_RUN = {}
 
 
 def print_help():
