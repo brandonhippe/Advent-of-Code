@@ -9,6 +9,7 @@ Years with completed project(s) and languages:
 2016: 1-25 in Python  
 
 2017: 1-25 in Python  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 in Rust  
 
 2018: 1-25 in Python  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-25 in Rust  
