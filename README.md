@@ -5,7 +5,7 @@ This repository contains all of Brandon Hippe's code for Advent of Code
 Years with completed project(s) and languages:  
 
 2015: 1-25 in Python  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 in Rust  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-2 in Rust  
 
 2016: 1-25 in Python  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-7 in Rust  
