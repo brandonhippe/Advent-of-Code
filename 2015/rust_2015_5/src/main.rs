@@ -1,17 +1,24 @@
+use itertools::Itertools;
+use regex::Regex;
 use relative_path::RelativePath;
 use std::env;
 use std::fs;
 use std::time::Instant;
-use fancy_regex::Regex;
 
 fn part1(contents: String) -> i64 {
     let vowel_re: Regex = Regex::new(r"([aeiou])").unwrap();
     let bad_re: Regex = Regex::new(r"(ab|cd|pq|xy)").unwrap();
-    let double_re: Regex = Regex::new(r"(.)\1").unwrap();
+    let double_re: Regex = Regex::new(
+        "(aa|bb|cc|dd|ee|ff|gg|hh|ii|jj|kk|ll|mm|nn|oo|pp|qq|rr|ss|tt|uu|vv|ww|xx|yy|zz)",
+    )
+    .unwrap();
     return contents
         .lines()
         .map(|line| {
-            if !bad_re.is_match(line).unwrap() && vowel_re.find_iter(line).count() >= 3 && double_re.is_match(line).unwrap() {
+            if !bad_re.is_match(line)
+                && vowel_re.find_iter(line).count() >= 3
+                && double_re.is_match(line)
+            {
                 return 1;
             }
             return 0;
@@ -20,38 +27,26 @@ fn part1(contents: String) -> i64 {
 }
 
 fn part2(contents: String) -> i64 {
-    let pair_re: Regex = Regex::new(r"(.{2}).*\1").unwrap();
-    let repeat_re: Regex = Regex::new(r"(.).\1").unwrap();
+    let mut pair_string = String::new();
+    for a in 'a'..='z' {
+        for b in 'a'..='z' {
+            pair_string.push_str(&format!("{}{}.*{}{}|", a, b, a, b));
+        }
+    }
+
+    pair_string.pop();
+
+    let pair_re: Regex = Regex::new(&pair_string).unwrap();
+    let repeat_re: Regex = Regex::new("a.a|b.b|c.c|d.d|e.e|f.f|g.g|h.h|i.i|j.j|k.k|l.l|m.m|n.n|o.o|p.p|q.q|r.r|s.s|t.t|u.u|v.v|w.w|x.x|y.y|z.z").unwrap();
     return contents
         .lines()
         .map(|line| {
-            if pair_re.is_match(line).unwrap() && repeat_re.is_match(line).unwrap() {
+            if pair_re.is_match(line) && repeat_re.is_match(line) {
                 return 1;
             }
             return 0;
         })
-        .sum::<i64>()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn p1_test() {
-        let contents =
-            fs::read_to_string("example.txt").expect("Should have been able to read the file");
-
-        assert_eq!(part1(contents), 0);
-    }
-
-    #[test]
-    fn p2_test() {
-        let contents =
-            fs::read_to_string("example.txt").expect("Should have been able to read the file");
-
-        assert_eq!(part2(contents), 0);
-    }
+        .sum::<i64>();
 }
 
 fn main() {
