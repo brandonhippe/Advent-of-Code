@@ -1,5 +1,6 @@
 def part1(data):
     """
+    #{year} Day #{day} Part 1
     """
 
     return -1
@@ -7,6 +8,7 @@ def part1(data):
 
 def part2(data):
     """
+    #{year} Day #{day} Part 2
     """
 
     return -1
