@@ -33,8 +33,8 @@ mod tests {
 }
 
 fn main() {
-    let year = "".to_string();
-    let day = "".to_string();
+    let year = "#{year}".to_string();
+    let day = "#{day}".to_string();
 
     let root = env::current_dir().unwrap();
     let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {

@@ -21,6 +21,7 @@
     },
     "python.testing.pytestEnabled": true,
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
+<<<<<<< HEAD
     "clangd.fallbackFlags": [],
     "projectTemplates.templatesDirectory": "${workspaceFolder}/.vscode/templates",          // default directory containing project templates
     "projectTemplates.usePlaceholders": true,           // activate placeholder substitution
@@ -29,4 +30,10 @@
     "files.watcherExclude": {
         "**/target": true
     } // regular expression to use for detecting placeholders
+=======
+    "projectTemplates.templatesDirectory": "${workspaceFolder}/.vscode/templates",          // default directory containing project templates
+    "projectTemplates.usePlaceholders": true,           // activate placeholder substitution
+    "projectTemplates.placeholders": {  },              // dictionary of default placeholder key-value pairs
+    "projectTemplates.placeholderRegExp": "#{(\\w+?)}"  // regular expression to use for detecting placeholders
+>>>>>>> 39e116cf709a3434606ac8f4294a5d57736c0e8a
 }

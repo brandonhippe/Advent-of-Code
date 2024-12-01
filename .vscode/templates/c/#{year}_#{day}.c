@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/{year}_{day}.txt"
+#define fileName "../../Inputs/#{year}_#{day}.txt"
 
 int part1() {
     return 0;
