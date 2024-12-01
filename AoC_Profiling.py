@@ -63,7 +63,7 @@ def plotRuntimes():
         maxRuntime = 0
         minRuntime = float('inf')
         for line in lines:
-            year, day, combined, p1, p2 = [float(n) for n in re.findall('\d+[.]?\d*e?-?\d*', line)]
+            year, day, combined, p1, p2 = [float(n) for n in re.findall(r'\d+[.]?\d*e?-?\d*', line)]
             year = int(year)
             day = int(day)
 

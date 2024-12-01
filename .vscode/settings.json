@@ -7,8 +7,6 @@
     },
     "files.associations": {
         "*.py": "python",
-        "*.h": "c",
-        "*.c": "c"
     },
     "python.testing.pytestArgs": [
         "--doctest-modules", 
@@ -22,5 +20,13 @@
         }
     },
     "python.testing.pytestEnabled": true,
-    "python.testing.autoTestDiscoverOnSaveEnabled": true
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "clangd.fallbackFlags": [],
+    "projectTemplates.templatesDirectory": "${workspaceFolder}/.vscode/templates",          // default directory containing project templates
+    "projectTemplates.usePlaceholders": true,           // activate placeholder substitution
+    "projectTemplates.placeholders": {  },              // dictionary of default placeholder key-value pairs
+    "projectTemplates.placeholderRegExp": "#{(\\w+?)}",
+    "files.watcherExclude": {
+        "**/target": true
+    } // regular expression to use for detecting placeholders
 }

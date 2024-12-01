@@ -50,8 +50,8 @@ def discover_python(path):
     python_scripts = []
     for file in os.walk(path):
         for f in file[2]:
-            if re.search('\d+_\d+.py$', f):
-                year, day = re.findall('\d+', f)
+            if re.search(r'\d+_\d+.py$', f):
+                year, day = re.findall(r'\d+', f)
                 python_scripts.append((int(year), int(day)))
 
     return python_scripts
@@ -68,7 +68,7 @@ def run_rust(year, day, verbose):
     os.chdir(thisDir)
     
     if not output.stdout:
-        raise ValueError(f"No output from C program: {year} day {day}")
+        raise ValueError(f"No output from Rust program: {year} day {day}")
 
     output = output.stdout.split("\n")
     try:
@@ -81,7 +81,7 @@ def run_rust(year, day, verbose):
         print("\n".join(output))
 
     for ix in range(len(output)):
-        t = re.search("\d+\.\d+", output[ix])
+        t = re.search(r"\d+\.\d+", output[ix])
         if not t:
             continue
         
@@ -110,7 +110,7 @@ def run_rust(year, day, verbose):
             break
 
     for ix in range(p1_ix + 1, len(output)):
-        t = re.search("\d+\.\d+", output[ix])
+        t = re.search(r"\d+\.\d+", output[ix])
         if not t:
             continue
         
@@ -144,8 +144,8 @@ def discover_rust(path):
     rust_scripts = []
     for file in os.walk(path):
         for f in file[1]:
-            if re.search('^rust_\d+_\d+$', f):
-                year, day = re.findall('\d+', f)
+            if re.search(r'^rust_\d+_\d+$', f):
+                year, day = re.findall(r'\d+', f)
                 rust_scripts.append((int(year), int(day)))
 
     return rust_scripts
@@ -185,7 +185,7 @@ def run_c(year, day, verbose):
         print("\n".join(output))
 
     for ix in range(len(output)):
-        t = re.search("\d+\.\d+", output[ix])
+        t = re.search(r"\d+\.\d+", output[ix])
         if not t:
             continue
         
@@ -204,7 +204,7 @@ def run_c(year, day, verbose):
             break
 
     for ix in range(p1_ix + 1, len(output)):
-        t = re.search("\d+\.\d+", output[ix])
+        t = re.search(r"\d+\.\d+", output[ix])
         if not t:
             continue
         
@@ -228,7 +228,7 @@ def discover_c(path):
     c_scripts = []
     for file in os.walk(path):
         for f in file[2]:
-            if re.search('^\d+_\d+.c$', f):
+            if re.search(r'^\d+_\d+.c$', f):
                 year, day = re.findall('\d+', f)
                 c_scripts.append((int(year), int(day)))
 
