@@ -4,6 +4,8 @@ import re
 
 def part1(data: List[str]) -> Any:
     """ 2024 Day 3 Part 1
+    >>> part1(["xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"])
+    161
     """
     count = 0
     for line in data:
@@ -15,6 +17,8 @@ def part1(data: List[str]) -> Any:
 
 def part2(data: List[str]) -> Any:
     """ 2024 Day 3 Part 2
+    >>> part2(["xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"])
+    48
     """
     count = 0
     enabled = True
