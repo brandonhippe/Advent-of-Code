@@ -40,23 +40,6 @@ def part2(data: List[str]) -> Any:
     >>> part2(["....#.....", ".........#", "..........", "..#.......", ".......#..", "..........", ".#..^.....", "........#.", "#.........", "......#..."])
     6
     """
-
-    walls = set()
-    start_pos = None
-    start_dir = None
-    for y, line in enumerate(data):
-        for x, char in enumerate(line):
-            if char == '#':
-                walls.add((x, y))
-            elif char != '.':
-                start_pos = (x, y)
-                start_dir = {'^': (0, -1), 'v': (0, 1), '<': (-1, 0), '>': (1, 0)}[char]
-
-    assert start_pos is not None and start_dir is not None, "No starting position found"
-
-    obstructions = set()
-    impact_directions = {d: set() for d in ((0, -1), (0, 1), (-1, 0), (1, 0))}
-
     def makes_loop(pos: Tuple[int, int], curr_dir: Tuple[int, int]) -> bool:
         visited = set()
         while 0 <= pos[0] < len(data[0]) and 0 <= pos[1] < len(data):
@@ -73,21 +56,45 @@ def part2(data: List[str]) -> Any:
                 curr_dir = -curr_dir[1], curr_dir[0]
 
         return False
+    
+    def check_right(pos: Tuple[int, int], curr_dir: Tuple[int, int]) -> bool:
+        same_ix = curr_dir.index(0) 
+        for wall in walls:
+            dist = wall[1 - same_ix] - pos[1 - same_ix]
+            if wall[same_ix] == pos[same_ix] and abs(dist) // dist == curr_dir[1 - same_ix]:
+                return True
+            
+        return False
 
+    walls = set()
+    start_pos = None
+    start_dir = None
+    for y, line in enumerate(data):
+        for x, char in enumerate(line):
+            if char == '#':
+                walls.add((x, y))
+            elif char != '.':
+                start_pos = (x, y)
+                start_dir = {'^': (0, -1), 'v': (0, 1), '<': (-1, 0), '>': (1, 0)}[char]
+
+    assert start_pos is not None and start_dir is not None, "No starting position found"
+
+    obstructions = set()
     pos = start_pos[:]
     curr_dir = start_dir[:]
     while 0 <= pos[0] < len(data[0]) and 0 <= pos[1] < len(data):
         while True:
             next_pos = tuple(map(sum, zip(pos, curr_dir)))
             if next_pos not in walls:
-                walls.add(pos)
-                if makes_loop(start_pos[:], start_dir[:]):
-                    obstructions.add(pos)
-                walls.remove(pos)
+                if check_right(pos, (-curr_dir[1], curr_dir[0])):
+                    walls.add(next_pos)
+                    if makes_loop(start_pos[:], start_dir[:]):
+                        obstructions.add(next_pos)
+                    walls.remove(next_pos)
+
                 pos = next_pos
                 break
 
-            impact_directions[curr_dir].add(pos)
             curr_dir = -curr_dir[1], curr_dir[0]
     
     return len(obstructions)
