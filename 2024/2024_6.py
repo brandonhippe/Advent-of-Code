@@ -1,4 +1,5 @@
-from typing import List, Tuple, Set, Generator, Any
+from typing import List, Tuple, Set, Generator, Optional, Any
+from multiprocessing import Pool
 
 
 def parse_input(data: List[str]) -> Tuple[Tuple[int,], Tuple[int,], Set[Tuple[int,]]]:
@@ -17,8 +18,14 @@ def parse_input(data: List[str]) -> Tuple[Tuple[int,], Tuple[int,], Set[Tuple[in
     return pos, curr_dir, walls
 
 
-def guard_movement(pos: Tuple[int,], curr_dir: Tuple[int,], walls: Set[Tuple[int,]], dims: Tuple[int,]) -> Generator[Tuple[Tuple[int,],], None, None]:
+def guard_movement(pos: Tuple[int,], curr_dir: Tuple[int,], walls: Set[Tuple[int,]], dims: Tuple[int,], visited: Optional[Set[Tuple[int,]]]=None) -> Generator[Tuple[Tuple[int,],], None, bool]:
     while all(0 <= pos[i] < dims[i] for i in range(len(dims))):
+        if visited is not None:
+            if (*pos, *curr_dir) in visited:
+                return True
+            
+            visited.add((*pos, *curr_dir))
+
         yield pos, curr_dir
         while True:
             next_pos = tuple(map(sum, zip(pos, curr_dir)))
@@ -27,6 +34,17 @@ def guard_movement(pos: Tuple[int,], curr_dir: Tuple[int,], walls: Set[Tuple[int
                 break
 
             curr_dir = -curr_dir[1], curr_dir[0]
+
+    return False
+
+
+def run_until_return(generator_func, *args):
+    gen = generator_func(*args)
+    try:
+        while True:
+            next(gen)
+    except StopIteration as e:
+        return e.value
 
 
 def part1(data: List[str]) -> Any:
@@ -38,24 +56,14 @@ def part1(data: List[str]) -> Any:
     return len(set(g[0] for g in guard_movement(pos, curr_dir, walls, (len(data[0]), len(data)))))
 
 
-
 def part2(data: List[str]) -> Any:
     """ 2024 Day 6 Part 2
     >>> part2(["....#.....", ".........#", "..........", "..#.......", ".......#..", "..........", ".#..^.....", "........#.", "#.........", "......#..."])
     6
     """
-    def makes_loop(pos: Tuple[int, int], curr_dir: Tuple[int, int], visited: Set[Tuple[int,]]) -> bool:
-        for curr_pos, curr_dir in guard_movement(pos, curr_dir, walls, (len(data[0]), len(data))):
-            if (*curr_pos, *curr_dir) in visited:
-                return True
-            
-            visited.add((*curr_pos, *curr_dir))
-        
-        return False
 
     start_pos, start_dir, walls = parse_input(data)
-    obstructions = set()
-    checked = {start_pos}
+    checked = {start_pos: (start_dir, set())}
     visited_dirs = set()
 
     for curr_pos, curr_dir in guard_movement(start_pos[:], start_dir[:], walls, (len(data[0]), len(data))):
@@ -65,15 +73,12 @@ def part2(data: List[str]) -> Any:
         if curr_pos in checked or len(visited_dirs) == 0:
             continue
 
-        checked.add(curr_pos)
+        checked[curr_pos] = (curr_dir, visited_dirs.copy())
 
-        walls.add(curr_pos)
-        if makes_loop(tuple(p - d for p, d in zip(curr_pos, curr_dir)), (-curr_dir[1], curr_dir[0]), visited_dirs.copy()):
-            obstructions.add(curr_pos)
-
-        walls.remove(curr_pos)
-
-    return len(obstructions)
+    del checked[start_pos]
+    p = Pool()
+    obstructions = p.starmap(run_until_return, ((guard_movement, tuple(p - d for p, d in zip(pos, di)), (-di[1], di[0]), walls.copy().union({pos}), (len(data[0]), len(data)), vi) for pos, (di, vi) in checked.items()))
+    return sum(obstructions)
 
 
 def main(verbose: bool=False) -> Tuple[Tuple[Any, float]]:
