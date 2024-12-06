@@ -1,13 +1,7 @@
-from typing import List, Tuple, Any
-from itertools import product
+from typing import List, Tuple, Set, Generator, Any
 
 
-def part1(data: List[str]) -> Any:
-    """ 2024 Day 6 Part 1
-    >>> part1(["....#.....", ".........#", "..........", "..#.......", ".......#..", "..........", ".#..^.....", "........#.", "#.........", "......#..."])
-    41
-    """
-
+def parse_input(data: List[str]) -> Tuple[Tuple[int,], Tuple[int,], Set[Tuple[int,]]]:
     walls = set()
     pos = None
     curr_dir = None
@@ -20,10 +14,12 @@ def part1(data: List[str]) -> Any:
                 curr_dir = {'^': (0, -1), 'v': (0, 1), '<': (-1, 0), '>': (1, 0)}[char]
 
     assert pos is not None and curr_dir is not None, "No starting position found"
+    return pos, curr_dir, walls
 
-    visited = set()
-    while 0 <= pos[0] < len(data[0]) and 0 <= pos[1] < len(data):
-        visited.add(pos)
+
+def guard_movement(pos: Tuple[int,], curr_dir: Tuple[int,], walls: Set[Tuple[int,]], dims: Tuple[int,]) -> Generator[Tuple[Tuple[int,],], None, None]:
+    while all(0 <= pos[i] < dims[i] for i in range(len(dims))):
+        yield pos, curr_dir
         while True:
             next_pos = tuple(map(sum, zip(pos, curr_dir)))
             if next_pos not in walls:
@@ -32,7 +28,15 @@ def part1(data: List[str]) -> Any:
 
             curr_dir = -curr_dir[1], curr_dir[0]
 
-    return len(visited)
+
+def part1(data: List[str]) -> Any:
+    """ 2024 Day 6 Part 1
+    >>> part1(["....#.....", ".........#", "..........", "..#.......", ".......#..", "..........", ".#..^.....", "........#.", "#.........", "......#..."])
+    41
+    """
+    pos, curr_dir, walls = parse_input(data)
+    return len(set(g[0] for g in guard_movement(pos, curr_dir, walls, (len(data[0]), len(data)))))
+
 
 
 def part2(data: List[str]) -> Any:
@@ -40,63 +44,35 @@ def part2(data: List[str]) -> Any:
     >>> part2(["....#.....", ".........#", "..........", "..#.......", ".......#..", "..........", ".#..^.....", "........#.", "#.........", "......#..."])
     6
     """
-    def makes_loop(pos: Tuple[int, int], curr_dir: Tuple[int, int]) -> bool:
-        visited = set()
-        while 0 <= pos[0] < len(data[0]) and 0 <= pos[1] < len(data):
-            if (*pos, *curr_dir) in visited:
+    def makes_loop(pos: Tuple[int, int], curr_dir: Tuple[int, int], visited: Set[Tuple[int,]]) -> bool:
+        for curr_pos, curr_dir in guard_movement(pos, curr_dir, walls, (len(data[0]), len(data))):
+            if (*curr_pos, *curr_dir) in visited:
                 return True
             
-            visited.add((*pos, *curr_dir))
-            while True:
-                next_pos = tuple(map(sum, zip(pos, curr_dir)))
-                if next_pos not in walls:
-                    pos = next_pos
-                    break
-
-                curr_dir = -curr_dir[1], curr_dir[0]
-
-        return False
-    
-    def check_right(pos: Tuple[int, int], curr_dir: Tuple[int, int]) -> bool:
-        same_ix = curr_dir.index(0) 
-        for wall in walls:
-            dist = wall[1 - same_ix] - pos[1 - same_ix]
-            if wall[same_ix] == pos[same_ix] and abs(dist) // dist == curr_dir[1 - same_ix]:
-                return True
-            
+            visited.add((*curr_pos, *curr_dir))
+        
         return False
 
-    walls = set()
-    start_pos = None
-    start_dir = None
-    for y, line in enumerate(data):
-        for x, char in enumerate(line):
-            if char == '#':
-                walls.add((x, y))
-            elif char != '.':
-                start_pos = (x, y)
-                start_dir = {'^': (0, -1), 'v': (0, 1), '<': (-1, 0), '>': (1, 0)}[char]
-
-    assert start_pos is not None and start_dir is not None, "No starting position found"
-
+    start_pos, start_dir, walls = parse_input(data)
     obstructions = set()
-    pos = start_pos[:]
-    curr_dir = start_dir[:]
-    while 0 <= pos[0] < len(data[0]) and 0 <= pos[1] < len(data):
-        while True:
-            next_pos = tuple(map(sum, zip(pos, curr_dir)))
-            if next_pos not in walls:
-                if check_right(pos, (-curr_dir[1], curr_dir[0])):
-                    walls.add(next_pos)
-                    if makes_loop(start_pos[:], start_dir[:]):
-                        obstructions.add(next_pos)
-                    walls.remove(next_pos)
+    checked = {start_pos}
+    visited_dirs = set()
 
-                pos = next_pos
-                break
+    for curr_pos, curr_dir in guard_movement(start_pos[:], start_dir[:], walls, (len(data[0]), len(data))):
+        if not (curr_pos == start_pos and curr_dir == start_dir and len(visited_dirs) == 0):
+            visited_dirs.add((*curr_pos, *curr_dir))
 
-            curr_dir = -curr_dir[1], curr_dir[0]
-    
+        if curr_pos in checked or len(visited_dirs) == 0:
+            continue
+
+        checked.add(curr_pos)
+
+        walls.add(curr_pos)
+        if makes_loop(tuple(p - d for p, d in zip(curr_pos, curr_dir)), rotate_right(curr_dir), visited_dirs.copy()):
+            obstructions.add(curr_pos)
+
+        walls.remove(curr_pos)
+
     return len(obstructions)
 
 
