@@ -68,7 +68,7 @@ def part2(data: List[str]) -> Any:
         checked.add(curr_pos)
 
         walls.add(curr_pos)
-        if makes_loop(tuple(p - d for p, d in zip(curr_pos, curr_dir)), rotate_right(curr_dir), visited_dirs.copy()):
+        if makes_loop(tuple(p - d for p, d in zip(curr_pos, curr_dir)), (-curr_dir[1], curr_dir[0]), visited_dirs.copy()):
             obstructions.add(curr_pos)
 
         walls.remove(curr_pos)
