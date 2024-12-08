@@ -1,6 +1,7 @@
 from typing import List, Tuple, Any
 from itertools import product
 from collections import defaultdict
+from math import gcd
 
 
 def part1(data: List[str]) -> Any:
@@ -53,6 +54,10 @@ def part2(data: List[str]) -> Any:
             offset = (p2[0] - p1[0], p2[1] - p1[1])
             if offset == (0, 0):
                 continue
+
+            # Not *technically* required, but good to check
+            g = gcd(*offset)
+            offset = tuple(o // g for o in offset)
 
             point = p1
             while all(0 <= p < b for p, b in zip(point, bounds)):
