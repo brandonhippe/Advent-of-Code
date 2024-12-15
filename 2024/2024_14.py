@@ -85,7 +85,6 @@ def part2(data: List[str]) -> Any:
     y_s = [np.prod([n_s[i] for i in range(len(n_s)) if i != j]) for j in range(len(n_s))]
     z_s = [pow(int(y), m - 2, m) for y, m in zip(y_s, n_s)]
 
-
     return sum(a * y * z for a, y, z in zip(a_s, y_s, z_s)) % np.prod(n_s)
 
 
