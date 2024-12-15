@@ -1,6 +1,6 @@
 from typing import List, Tuple, Any
 import re
-from math import log10, isclose
+import numpy as np
 
 
 class Robot:
@@ -51,47 +51,42 @@ def part1(data: List[str], width: int=101, height: int=103) -> Any:
     return quadrant_counts[0][0] * quadrant_counts[1][1] * quadrant_counts[0][1] * quadrant_counts[1][0]
 
 
-def part2(data: List[str], verbose: bool=False) -> Any:
+def part2(data: List[str]) -> Any:
     """ 2024 Day 14 Part 2
     """
 
     width, height = 101, 103
     robots = tuple(Robot(line) for line in data)
-    seen = set()
     seconds = 0
-    max_seconds = 0
-    max_positions = set()
-    max_amt_reflected = 0
-    while robots not in seen:
-        seconds += 1
-        positions = set()
-        seen.add(robots)
+
+    # Find the time at which the variance of the x and y coordinates is minimized
+    min_x_var, min_y_var = [float('inf')] * 2
+    min_x_seconds, min_y_seconds = [-1] * 2
+    while seconds < max(width, height):
+        x_var = np.var([robot.x for robot in robots])
+        if x_var < min_x_var:
+            min_x_var = x_var
+            min_x_seconds = seconds
+
+        y_var = np.var([robot.y for robot in robots])
+        if y_var < min_y_var:
+            min_y_var = y_var
+            min_y_seconds = seconds
+
         for robot in robots:
             robot.move(width, height)
-            positions.add((robot.x, robot.y))
 
-        count = 0
-        counted = set()
-        for pos in positions:
-            reflected_vert = ((width - pos[0] - 1) % width, pos[1])
-            if pos not in counted and reflected_vert not in counted and reflected_vert in positions:
-                counted.add(pos)
-                counted.add(reflected_vert)
-                count += 1
+        seconds += 1
 
-        if count > max_amt_reflected:
-            max_amt_reflected = count
-            max_seconds = seconds
-            max_positions = positions
-            # print(f"Seconds: {seconds}")
-            # printRobots(positions, width, height)
+    # Calculate final time using Chinese Remainder Theorem
+    n_s = [width, height]
+    a_s = [min_x_seconds, min_y_seconds]
 
-        # if isclose(log10(seconds), log10(seconds) // 1):
-        #     print(f"Seconds: {seconds}")
+    y_s = [np.prod([n_s[i] for i in range(len(n_s)) if i != j]) for j in range(len(n_s))]
+    z_s = [pow(int(y), m - 2, m) for y, m in zip(y_s, n_s)]
 
-    if verbose:
-        printRobots(max_positions, width, height)
-    return max_seconds
+
+    return sum(a * y * z for a, y, z in zip(a_s, y_s, z_s)) % np.prod(n_s)
 
 
 def main(verbose: bool=False) -> Tuple[Tuple[Any, float]]:
@@ -111,10 +106,10 @@ def main(verbose: bool=False) -> Tuple[Tuple[Any, float]]:
         print(f"\nPart 1:\nSaftey Factor: {p1}\nRan in {p1_time.elapsed:0.4f} seconds")
 
     with Timer() as p2_time:
-        p2 = part2(data, verbose)
+        p2 = part2(data)
 
     if verbose:
-        print(f"\nPart 2:\nChristmas tree (above) appears after {p2} seconds\nRan in {p2_time.elapsed:0.4f} seconds")
+        print(f"\nPart 2:\nTime for Christmas Tree to appear: {p2}\nRan in {p2_time.elapsed:0.4f} seconds")
 
     return (p1, p1_time.elapsed), (p2, p2_time.elapsed)
 
