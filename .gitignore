@@ -76,3 +76,5 @@ aoc_answers.txt
 *.css
 css
 *.exe
+
+.python-version
