@@ -1,6 +1,5 @@
 from typing import List, Tuple, Any
 from collections import defaultdict
-from itertools import product
 
 
 def part1(data: List[str], test=False) -> Any:
