@@ -48,10 +48,7 @@ def part2(data: List[str]) -> Any:
     2024 Day 23 Part 2
     >>> part2(["kh-tc", "qp-kh", "de-cg", "ka-co", "yn-aq", "qp-ub", "cg-tb", "vc-aq", "tb-ka", "wh-tc", "yn-cg", "kh-ub", "ta-co", "de-co", "tc-td", "tb-wq", "wh-td", "ta-ka", "td-qp", "aq-cg", "wq-ub", "ub-vc", "de-ta", "wq-aq", "wq-vc", "wh-yn", "ka-de", "kh-ta", "co-tc", "wh-qp", "tb-vc", "td-yn"])
     'co,de,ka,ta'
-    """
-    def all_connected(lan_party):
-        return all(k1 in connections[k2] or k1 == k2 for k1, k2 in product(lan_party, lan_party))
-    
+    """   
     connections = defaultdict(set)
     for line in data:
         a, b = line.split("-")
