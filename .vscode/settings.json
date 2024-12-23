@@ -28,5 +28,7 @@
     "projectTemplates.placeholderRegExp": "#{(\\w+?)}",
     "files.watcherExclude": {
         "**/target": true
-    } // regular expression to use for detecting placeholders
+    },
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.autoImportCompletions": false // regular expression to use for detecting placeholders
 }
