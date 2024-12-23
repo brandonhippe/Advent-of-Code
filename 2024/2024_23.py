@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Optional
 from collections import defaultdict, deque
 from itertools import product
 
@@ -28,6 +28,21 @@ def part1(data: List[str]) -> Any:
     return len(total)
 
 
+def bron_kerbosch(connections: dict[str, set[str]], clique: set[str], candidates: set[str], excluded: set[str]):
+    if not candidates and not excluded:
+        return [clique]
+
+    cliques = []
+    pivot = max(candidates.union(excluded), key=lambda x: len(connections[x]))
+    for v in list(candidates.difference(connections[pivot])):
+        cliques.extend(bron_kerbosch(connections, clique | {v}, candidates & connections[v], excluded & connections[v]))
+        candidates.remove(v)
+        excluded.add(v)
+
+
+    return cliques
+
+
 def part2(data: List[str]) -> Any:
     """
     2024 Day 23 Part 2
@@ -42,32 +57,8 @@ def part2(data: List[str]) -> Any:
         a, b = line.split("-")
         connections[a].add(b)
         connections[b].add(a)
-
-    lan_party = set()
-    open_list = deque([{k} for k in connections.keys()])
-    open_set = {tuple(sorted(k)) for k in open_list}
-    visited = set()
-
-    while open_list:
-        current = open_list.popleft()
-        if tuple(sorted(current)) in visited:
-            continue
-        
-        visited.add(tuple(sorted(current)))
-        if len(current) > len(lan_party) and all_connected(current):
-            lan_party = current
-
-        available = set(connections.keys())
-        for k in current:
-            available &= connections[k]
-
-        for k in available:
-            new_lan_party = current | {k}
-            if tuple(sorted(new_lan_party)) not in open_set:
-                open_set.add(tuple(sorted(new_lan_party)))
-                open_list.append(new_lan_party)
-
-    return ",".join(sorted(lan_party))
+    
+    return ",".join(sorted(max(bron_kerbosch(connections, set(), set(connections.keys()), set()), key=lambda x: len(x))))
 
 
 def main(verbose: bool = False) -> Tuple[Tuple[Any, float]]:
