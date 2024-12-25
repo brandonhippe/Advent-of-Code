@@ -158,7 +158,7 @@ fn main() {
     // main_repeat();
     let root = env::current_dir().unwrap();
     let relative_path = if root.ends_with("rust_2022_8") {
-        RelativePath::new("../../Inputs/2022_8.txt")
+        RelativePath::new("../../../Inputs/2022_8.txt")
     } else {
         RelativePath::new("/Inputs/2022_8.txt")
     };

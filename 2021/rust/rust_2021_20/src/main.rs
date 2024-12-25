@@ -122,7 +122,7 @@ mod tests {
 fn main() {
     let root = env::current_dir().unwrap();
     let relative_path = if root.ends_with("rust_2021_20") {
-        RelativePath::new("../../Inputs/2021_20.txt")
+        RelativePath::new("../../../Inputs/2021_20.txt")
     } else {
         RelativePath::new("/Inputs/2021_20.txt")
     };

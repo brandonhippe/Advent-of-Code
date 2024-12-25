@@ -120,7 +120,7 @@ fn main() {
 
     let root = env::current_dir().unwrap();
     let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
-        format!("../../Inputs/{}_{}.txt", year, day)
+        format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
