@@ -63,13 +63,13 @@ def main(verbose: bool = False) -> Tuple[Tuple[Any, float]]:
     import sys
     from pathlib import Path
 
-    sys.path.append(str(Path(__file__).parent.parent))
+    sys.path.append(str(Path(__file__).parent.parent.parent))
     from Modules.timer import Timer
 
     year, day = re.findall(r"\d+", str(__file__))[-2:]
 
     with open(
-        Path(__file__).parent.parent / f"Inputs/{year}_{day}.txt", encoding="UTF-8"
+        Path(__file__).parent.parent.parent / f"Inputs/{year}_{day}.txt", encoding="UTF-8"
     ) as f:
         data = [line.strip("\n") for line in f.readlines()]
 

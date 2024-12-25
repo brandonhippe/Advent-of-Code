@@ -88,11 +88,11 @@ def iterateP2(seats, neighbors):
 def main(verbose = False):
     from pathlib import Path
     import sys, re
-    sys.path.append(str(Path(__file__).parent.parent))
+    sys.path.append(str(Path(__file__).parent.parent.parent))
     from Modules.timer import Timer
     year, day = re.findall('\d+', str(__file__))[-2:]
     
-    with open(Path(__file__).parent.parent / f"Inputs/{year}_{day}.txt", encoding='UTF-8') as f:
+    with open(Path(__file__).parent.parent.parent / f"Inputs/{year}_{day}.txt", encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     with Timer() as p1_time:
