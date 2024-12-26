@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #define fileName "../../Inputs/2020_7.txt"
-#define dataLine 150
-#define nameLen 25
+#define dataLine 500
+#define nameLen 100
 
 
 struct bag *createBag(struct bag *b, char bagName[25], int arrLen, int *arr, char *amounts);
@@ -14,7 +14,7 @@ void printBag(struct bag *b);
 int findLines();
 struct bag **readData(int numBags, char *bagNames);
 int getBagIndex(char *search, char *bagsList);
-void getBagNames(char *bags);
+char* getBagNames();
 void findBagContents(char *inputText, int *arr, int arrIndex);
 int getAmount(char *amts, int index);
 int numInstances(char *str, char character);
@@ -47,7 +47,7 @@ void printBag(struct bag *b) {
         printf("%s %dx%d", (i == 0 ? ":" : ","), b->contains[i], getAmount(b->amts, i));
     }
 
-    printf("\n\n\n");
+    printf("\n");
 }
 
 int findLines() {
@@ -87,14 +87,13 @@ struct bag **readData(int numBags, char *bagNames) {
 	while(fgets(textRead, dataLine, inFile)) {
         int numContain = numInstances(textRead, ',') + 1, contains[numContain], index = 0, com = 0;
         contains[0] = -1;
-        char bagName[nameLen] = "", *bagSearch, amts[nameLen] = "";
-        bagSearch = (char *)calloc(nameLen, sizeof(char));
-
+        char *bagName = (char *)calloc(nameLen, sizeof(char));
+        char *amts = (char *)calloc(nameLen, sizeof(char));
+        char *bagSearch = (char *)calloc(nameLen, sizeof(char));
 
         char *p = strtok(textRead, " ");
 
         while (p) {
-
             if (strncmp(p, "bag", 3) == 0) {
                 com++;
             }
@@ -121,7 +120,12 @@ struct bag **readData(int numBags, char *bagNames) {
                     break;
                 case 4:
                     bagSearch[strlen(bagSearch) - 1] = '\0';
-                    contains[index] = getBagIndex(bagSearch, bagNames);
+                    int bag_index = getBagIndex(bagSearch, bagNames);
+                    if (bag_index == -1) {
+                        printf("Error: Bag {%s} not found in list\n", bagSearch);
+                        exit(1);
+                    }
+                    contains[index] = bag_index;
                     index++;
                     com = 2;
                     free(bagSearch);
@@ -180,41 +184,38 @@ int getBagIndex(char *search, char *bagsList) {
     return index;
 }
 
-void getBagNames(char *bags) {
+char* getBagNames() {
     int lineNum = 0;
-	char textRead[dataLine], *p, *tempStr;
+	char textRead[dataLine], *p, *bagStr;
 
-	tempStr = (char *)calloc(nameLen, sizeof(char));
+	bagStr = (char *)calloc(nameLen, sizeof(char));
 
 	// Open the file
 	FILE *inFile = fopen(fileName, "r");
 
 	// Check if the file exists or not
     if (inFile == NULL) {
-        return;
+        return NULL;
     }
 
 	while(fgets(textRead, dataLine, inFile)) {
-        tempStr = (char *)realloc(tempStr, ((lineNum + 1) * (nameLen * sizeof(char))));
+        bagStr = (char *)realloc(bagStr, ((lineNum + 1) * (nameLen * sizeof(char))));
         p = strtok(textRead, " ");
 
         while (strncmp(p, "bags", 4) != 0) {
-            strcat(tempStr, p);
-            strcat(tempStr, " ");
+            strcat(bagStr, p);
+            strcat(bagStr, " ");
 
             p = strtok(NULL, " ");
         }
 
-        int tempLen = strlen(tempStr);
-        tempStr[tempLen - 1] = ',';
+        int tempLen = strlen(bagStr);
+        bagStr[tempLen - 1] = ',';
         lineNum++;
 	}
 
 	fclose(inFile);
-
-	strcpy(bags, tempStr);
-
-    return;
+    return bagStr;
 }
 
 int getAmount(char *amts, int index) {
@@ -282,7 +283,9 @@ int part1(struct bag **bags, char *bagNames, int numLines) {
     int count = 0;
 
     for (int i = 0; i < numLines; i++) {
-        count += (canContain(getBagIndex("shiny gold", bagNames), bags[i], bags)) ? 1 : 0;
+        if (canContain(getBagIndex("shiny gold", bagNames), bags[i], bags)) {
+            count++;
+        }
     }
 
     return count;
@@ -293,17 +296,14 @@ int part2(struct bag **bags, char *bagNames) {
 }
 
 int main () {
-    int numLines, count = 0;
-
-	numLines = findLines();
+    int numLines = findLines();
 
 	if (numLines == -1) {
         printf("Error: Could not read input file. Quitting\n");
         return -1;
 	}
 
-	char bagNames[numLines * nameLen];
-	getBagNames(bagNames);
+	char *bagNames = getBagNames();
 
 	struct bag** bags = readData(numLines, bagNames);
 
