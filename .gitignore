@@ -67,7 +67,7 @@ target
 Cargo.lock
 
 # Advent of Code Inputs
-**/Inputs
+**/Inputs/*.txt
 aoc_answers.txt
 
 # Other random things
