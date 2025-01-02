@@ -78,7 +78,7 @@ fn part2(contents: String) -> String {
         return_string.push('\n');
         for x in x_min..=x_max {
             if dots.contains(&(x, y)) {
-                return_string.push('#');
+                return_string.push('█');
             } else {
                 return_string.push(' ');
             }

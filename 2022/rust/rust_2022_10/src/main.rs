@@ -51,7 +51,7 @@ fn part2(contents: String) -> String {
     let mut output = "\n".to_string();
     for line in contents.lines() {
         output.push_str(if ((cycle - 1) % 40 - x_reg).abs() <= 1 {
-            "#"
+            "█"
         } else {
             " "
         });
@@ -66,7 +66,7 @@ fn part2(contents: String) -> String {
                 cycle += 1;
 
                 output.push_str(if ((cycle - 1) % 40 - x_reg).abs() <= 1 {
-                    "#"
+                    "█"
                 } else {
                     " "
                 });
@@ -108,7 +108,7 @@ mod tests {
         let contents =
             fs::read_to_string("example.txt").expect("Should have been able to read the file");
 
-        assert_eq!(part2(contents), "\n##  ##  ##  ##  ##  ##  ##  ##  ##  ##  \n###   ###   ###   ###   ###   ###   ### \n####    ####    ####    ####    ####    \n#####     #####     #####     #####     \n######      ######      ######      ####\n#######       #######       #######     \n".to_string());
+        assert_eq!(part2(contents), "\n██  ██  ██  ██  ██  ██  ██  ██  ██  ██  \n███   ███   ███   ███   ███   ███   ███ \n████    ████    ████    ████    ████    \n█████     █████     █████     █████     \n██████      ██████      ██████      ████\n███████       ███████       ███████     \n".to_string());
     }
 }
 

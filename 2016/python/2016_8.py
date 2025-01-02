@@ -50,7 +50,7 @@ def printScreen(screen):
     for line in screen:
         string.append('')
         for l in line:
-            string[-1] += '#' if l == 1 else ' '
+            string[-1] += '█' if l == 1 else ' '
 
     return '\n'.join(string)
 

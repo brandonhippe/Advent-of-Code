@@ -173,7 +173,7 @@ char *part2() {
         strcat(res, "\n");
 
         for (int x = minx; x <= maxx; x++) {
-            strcat(res, (inSet(points, pointStr(x, y))) ? "#" : " ");
+            strcat(res, (inSet(points, pointStr(x, y))) ? "█" : " ");
         }
     }
 

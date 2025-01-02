@@ -92,7 +92,7 @@ def part2(data):
     for y in range(mins[1], maxs[1] + 1):
         string += '\n'
         for x in range(mins[0], maxs[0] + 1):
-            string += '#' if [x, y] in points else ' '
+            string += '█' if [x, y] in points else ' '
 
     return string
 

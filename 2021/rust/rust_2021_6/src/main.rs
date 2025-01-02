@@ -71,14 +71,14 @@ fn main() {
 
     let part1_timer = Instant::now();
     println!(
-        "\nPart 1:\nNumber of fishes after 80 days {}\nRan in {:.5?}",
+        "\nPart 1:\nNumber of fishes after 80 days: {}\nRan in {:.5?}",
         part1(contents.clone()),
         part1_timer.elapsed()
     );
 
     let part2_timer = Instant::now();
     println!(
-        "\nPart 2:\nNumber of fishes after 256 days {}\nRan in {:.5?}",
+        "\nPart 2:\nNumber of fishes after 256 days: {}\nRan in {:.5?}",
         part2(contents.clone()),
         part2_timer.elapsed()
     );
