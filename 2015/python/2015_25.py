@@ -14,7 +14,7 @@ def part2(data):
     """ 2015 Day 25 Part 2
     """
 
-    return 1
+    return "Christmas has been saved!"
 
 
 def triangle(n):
@@ -41,7 +41,7 @@ def main(verbose = False):
         p2 = part2(data)
 
     if verbose:
-        print(f"\nPart 2:\nChristmas has been saved!\nRan in {p2_time.elapsed:0.4f} seconds")
+        print(f"\nPart 2:\n{p2}\nRan in {p2_time.elapsed:0.4f} seconds")
 
     return [(p1, p1_time.elapsed), (p2, p2_time.elapsed)]
 

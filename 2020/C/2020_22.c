@@ -299,13 +299,13 @@ int main() {
     int p1 = part1();
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
-    printf("\nPart 1:\nWinner's Score %d\nRan in %f seconds\n", p1, t_p1);
+    printf("\nPart 1:\nWinner's Score: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
     int p2 = part2();
     t = clock() - t; 
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
-    printf("\nPart 2:\nWinner's Score %d\nRan in %f seconds\n", p2, t_p2);
+    printf("\nPart 2:\nWinner's Score: %d\nRan in %f seconds\n", p2, t_p2);
 
     return 0;
 }
