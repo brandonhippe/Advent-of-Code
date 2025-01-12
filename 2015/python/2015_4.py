@@ -14,20 +14,13 @@ def part1(data):
     1048970
     """
 
-    results = multiprocessing.Queue()
-    step = multiprocessing.cpu_count()
-    threads = [multiprocessing.Process(target=hash_zeroes_mt, args=(data[0], 5, i, step, results)) for i in range(step)]
+    p = multiprocessing.Pool()
+    start_val = 0
+    step_size = multiprocessing.cpu_count() * 10000
+    while not any(results := p.starmap(hash_zeroes, [(data[0], 5, i, i + step_size, 1) for i in range(start_val, start_val + step_size + 1, step_size // multiprocessing.cpu_count())])):
+        start_val += step_size
 
-    for t in threads:
-        t.start()
-
-    result = results.get()
-
-    # kill everything still churning
-    for t in threads:
-        t.terminate()
-
-    return result
+    return min(r for r in results if r)
 
 
 def part2(data):
@@ -48,6 +41,15 @@ def part2(data):
         t.terminate()
 
     return result
+
+
+def hash_zeroes(data, zerosStart, start, end, increment):
+    word = data[:]
+    for i in range(start, end, increment):
+        if not int(hashlib.md5(f'{word}{i}'.encode()).hexdigest()[:zerosStart], 16):
+            return i
+    
+    return None
 
 
 def hash_zeroes_mt(data, zerosStart, iStart, increment, results):
