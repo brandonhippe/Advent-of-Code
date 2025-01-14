@@ -68,7 +68,7 @@ Cargo.lock
 
 # Advent of Code Inputs
 **/Inputs/*.txt
-aoc_answers.txt
+*answers.txt
 
 # Other random things
 *.html
@@ -78,3 +78,7 @@ css
 *.exe
 
 .python-version
+
+
+*.rrd
+!**/Blueprints
