@@ -9,7 +9,7 @@ import rerun.blueprint as rrb
 import yaml
 
 sys.path.append(Path(__file__).parent.parent)
-from aoc.language_functions import LANGS
+from aoc.languages import LANGS
 
 
 BLUEPRINT_DIR: Path = Path(__file__).parent
@@ -37,20 +37,6 @@ def get_instantiator(k: str) -> Tuple[Optional[Callable], bool]:
     if m and isinstance(m, Callable):
         return m, True
     return None, True
-    # try:
-    #     return getattr(rrb, k), False
-    # except AttributeError:
-    #     pass
-
-    # try:
-    #     return getattr(rr, k), False
-    # except AttributeError:
-    #     pass
-
-    # try:
-    #     return getattr(getattr(globals(), "RerunViewer"), k), True
-    # except AttributeError:
-    #     pass
 
 
 def regex_replace(k: str, **kwargs):

@@ -1,30 +1,16 @@
-__all__ = ["Language", "aoc", "Loggers", "RerunViewer", "LANGS", "get_released", "add_arguments"]
+__all__ = ["aoc", "LANGS", "Language", "LOGGERS", "Logger", "VIEWERS", "Viewer", "get_released", "add_arguments"]
 
 import argparse
-import importlib
-import os
 from dataclasses import dataclass
 
-from .language_functions import LANGS, Language, get_released
-from .logger import Logger
-from .rerun_viewer import RerunViewer
-
-Loggers = [RerunViewer]
-for path in os.listdir(os.path.dirname(__file__)):
-    if path.endswith(".py") and path != "__init__.py":
-        module = importlib.import_module(f"aoc.{path[:-3]}")
-        for name in dir(module):
-            m = getattr(module, name)
-            if name != "Logger" and isinstance(m, type) and issubclass(m, Logger) and m not in Loggers:
-                globals()[name] = m
-                Loggers.append(m)
-                del name
+from .languages import LANGS, Language, get_released
+from .loggers import LOGGERS, Logger
+from .viewers import VIEWERS, Viewer
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
-    for m in Loggers:
+    for m in list(LOGGERS.values()) + list(VIEWERS.values()):
         m.add_arguments(parser)
-
 
 @dataclass
 class aoc:
@@ -32,10 +18,11 @@ class aoc:
     Advent of Code data class
     """
     loggers: list[Logger]
+    viewers: list[Viewer]
 
     def __enter__(self):
-        for logger in self.loggers:
-            logger.__enter__()
+        for mod in self.loggers + self.viewers:
+            mod.__enter__()
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
@@ -47,7 +34,7 @@ class aoc:
             print(exc_tb)
             return False
         
-        for logger in self.loggers:
-            logger.__exit__(None, None, None)
+        for mod in self.loggers + self.viewers:
+            mod.__exit__(None, None, None)
 
         return True

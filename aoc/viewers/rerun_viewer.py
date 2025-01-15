@@ -5,7 +5,9 @@ Rerun viewer for profiled AOC code
 import argparse
 import os
 import re
+from collections import defaultdict
 from dataclasses import dataclass, field
+from itertools import product
 from pathlib import Path
 from typing import Any, Optional
 from uuid import uuid4
@@ -13,9 +15,10 @@ from uuid import uuid4
 import rerun as rr
 from matplotlib import colormaps, colors
 
-from .language_functions import LANGS, Day, Language, Year
-from .logger import LoggerAction, Logger
-from .Blueprints import *
+from ..languages import LANGS, get_released
+from ..loggers import Logger
+from . import Viewer, ViewerAction
+from .blueprints import *
 
 COLOR_MAP = colormaps['tab10']
 
@@ -59,45 +62,44 @@ class RecordingWithInitialized:
 
 
 @dataclass
-class RerunViewer():
+class RerunViewer(Viewer):
     """
     Class to handle runtime data for Advent of Code solutions\\
     Displays the data in a rerun viewer
     """
-    args: argparse.Namespace
     application_id: str = "Advent of Code"
-    blueprint_dir: Path = Path(Path(__file__).parent, "Blueprints")
-    log_file: Path = Path(blueprint_dir, f"{''.join(map(lambda s: s[0].lower(), application_id.split(' ')))}.rrd")
+    bar_graph_data: dict = field(default_factory=lambda: defaultdict(lambda: defaultdict(lambda: {y: 0 for y in get_released()})))
+    blueprint_dir: Path = Path(Path(__file__).parent, "blueprints")
     colormap: dict = field(default_factory=dict)
-    blueprint_yamls: dict[str, dict] = field(default_factory=dict)
-    initialized_entities: set[str] = field(default_factory=set)
+    log_file: Path = Path(blueprint_dir, f"{''.join(map(lambda s: s[0].lower(), application_id.split(' ')))}.rrd")
     loggers: list[Logger] = field(default_factory=list)
-    verbose: bool = False
+    name: str = "rerun"
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser):
         """
         Add arguments to the parser
         """
-        parser.add_argument("--rerun", action=LoggerAction, nargs="*", help='Run the rerun viewer. Add " verbose" to run in verbose mode', type=RerunViewer)
+        parser.add_argument("--rerun", action=ViewerAction, nargs="*", help='Run the rerun viewer. Add " verbose" to run in verbose mode', type=RerunViewer)
         
-        parser.add_argument("--default-blueprint", type=str, default=Path(Path(__file__).parent, "Blueprints", "main.yml"), help="Path to yaml that defines the base level blueprint")
+        parser.add_argument("--default-blueprint", type=str, default=Path(Path(__file__).parent, "blueprints", "main.yml"), help="Path to yaml that defines the base level blueprint")
         parser.add_argument("--no-blueprint", action="store_true", help="Don't load any blueprints")
 
         parser.add_argument("--no-load", action="store_true", help="Don't load existing advent of code data from an RRD file")
         parser.add_argument("--no-save", action="store_true", help="Don't save advent of code data to an RRD file")
         rr.script_add_args(parser)
 
-    def start_viewer(self, load_rrd: bool=True):
+    def start_viewer(self, load_data: bool=True):
         """
         Start the rerun viewer
         """
 
         self.active_recording = RecordingWithInitialized(application_id=self.application_id, make_default=True, make_thread_default=True)
         rr.init(application_id=self.application_id, spawn=True, recording_id=self.active_recording.uuid)
+        rr.set_time_sequence("Day", 0, recording=self.active_recording.recording)
 
-        if load_rrd:
-            self.load_rrd()
+        if load_data:
+            self.load_data()
         self.log_everything()
 
     ### Context manager functions
@@ -105,12 +107,7 @@ class RerunViewer():
         """
         Setup the rerun viewer
         """
-        if not self.verbose:
-            self.verbose = "verbose" in self.args and self.args.verbose
-
-        self.loggers = vars(self.args).get("loggers", [])
-
-        self.print("Setting up rerun viewer")
+        super().__enter__() 
         self.start_viewer()
         
         self.p_verbose = self.args.verbose
@@ -128,25 +125,15 @@ class RerunViewer():
         else:
             self.verbose = self.p_verbose
             
-            self.save()
-            self.start_viewer(load_rrd=False)
+            self.save_data()
+            self.start_viewer(load_data=False)
             self.print("Finished logging to rerun viewer")
 
         rr.script_teardown(self.args)
         return bool(exc_type)
-    
-    def __lt__(self, other: object) -> bool:
-        return False
-
-    def print(self, *args, **kwargs):
-        """
-        Print if verbose
-        """
-        if self.verbose:
-            print(*args, **kwargs)
 
     ### Loading/saving functions
-    def save(self):
+    def save_data(self):
         """
         Save the current runtime data to an RRD file
         """
@@ -154,16 +141,16 @@ class RerunViewer():
             return
         
         self.active_recording = RecordingWithInitialized(application_id=self.application_id, make_default=False, make_thread_default=False)
-        default_blueprint = None if vars(self.args).get("no-blueprint", False) else load_blueprint(self.args.default_blueprint, blueprint_dir=self.blueprint_dir, loggers=self.loggers[:-1])
+        default_blueprint = None if vars(self.args).get("no-blueprint", False) else load_blueprint(self.args.default_blueprint, blueprint_dir=self.blueprint_dir, loggers=self.loggers)
         rr.save(self.log_file, default_blueprint=default_blueprint, recording=self.active_recording.recording)
         self.log_everything()
 
-    def load_rrd(self) -> bool:
+    def load_data(self):
         """
         Load an existing rrd file
         """
-        def load_from_table(entity_name: str, data_col_start: int):
-            entity_path = map_to_entity_path([entity_name])
+        def load_answers(data_col_start: int):
+            entity_path = map_to_entity_path(["answers"])
 
             text_view = recording.view(index="log_tick", contents={entity_path: ["Text"]})
             if len(text_view.schema().component_columns()):
@@ -179,7 +166,7 @@ class RerunViewer():
                     year_match = re.search(r"## (\d+)", line)
                     if year_match:
                         if lang_order:
-                            self.print(f"{year}: Discovered {entity_name} in languages: {', '.join(l.title() for l in sorted(lang_data))}")
+                            self.print(f"{year}: Discovered answers in languages: {', '.join(l.title() for l in sorted(lang_data))}")
 
                         day = None
                         lang_order = None
@@ -212,15 +199,14 @@ class RerunViewer():
                         for lang, data in zip(lang_order, line.split("|")[data_col_start:-1]):
                             if data := data.strip():
                                 if lang not in LANGS:
-                                    raise ValueError(f"Language {lang.title()} not found in available languages")
+                                    raise ValueError(f"Language {lang} not found in available languages")
                                 lang_data.add(lang)
-                                kwargs = {entity_name: data}
-                                LANGS[lang].add_part(year, day, part, loggers=self.loggers[:-1], **kwargs)
+                                LANGS[lang].add_part(ans = data, year=year, day=day, part=part, loggers=self.loggers)
 
                 if lang_order:
-                    self.print(f"{year}: Discovered {entity_name} in languages: {', '.join(l.title() for l in sorted(lang_data))}")
+                    self.print(f"{year}: Discovered answers in languages: {', '.join(l.title() for l in sorted(lang_data))}")
 
-        def load_from_columns(entity_name: str):
+        def load_times():
             entity_path = map_to_entity_path(["**"])
             scalar_view = recording.view(index="Day", contents={entity_path: ["Scalar"]})
             if len(scalar_view.schema().index_columns()):
@@ -234,10 +220,10 @@ class RerunViewer():
                             year, part = map(int, re.findall(r"\d+", f"{year} {part}"))
                             if lang not in LANGS:
                                 raise ValueError(f"Language {lang.title()} not found in available languages")
-                            LANGS[lang].add_part(year, day + 1, part, loggers=self.loggers[:-1], **{entity_name: data[0]})
+                            LANGS[lang].add_part(time=data[0], year=year, day=day + 1, part=part, loggers=self.loggers)
 
         if self.args.no_load or not (self.log_file and os.path.exists(self.log_file) and self.log_file.suffix == ".rrd"):
-            return False
+            return
         
         self.print(f"Loading existing data from {self.log_file}")
 
@@ -246,107 +232,98 @@ class RerunViewer():
             if not hasattr(logger, "name"):
                 continue
 
-            if hasattr(logger, "data_start"):
-                load_from_table(logger.name, logger.data_start)
-            else:
-                load_from_columns(logger.name)
+            if logger.name == "answers":
+                load_answers(vars(logger).get("data_start", 2))
+            elif logger.name == "runtimes":
+                load_times()
 
         self.active_recording.initialized_entities.clear()
         self.print("Loaded existing data")
-
-        return True
 
     def log_everything(self, **kwargs):
         """
         Log everything
         """
-        for lang in LANGS.values():
-            for year in lang.years.values():
-                self.log_year(year, entity_path=[lang.lang, year.year], **kwargs)
-
-            rr.set_time_sequence("Day", 0, recording=self.active_recording.recording)
-            self.log_lang(lang, entity_path=[lang.lang], **kwargs)
-
         for logger in self.loggers:
+            logger.log(log_all=True, **kwargs)
             if hasattr(logger, "format"):
                 p_style, logger.format = logger.format, "MARKDOWN"
                 self.text_log([logger.name], str(logger), media_type=rr.MediaType.MARKDOWN)
                 logger.format = p_style
 
         if not getattr(self.args, "no_blueprint", False):
-            rr.send_blueprint(load_blueprint(self.args.default_blueprint, blueprint_dir=self.blueprint_dir, loggers=self.loggers[:-1], **kwargs), recording=self.active_recording.recording)
+            rr.send_blueprint(load_blueprint(self.args.default_blueprint, blueprint_dir=self.blueprint_dir, loggers=self.loggers, **kwargs), recording=self.active_recording.recording)
 
     ### Main logging functions
-    def log(self, log_from: Any, **kwargs):
+    def log(self, *args, ans: Optional[Any]=None, time: Optional[float]=None, **kwargs):
         """
         Main logging function
         """
-        entity_path = kwargs.get("entity_path", [])
+        for entity_data in args:
+            entity_path = entity_data[:-1]
+            if time:
+                if len(entity_path) == 4:
+                    self.log_part(entity_data[-1], **kwargs)
+                elif len(entity_path) == 3:
+                    if entity_path[-1] == kwargs["lang"]:
+                        self.log_day(entity_data[-1], **kwargs)
+                    else:
+                        self.log_year_avg_tot(entity_path[-1], entity_data[-1], **kwargs)
+                else:
+                    raise ValueError(f"Unknown entity path: {map_to_entity_path(entity_path)}")
+            elif len(entity_path) == 1:
+                if keys := list(entity_data[-1].keys()):
+                    langs = sorted(set(map(lambda x: x[0], keys)))
+                    years = sorted(set(map(lambda x: x[1], keys)))
+                    for lang, year in product(langs, years):
+                        if len(keys[0]) == 2:
+                            # Year Avg/Tot
+                            if (lang, year) in keys:
+                                self.log_year_avg_tot(entity_path[0], entity_data[-1][(lang, year)], year, lang)
+                        elif len(keys[0]) == 3:
+                            # Day (part 1/2)
+                            days = sorted(set(map(lambda x: x[2], keys)))
+                            times = [entity_data[-1][(lang, year, day)] if (lang, year, day) in keys else 0 for day in days]
 
-        if not len(self.loggers):
-            return
-
-        # Send to a specific logger
-        if isinstance(log_from, Day):
-            assert entity_path, "Entity path must be provided for logging a day"
-            self.log_day(log_from, **kwargs)
-
-        if isinstance(log_from, Language):
-            self.log_lang(log_from, **kwargs)
+                            if any(times):
+                                if isinstance(entity_path[0], str):
+                                    self.log_day(times, year, days, lang)
+                                else:
+                                    self.log_part(times, year, days, entity_path[0], lang)
 
     ### Logging helper functions
-    def log_lang(self, lang: Language, entity_path: list[str]=[], saving: bool=False, **kwargs) -> None:
+    def log_year_avg_tot(self, plot: str, time: float, year: int, lang: str, **kwargs) -> None:
         """
-        Log the runtime data for a language
+        Log the average/total runtime data for a year
         """
-        if not len(lang):
+        if not time:
             return
         
-        if self.active_recording.initialize(entity_path):
-            self.clear_log(entity_path)
-            rr.send_blueprint(load_blueprint(self.args.default_blueprint, blueprint_dir=self.blueprint_dir, loggers=self.loggers[:-1], **kwargs), recording=self.active_recording.recording, make_active=not saving, make_default=not saving)
-
-        comb_times = [year.combined_time for year in sorted(lang.years.values(), key=lambda x: x.year)]
-        self.bar_log(entity_path + ["tot"], comb_times, **kwargs)
-
-        avg_times = [year.avg_time for year in sorted(lang.years.values(), key=lambda x: x.year)]
-        self.bar_log(entity_path + ["avg"], avg_times, **kwargs)
-
-    def log_year(self, year: Year, entity_path: list[str]=[], **kwargs) -> None:
-        """
-        Log the runtime data for a year
-        """
-        def log_times(e_path: list[str], times: list[float], days: list[int]):
-            if len(times) == len(days):
-                self.series_line_log(e_path, times, "Day", days, **kwargs)
-            # self.clear_log(e_path, recursive=True)
-            # for t, day in zip(times, days):
-            #     self.series_line_log(e_path, t, "Day", day, **kwargs)
-
-        if not len(year):
-            return
-        
-        days = list(range(1, len(year) + 1))
-        for part in range(2):
-            times = [day.times[part] for day in year.days.values() if day.times[part]]
-            log_times(entity_path[:-1] + [f"part{part + 1}", entity_path[-1]], times, days)
-
-        times = [day.combined_time for day in year.days.values() if day.combined_time]
-        log_times(entity_path, times, days)
+        self.bar_graph_data[plot][lang][year] = time
+        data = list(map(lambda x: x[1], sorted(self.bar_graph_data[plot][lang].items(), key=lambda x: x[0])))
+        self.bar_log([lang, plot], data, **kwargs)
     
-    def log_day(self, day: Day, entity_path: list[str]=[], **kwargs) -> None:
+    def log_day(self, time: float | list[float], year: int, day: int, lang: str, **kwargs) -> None:
         """
         Log the runtime data for a day
         """
-        if not len(day):
+        if not time:
+            return
+        
+        self.series_line_log([lang, year], time, "Day", day, **kwargs)
+
+    def log_part(self, time: float, year: int, day: int, part: int, lang: str, **kwargs):
+        """
+        Log the runtime data for a part
+        """
+        if not time:
             return
 
-        for part in range(1, 3):
-            if time := day.times[part - 1]:
-                self.series_line_log(entity_path[:-2] + [f"part{part}", entity_path[-2]], time, "Day", day.day, **kwargs)
+        if self.active_recording.initialize([lang]):
+            self.clear_log([lang])
+            rr.send_blueprint(load_blueprint(self.args.default_blueprint, blueprint_dir=self.blueprint_dir, loggers=self.loggers, **kwargs), recording=self.active_recording.recording)
         
-        if day.combined_time:
-            self.series_line_log(entity_path[:-1], day.combined_time, "Day", day.day, **kwargs)
+        self.series_line_log([lang, f"part{part}", year], time, "Day", day, **kwargs)
 
     ### Actual rerun logging functions
     def clear_log(self, entity_path: list[str], recursive: bool=False, **kwargs):
@@ -356,7 +333,7 @@ class RerunViewer():
         log_name = map_to_entity_path(entity_path)
 
         rr.log(log_name, rr.Clear(recursive=recursive), recording=self.active_recording.recording)
-        self.print(f'Clearing {log_name}')
+        # self.print(f'Clearing {log_name}')
 
     def series_line_log(self, entity_path: list[str], data: float | list[float], seq_str: str, seq: int | list[int], **kwargs):
         """
@@ -381,9 +358,9 @@ class RerunViewer():
             rr.set_time_sequence(seq_str, seq, recording=self.active_recording.recording)
             # rr.log(log_name, rr.Scalar(data), extras, recording=self.active_recording.recording)
             rr.log(log_name, rr.Scalar(data), recording=self.active_recording.recording)
-            rr.set_time_sequence(seq_str, 0, recording=self.active_recording.recording)
-        
-        self.print(f'Logging series line for {log_name}')
+
+        rr.set_time_sequence(seq_str, 0, recording=self.active_recording.recording)        
+        # self.print(f'Logging series line for {log_name}')
 
     def series_point_log(self, entity_path: list[str], data: float, seq_str: str, seq: int, marker_size: int=5, **kwargs):
         """
@@ -397,7 +374,7 @@ class RerunViewer():
         rr.set_time_sequence(seq_str, seq, recording=self.active_recording.recording)
         rr.log(log_name, rr.Scalar(data), rr.SeriesPoint(color=colors.to_rgba(self.entity_color(entity_path)), marker="Circle", marker_size=marker_size, **kwargs), recording=self.active_recording.recording)
         rr.set_time_sequence(seq_str, 0, recording=self.active_recording.recording)
-        self.print(f'Logging series point for {log_name}')
+        # self.print(f'Logging series point for {log_name}')
 
     def bar_log(self, entity_path: list[str], data: list[float], **kwargs):
         """
@@ -416,7 +393,7 @@ class RerunViewer():
         if self.active_recording.initialize(entity_path):
             self.clear_log(entity_path)
         rr.log(log_name, rr.BarChart(data), extras, recording=self.active_recording.recording)
-        self.print(f'Logging bar chart for {log_name}: {data}')
+        # self.print(f'Logging bar chart for {log_name}: {data}')
 
     def text_log(self, entity_path: list[str], text: str | list[str], **kwargs):
         """
@@ -429,7 +406,7 @@ class RerunViewer():
         if isinstance(text, list):
             text = "\n".join(text)
         rr.log(log_name, rr.TextDocument(text, **kwargs), recording=self.active_recording.recording)
-        self.print(f'Logging text for {log_name}')
+        # self.print(f'Logging text for {log_name}')
 
     ### Helper functions for logging
     def entity_color(self, entity_path: list[str]) -> Optional[str]:
@@ -438,12 +415,10 @@ class RerunViewer():
         """
         ### Assemble the current entity colors
         entity_path = list(map(str, entity_path))
-        years = set()
         for i, l in enumerate(sorted(LANGS.keys())):
             self.colormap[l] = COLOR_MAP(i % COLOR_MAP.N)
-            years.update(LANGS[l].years.keys())
 
-        for i, y in enumerate(sorted(years)):
+        for i, y in enumerate(sorted(get_released())):
             self.colormap[str(y)] = COLOR_MAP(i % COLOR_MAP.N)
 
         # Get the color of the last part of the entity path that has a color

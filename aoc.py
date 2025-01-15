@@ -97,7 +97,8 @@ def main(args: argparse.Namespace):
         print("Running:")
 
     loggers = vars(args).get("loggers", [])
-    with aoc(loggers):
+    viewers = vars(args).get("viewers", [])
+    with aoc(loggers, viewers):
         run(language_year_days, progressBar, loggers)
 
 

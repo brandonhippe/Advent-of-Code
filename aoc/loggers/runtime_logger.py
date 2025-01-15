@@ -4,12 +4,11 @@ Runtime logger for Advent of Code
 
 import argparse
 from dataclasses import dataclass, field
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 import prettytable as pt
 
-from .language_functions import Day, Year
-from .logger import Logger, LoggerAction
+from . import LogCTX, Logger, LoggerAction
 
 
 def init_dict(dict: dict[Any], keys: List[Any]):
@@ -33,8 +32,8 @@ class RuntimeLogger(Logger):
     """
     part_data: dict[int, dict[int, dict[int, dict[str, float]]]] = field(default_factory=dict)
     day_data: dict[int, dict[int, dict[str, float]]] = field(default_factory=dict)
-    year_combined_data: dict[int, dict[str, float]] = field(default_factory=dict)
     year_average_data: dict[int, dict[str, float]] = field(default_factory=dict)
+    year_total_data: dict[int, dict[str, float]] = field(default_factory=dict)
     name: str = "runtimes"
 
     @staticmethod
@@ -44,55 +43,60 @@ class RuntimeLogger(Logger):
         """
         parser.add_argument("--runtimes", "-r", action=LoggerAction, nargs="*", help='Log runtimes. Add " verbose" or "v" to run in verbose mode', type=RuntimeLogger)
 
-    def log(self, msg: Any, **kwargs) -> None:
+    def log(self, **kwargs) -> None:
         """
         Log a runtime
         """
-        if isinstance(msg, Year):
-            self.log_year(msg, **kwargs)
-        elif isinstance(msg, Day):
-            self.log_day(msg, **kwargs)
+        with LogCTX(self, kwargs):
+            if not kwargs.get("log_all", False):
+                self.log_part(**kwargs)
+            else:
+                self.new_data.append((1, {(lang, year, day): t for year, y in self.part_data.items() for day, d in y.items() for lang, t in d[1].items()}))
+                self.new_data.append((2, {(lang, year, day): t for year, y in self.part_data.items() for day, d in y.items() for lang, t in d[2].items()}))
+                self.new_data.append(("days", {(lang, year, day): t for year, y in self.day_data.items() for day, d in y.items() for lang, t in d.items()}))
+                self.new_data.append(("avg", {(lang, year): t for year, y in self.year_average_data.items() for lang, t in y.items()}))
+                self.new_data.append(("tot", {(lang, year): t for year, y in self.year_total_data.items() for lang, t in y.items()}))
         
     ### Logging helper functions
-    def log_year(self, year: Year, **kwargs) -> None:
+    def log_part(self, time: Optional[float], lang: Optional[str]=None, year: Optional[int]=None, day: Optional[int]=None, part: Optional[int]=None, **kwargs) -> None:
         """
-        Log the runtime data for a year
+        Log the runtime data for a part
         """
-        if not len(year):
+        if time is None:
             return
         
-        assert "entity_path" in kwargs, "Entity path must be provided for runtime logging"
-        lang = kwargs["entity_path"][-2]
-
-        init_dict(self.year_combined_data, [year.year, lang])
-        init_dict(self.year_average_data, [year.year, lang])
-        self.year_average_data[year.year][lang] = year.avg_time
-        self.year_combined_data[year.year][lang] = year.combined_time
-    
-    def log_day(self, day: Day, **kwargs) -> None:
-        """
-        Log the runtime data for a day
-        """
-        if not len(day):
+        if not all((lang, year, day, part)):
+            raise ValueError("Language, year, day, and part must be provided for runtime logging")
+        
+        if part:
+            init_dict(self.part_data, [year, day, part, lang])
+            self.part_data[year][day][part][lang] = time
+            self.new_data.append((year, day, part, lang, time))
+        
+        finished_parts = [p for p in self.part_data[year][day].keys() if lang in self.part_data[year][day][p]]
+        if len(finished_parts) != 2:
             return
-        
-        assert "entity_path" in kwargs, "Entity path must be provided for runtime logging"
-        lang, year = kwargs["entity_path"][-3:-1]
-        
-        for part, time in enumerate(day.times, 1):
-            init_dict(self.part_data, [year, day.day, part, lang])
-            self.part_data[year][day.day][part][lang] = time
 
-        if day.combined_time:
-            init_dict(self.day_data, [year, day.day, lang])
-            self.day_data[year][day.day][lang] = day.combined_time
+        init_dict(self.day_data, [year, day, lang])
+        self.day_data[year][day][lang] = sum(self.part_data[year][day][p][lang] for p in finished_parts)
+        self.new_data.append((year, day, lang, self.day_data[year][day][lang]))
+
+        finished_days = [d for d in self.day_data[year].keys() if lang in self.day_data[year][d]]
+        init_dict(self.year_average_data, [year, lang])
+        self.year_average_data[year][lang] = sum(self.day_data[year][d][lang] for d in finished_days) / len(finished_days)
+        self.new_data.append((year, lang, "avg", self.year_average_data[year][lang]))
+
+        if len(finished_days) == 25:
+            init_dict(self.year_total_data, [year, lang])
+            self.year_total_data[year][lang] = sum(self.day_data[year][d][lang] for d in finished_days)
+            self.new_data.append((year, lang, "tot", self.year_total_data[year][lang]))
 
     def get_tables(self, **kwargs) -> List[Tuple[int, pt.PrettyTable]]:
         """
         Get runtime tables
         """
         def add_times(data: dict[Any], new_labels: dict={}, hide_no_time: bool=False) -> str:
-            for ix, (lang, time) in enumerate(data.items()):
+            for ix, (lang, time) in enumerate(sorted(data.items(), key=lambda x: x[0])):
                 if lang not in columns:
                     columns[lang] = []
 
@@ -138,7 +142,7 @@ class RuntimeLogger(Logger):
                 add_times(day_data, {"Part": "Combined"})
 
             add_times(self.year_average_data.get(year, {}), {"Day": "Year Average"})
-            add_times(self.year_combined_data.get(year, {}), {"Day": "Year Total"}, hide_no_time=True)
+            add_times(self.year_total_data.get(year, {}), {"Day": "Year Total"}, hide_no_time=True)
 
             for col_label, col_data in columns.items():
                 while len(col_data) < max(map(len, columns.values())):
@@ -147,9 +151,9 @@ class RuntimeLogger(Logger):
 
             tables.append((str(year), year_table))
         
-        if "style" in kwargs:
+        if s := kwargs.get("style", False):
             for _, year_table in tables:
-                year_table.set_style(kwargs["style"])
+                year_table.set_style(s)
 
         return tables
 
