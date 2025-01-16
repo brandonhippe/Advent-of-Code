@@ -9,7 +9,7 @@ import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, List, Tuple, Callable
+from typing import Any, Callable, List, Tuple
 
 import prettytable as pt
 
@@ -42,7 +42,10 @@ class LogCTX:
         Context manager entry point
         """
         for pre_log in self.logger.pre_log:
-            pre_log(**self.kwargs)
+            for args, kwargs in self.logger.new_data:
+                kwargs.update(self.kwargs)
+                pre_log(*args, **kwargs)
+
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
@@ -55,20 +58,26 @@ class LogCTX:
             return False
         
         for post_log in self.logger.post_log:
-            post_log(*tuple(self.logger.new_data), **self.kwargs)
+            for args, kwargs in self.logger.new_data:
+                for k, v in self.kwargs.items():
+                    if k not in kwargs:
+                        kwargs[k] = v
+
+                post_log(*args, **kwargs)
 
         self.logger.new_data = []
         return True
 
+
 @dataclass
 class Logger(ABC):
     args: argparse.Namespace
-    name: str = "logger"
-    verbose: bool = False
     format: str = "DEFAULT"
+    name: str = "logger"
+    new_data: list[Tuple[Tuple, dict]] = field(default_factory=list)
     pre_log: list[Callable] = field(default_factory=list)
     post_log: list[Callable] = field(default_factory=list)
-    new_data: list[Any] = field(default_factory=list)
+    verbose: bool = False
 
     # Default methods
     def __enter__(self) -> 'Logger':
@@ -78,7 +87,7 @@ class Logger(ABC):
         if not self.verbose:
             self.verbose = "verbose" in self.args and self.args.verbose
         
-        self.print(f"Setting up {self.name} logger")
+        self.print(f"Setting up")
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
         """
@@ -89,14 +98,14 @@ class Logger(ABC):
             print(exc_tb)
             return False
         
-        self.print(f"\nFinished logging {self.name}\n{self}")
+        self.print(f"Finished logging\n{self}")
         return True
 
     def __str__(self) -> str:
         def lower(s: str) -> str:
             return s.lower()
         
-        tables = self.get_tables(style=self.format)
+        tables = self.get_tables(style=self.format, new_only=(self.format != "MARKDOWN"))
         if self.format.upper() == "MARKDOWN":
             md = f"# Advent of Code {self.name.title()}\n\nYearly {self.name} for all languages:\n\n"
 
@@ -116,25 +125,30 @@ class Logger(ABC):
             return "\n\n".join(f"{year} {self.name.title()}:\n{table}" for year, table in tables)
         
     def __lt__(self, other: object) -> bool:
-        other_name = getattr(other, "name", "")
-        if not other_name:
-            return True
+        if other_name := getattr(other, "name", ""):
+            return self.name < other_name
         
-        return self.name < other_name
+        return True
 
     def print(self, *args, **kwargs) -> None:
         """
         Print if verbose
         """
         if self.verbose:
-            print(*args, **kwargs)
+            print(f"{self.name.title()} Logger:", *args, **kwargs)
 
     def log(self, *args, **kwargs) -> None:
         """
         Log a message
         """
-        with LogCTX(self, *args, kwargs):
+        with LogCTX(self, *args, **kwargs):
             pass
+
+    def add_new_data(self, *args, **kwargs) -> None:
+        """
+        Add new data to the logger
+        """
+        self.new_data.append((args, kwargs))
 
     @abstractmethod
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -144,7 +158,7 @@ class Logger(ABC):
         pass
 
     @abstractmethod
-    def get_tables(self, **kwargs) -> List[Tuple[str, pt.PrettyTable]]:
+    def get_tables(self, new_only: bool=False, **kwargs) -> List[Tuple[str, pt.PrettyTable]]:
         """
         Get the tables for the logger
         """

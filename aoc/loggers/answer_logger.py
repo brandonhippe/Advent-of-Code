@@ -4,6 +4,7 @@ Answer logger for Advent of Code
 
 import argparse
 from dataclasses import dataclass, field
+from functools import reduce
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -14,6 +15,7 @@ import pytesseract
 from advent_of_code_ocr import convert_6
 from PIL import Image, ImageDraw
 
+from ..languages import LANGS
 from . import LogCTX, Logger, LoggerAction
 
 
@@ -68,6 +70,8 @@ def convert_ans(ans: Any) -> str:
 
             ans += pytesseract.image_to_string(temp_img, config="--psm 6").strip().upper()
             left_side = right_side + 1
+    
+    return ans
 
 
 @dataclass
@@ -86,20 +90,20 @@ class AnswerLogger(Logger):
         """
         parser.add_argument("--answers", "-a", action=LoggerAction, nargs="*", help='Log answers. Add " verbose" or "v" to run in verbose mode', type=AnswerLogger)
 
-    def log(self, **kwargs) -> None:
+    def log(self, *args, **kwargs) -> None:
         """
         Log an answer
         """
         with LogCTX(self, kwargs):
             if not kwargs.get("log_all", False):
-                self.log_part(**kwargs)
+                self.log_part(*args, **kwargs)
 
-    def log_part(self, ans: Optional[str]=None, lang: Optional[str]=None, year: Optional[int]=None, day: Optional[int]=None, part: Optional[int]=None, **kwargs) -> None:
-        if ans is None:
-            return
-        
-        if not all((lang, year, day, part)):
-            raise ValueError("Language, year, day, and part must be provided for answer logging")
+    def log_part(self, year: int, day: int, part: int, *args, ans: Optional[str]=None, lang: Optional[str]=None, **kwargs) -> None:
+        """
+        Log an answer for a part
+        """
+        if not all((ans, lang, year, day, part)):
+            raise ValueError("Answer, Language, year, day, and part must be provided for answer logging")
 
         try:
             ans = convert_ans(ans)
@@ -115,15 +119,12 @@ class AnswerLogger(Logger):
         answer_table[lang] = ans
         self.new_data.append((year, day, part, lang, ans))
 
-    def get_tables(self, **kwargs) -> List[Tuple[int, pt.PrettyTable]]:
+    def get_tables(self, new_only: bool=False, **kwargs) -> List[Tuple[int, pt.PrettyTable]]:
         """
         Get answer tables
         """
         def add_answers(data: dict[Any], new_labels: dict={}) -> str:
             for ix, (lang, ans) in enumerate(sorted(data.items(), key=lambda x: x[0])):
-                if not ans:
-                    continue
-
                 if lang not in columns:
                     columns[lang] = []
 
@@ -150,9 +151,12 @@ class AnswerLogger(Logger):
             incorrect_table = pt.PrettyTable()
             incorrect_table.field_names = ["Year", "Day", "Part", "Language", "Correct Answer", "Code Answer"]
             for (year, day, part, lang), correct in incorrect.items():
-                incorrect_table.add_row([year, day, part, lang.title(), correct, self.answer_data[year][day][part][lang]])
-            tables.append(("Incorrect", incorrect_table))
+                if not new_only or (year, day) in LANGS[lang].changed:
+                    incorrect_table.add_row([year, day, part, lang.title(), correct, self.answer_data[year][day][part][lang]])
+            if len(incorrect_table._rows):
+                tables.append(("Incorrect", incorrect_table))
 
+        changed = reduce(lambda x, y: x.union(y), [lang.changed for lang in LANGS.values()], set())
         for year, year_data in sorted(self.answer_data.items(), key=lambda x: x[0]):
             if not year_data:
                 continue
@@ -160,7 +164,7 @@ class AnswerLogger(Logger):
             year_table = pt.PrettyTable(**kwargs)
             columns = {"Day": []}
             for day, day_data in sorted(year_data.items(), key=lambda x: x[0]):
-                if not day_data:
+                if not day_data or (new_only and (year, day) not in changed):
                     continue
 
                 for part, part_data in sorted(day_data.items(), key=lambda x: x[0]):
@@ -168,6 +172,9 @@ class AnswerLogger(Logger):
                         continue
 
                     add_answers(part_data, {"Day": f"{day}" if part == 1 else ""})                        
+            
+            if len(columns["Day"]) == 0:
+                continue
             
             for col_label, col_data in columns.items():
                 while len(col_data) < max(map(len, columns.values())):

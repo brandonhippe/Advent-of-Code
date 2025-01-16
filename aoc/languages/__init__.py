@@ -45,16 +45,15 @@ def get_released(year: Optional[int]=None) -> List[int]:
 @dataclass
 class Language(ABC):
     """
-    Abstract class for a language used in Advent of Code.
-
-    Methods for obtaining the parent directory, compile string, and run string are required.
+    Abstract class for a language used in Advent of Code.\\
+    \\
+    Methods for obtaining the parent directory, compile string, and run string are required.\\
     Methods for running the program and discovering all files are provided, but can be overridden.
     """
     lang: str
-    folder: bool = False
+    changed: set[Tuple[int, int]] = field(default_factory=set)
     ext: str = ""
-    runtimes_changed: bool = False
-    ans_changed: bool = False
+    folder: bool = False
     ran: set[Tuple[int, int]] = field(default_factory=set)
 
     def __hash__(self) -> int:
@@ -68,21 +67,6 @@ class Language(ABC):
     
     def __len__(self) -> int:
         return len(self.ran)
-
-    def run(self, year: int, day: int, verbose: bool=False, loggers: List[Any]=[], **kwargs) -> Tuple[Tuple[Any, float], Tuple[Any, float]]:
-        """
-        Run the program for the given year and day.
-        Raises FileNotFoundError if the file does not exist.
-        """
-        if self.exists(year, day):
-            results = []
-            for part, (ans, time) in enumerate(self.run_func(year, day, verbose), 1):
-                results.append((ans, time))
-                self.add_part(ans=ans, time=time, loggers=loggers, year=year, day=day, part=part, **kwargs)
-
-            return tuple(results)
-        
-        raise FileNotFoundError(f"No file found for {year} day {day}")
     
     def run_func(self, year: int, day: int, verbose: bool=False) -> Tuple[Tuple[Any, float], Tuple[Any, float]]:
         """
@@ -186,23 +170,6 @@ class Language(ABC):
         """
         return Path(Path(__file__).parent, "Inputs", f"{year}_{day}.txt")
 
-    def update_entity_path(self, **kwargs) -> dict:
-        kwargs = deepcopy(kwargs)
-        kwargs["entity_path"] = kwargs.get("entity_path", []) + [self.lang]
-        return kwargs
-    
-    def add_part(self, ans: Optional[str]=None, time: Optional[float]=None, loggers: list[Any]=[], **kwargs) -> None:
-        year = kwargs.get("year", 0)
-        day = kwargs.get("day", 0)
-        if all((year, day)):
-            self.ran.add((year, day))
-
-        self.log(ans=ans, time=time, lang=self.lang, loggers=loggers, **kwargs)
-
-    def log(self, loggers: List[Any]=[], **kwargs) -> None:
-        for l in loggers:
-            l.log(**kwargs)
-
     @abstractmethod
     def parent_dir(self, year: int, day: int) -> Path:
         """
@@ -223,6 +190,33 @@ class Language(ABC):
         Get the run string for the given year and day.
         """
         pass
+    
+    # DO NOT OVERRIDE THESE METHODS
+    def run(self, year: int, day: int, verbose: bool=False, loggers: List[Any]=[], **kwargs) -> Tuple[Tuple[Any, float], Tuple[Any, float]]:
+        """
+        Run the program for the given year and day.
+        Raises FileNotFoundError if the file does not exist.
+        """
+        if self.exists(year, day):
+            results = []
+            for part, (ans, time) in enumerate(self.run_func(year, day, verbose), 1):
+                results.append((ans, time))
+                self.add_part(year, day, part, ans=ans, time=time, loggers=loggers, **kwargs)
+
+            self.changed.add((year, day))
+
+            return tuple(results)
+        
+        raise FileNotFoundError(f"No file found for {year} day {day}")
+
+    def add_part(self, year: int, day: int, *args, ans: Optional[str]=None, time: Optional[float]=None, loggers: list[Any]=[], **kwargs) -> None:
+        self.ran.add((year, day))
+        self.log(year, day, *args, ans=ans, time=time, lang=self.lang, loggers=loggers, **kwargs)
+
+    def log(self, *args, loggers: List[Any]=[], **kwargs) -> None:
+        for l in loggers:
+            l.log(*args, **kwargs)
+
 
 LANGS = []
 __all__ = ["Language", "LANGS", "get_released"]
