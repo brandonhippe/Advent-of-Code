@@ -29,6 +29,7 @@ class LoggerAction(argparse.Action):
             namespace.loggers[-1].verbose = True
         namespace.loggers.sort()
 
+
 @dataclass
 class LogCTX:
     """
@@ -88,6 +89,7 @@ class Logger(ABC):
             self.verbose = "verbose" in self.args and self.args.verbose
         
         self.print(f"Setting up")
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
         """
@@ -98,14 +100,15 @@ class Logger(ABC):
             print(exc_tb)
             return False
         
-        self.print(f"Finished logging\n{self}")
+        self.print(f"Finished logging")
+        print(self)
         return True
 
     def __str__(self) -> str:
         def lower(s: str) -> str:
             return s.lower()
         
-        tables = self.get_tables(style=self.format, new_only=(self.format != "MARKDOWN"))
+        tables = self.get_tables(style=self.format, new_only=(self.verbose or self.format != "MARKDOWN"))
         if self.format.upper() == "MARKDOWN":
             md = f"# Advent of Code {self.name.title()}\n\nYearly {self.name} for all languages:\n\n"
 
