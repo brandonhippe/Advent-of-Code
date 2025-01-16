@@ -9,17 +9,15 @@ import re
 import subprocess
 import sys
 from abc import ABC, abstractmethod
-from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 
-
 def get_released(year: Optional[int]=None) -> List[int]:
     """
-    Get a list of released years, if no year is given.
+    Get a list of released years, if no year is given.\\
     If a year is given, get a list of released days for the given year.
     """
     now = datetime.datetime.now(tz=ZoneInfo("America/New_York"))
@@ -67,6 +65,9 @@ class Language(ABC):
     
     def __len__(self) -> int:
         return len(self.ran)
+
+    def __lt__(self, other: 'Language') -> bool:
+        return self.lang < other.lang
     
     def run_func(self, year: int, day: int, verbose: bool=False) -> Tuple[Tuple[Any, float], Tuple[Any, float]]:
         """

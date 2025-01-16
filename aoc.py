@@ -106,7 +106,7 @@ def aoc_parser() -> argparse.ArgumentParser:
     year_iterable = get_released()
     day_iterable = list(range(1, 26))
 
-    parser = argparse.ArgumentParser(description="Run Advent of Code solutions.")
+    parser = argparse.ArgumentParser(description="Run Advent of Code solutions.", conflict_handler="resolve")
     parser.add_argument('--year', '-y', type=int, nargs='+', default=year_iterable, help='Specify year(s) to run. Default: All')
     parser.add_argument('--day', '-d', type=int, nargs='+', default=day_iterable, help='Specify day(s) to run. Default: All')
 

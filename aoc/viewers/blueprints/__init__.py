@@ -163,11 +163,11 @@ def get_language_views(path: Path="", bp_dir: bool=False, **kwargs) -> rrb.Bluep
         path = Path(BLUEPRINT_DIR, path)
 
     views = {}
-    for lang in sorted(LANGS.keys()):
-        if not len(LANGS[lang]):
+    for lang in sorted(LANGS.values()):
+        if not len(lang):
             continue
 
-        views[lang] = load_blueprint(path, lang=lang, lang_title=lang.title(), **kwargs)
+        views[lang] = load_blueprint(path, lang=lang.lang, lang_title=lang.lang.title(), **kwargs)
 
     if not views:
         views = [rrb.TextDocumentView(origin="/", name="No languages found", contents="+ $origin/no-langs")]

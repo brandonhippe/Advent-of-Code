@@ -1,0 +1,6 @@
+on_log:
+  runtimes: 
+    - log
+# on_exit:
+#   runtimes: 
+#     - log

@@ -12,7 +12,9 @@ from pathlib import Path
 from typing import Any, Callable, List, Tuple
 
 import prettytable as pt
+import yaml
 
+from ..languages import LANGS
 
 class LoggerAction(argparse.Action):
     """
@@ -31,53 +33,13 @@ class LoggerAction(argparse.Action):
 
 
 @dataclass
-class LogCTX:
-    """
-    Context manager for logging
-    """
-    logger: 'Logger'
-    kwargs: dict[str, Any]
-
-    def __enter__(self) -> 'LogCTX':
-        """
-        Context manager entry point
-        """
-        for pre_log in self.logger.pre_log:
-            for args, kwargs in self.logger.new_data:
-                kwargs.update(self.kwargs)
-                pre_log(*args, **kwargs)
-
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
-        """
-        Context manager exit point
-        """
-        if exc_type:
-            print(exc_val)
-            print(exc_tb)
-            return False
-        
-        for post_log in self.logger.post_log:
-            for args, kwargs in self.logger.new_data:
-                for k, v in self.kwargs.items():
-                    if k not in kwargs:
-                        kwargs[k] = v
-
-                post_log(*args, **kwargs)
-
-        self.logger.new_data = []
-        return True
-
-
-@dataclass
 class Logger(ABC):
     args: argparse.Namespace
     format: str = "DEFAULT"
     name: str = "logger"
     new_data: list[Tuple[Tuple, dict]] = field(default_factory=list)
-    pre_log: list[Callable] = field(default_factory=list)
-    post_log: list[Callable] = field(default_factory=list)
+    on_exit: List[Callable] = field(default_factory=list)
+    on_log: List[Callable] = field(default_factory=list)
     verbose: bool = False
 
     # Default methods
@@ -89,6 +51,7 @@ class Logger(ABC):
             self.verbose = "verbose" in self.args and self.args.verbose
         
         self.print(f"Setting up")
+        self.load_data()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
@@ -100,8 +63,10 @@ class Logger(ABC):
             print(exc_tb)
             return False
         
+        self.log(log_all=True, on_exit=True)
         self.print(f"Finished logging")
         print(self)
+        self.save_data()
         return True
 
     def __str__(self) -> str:
@@ -140,18 +105,70 @@ class Logger(ABC):
         if self.verbose:
             print(f"{self.name.title()} Logger:", *args, **kwargs)
 
-    def log(self, *args, **kwargs) -> None:
-        """
-        Log a message
-        """
-        with LogCTX(self, *args, **kwargs):
-            pass
-
     def add_new_data(self, *args, **kwargs) -> None:
         """
         Add new data to the logger
         """
         self.new_data.append((args, kwargs))
+
+    def load_data(self) -> None:
+        """
+        Load logger data
+        """
+        def log_dict(d: dict, value_key: str, keys: list[Any]=[]) -> None:
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    log_dict(v, value_key, keys + [k])
+                elif k in LANGS and len(keys) == 3:
+                    LANGS[k].add_part(*keys, **{value_key: v}, loggers=[self])
+
+        if vars(self.args).get("no-load", False) or not os.path.exists(Path(Path(__file__).parent, f"{self.name}_data.yml")):
+            return
+
+        self.print("Loading data")
+        
+        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "r") as f:
+            data = yaml.safe_load(f)
+            for d in data.values():
+                if isinstance(d, dict):
+                    log_dict(d, self.value_key)
+
+        self.print("Data loaded")
+
+    def save_data(self) -> None:
+        """
+        Save logger data
+        """
+        if vars(self.args).get("no-save", False):
+            return
+        
+        self.print("Saving data")
+
+        to_dump = {}
+        for k, v in vars(self).items():
+            if not isinstance(v, dict):
+                continue
+
+            to_dump[k] = v
+
+        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "w") as f:
+            yaml.safe_dump(to_dump, f)
+
+        self.print("Data saved")
+
+    def log(self, *args, on_exit: bool=False, **kwargs) -> None:
+        """
+        Log a message
+        """
+        for new_args, new_kwargs in self.new_data:
+            for k, v in kwargs.items():
+                if k not in new_kwargs:
+                    new_kwargs[k] = v
+
+            for log in self.on_exit if on_exit else self.on_log:
+                log(*new_args, **new_kwargs)
+
+        self.new_data = []
 
     @abstractmethod
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -169,7 +186,7 @@ class Logger(ABC):
 
 
 LOGGERS = []
-__all__ = ["Logger", "LoggerAction", "LOGGERS", "LogCTX"]
+__all__ = ["Logger", "LoggerAction", "LOGGERS"]
 
 
 for filename in os.listdir(Path(__file__).parent):

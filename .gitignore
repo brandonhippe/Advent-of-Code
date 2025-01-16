@@ -66,9 +66,10 @@ target
 .TAG
 Cargo.lock
 
-# Advent of Code Inputs
+# Advent of Code Ignored
 **/Inputs/*.txt
 *answers.txt
+**/*_data.yml
 
 # Other random things
 *.html
@@ -80,5 +81,4 @@ css
 .python-version
 
 
-*.rrd
 !**/Blueprints

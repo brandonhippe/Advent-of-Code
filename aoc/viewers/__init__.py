@@ -111,19 +111,15 @@ class Viewer(ABC):
         Attach the viewer to the loggers
         """
         fpath = Path(Path(__file__).parent, f"{self.name}.yml")
-
-        if os.path.exists(fpath):
-            with open(fpath, "r") as f:
-                viewer_config = yaml.safe_load(f)
-        else:
-            viewer_config = {"post_log": [{"runtimes": "log"}]}
+        assert fpath.exists(), f"{self.name.title()} Viewer config file {fpath} does not exist"
+        with open(fpath, "r") as f:
+            viewer_config = yaml.safe_load(f)
 
         for logger in self.loggers:
             for arr_name, to_attach in viewer_config.items():
-                to_attach = to_attach[0]
-                if logger.name in to_attach:
+                for to_call in to_attach.get(logger.name, []):
                     callables = getattr(logger, arr_name)
-                    callables.append(getattr(self, to_attach[logger.name]))
+                    callables.append(getattr(self, to_call))
                     setattr(logger, arr_name, callables)
 
     def log(self, *args, ans: Optional[Any]=None, time: Optional[float]=None, on_exit_from: Optional[type]=None, **kwargs):

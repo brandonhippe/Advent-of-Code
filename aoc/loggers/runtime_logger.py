@@ -11,7 +11,7 @@ from typing import Any, List, Optional, Tuple
 import prettytable as pt
 
 from ..languages import LANGS
-from . import LogCTX, Logger, LoggerAction
+from . import Logger, LoggerAction
 
 
 def init_dict(dict: dict[Any], keys: List[Any]):
@@ -38,6 +38,7 @@ class RuntimeLogger(Logger):
     year_average_data: dict[int, dict[str, float]] = field(default_factory=dict)
     year_total_data: dict[int, dict[str, float]] = field(default_factory=dict)
     name: str = "runtimes"
+    value_key: str = "time"
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser) -> None:
@@ -45,43 +46,46 @@ class RuntimeLogger(Logger):
         Add arguments to the parser
         """
         parser.add_argument("--runtimes", "-r", action=LoggerAction, nargs="*", help='Log runtimes. Add " verbose" or "v" to run in verbose mode', type=RuntimeLogger)
+        parser.add_argument("--no-load", action="store_true", help="Don't load existing advent of code data")
+        parser.add_argument("--no-save", action="store_true", help="Don't save advent of code data")
 
     def log(self, *args, **kwargs) -> None:
         """
         Log a runtime
-        """
-        with LogCTX(self, kwargs):
-            if not kwargs.get("log_all", False):
-                self.log_part(*args, **kwargs)
-            else:
-                for part in range(3):
-                    for year, y in sorted(self.part_data.items() if part else self.day_data.items(), key=lambda x: x[0]):
-                        data = defaultdict(lambda: ([], []))
-                        for day, day_data in sorted(y.items(), key=lambda x: x[0]):
-                            if part:
-                                day_data = day_data[part]
-                            for lang, time in day_data.items():
-                                data[lang][0].append(day)
-                                data[lang][1].append(time)
-                        
-                        for lang, (days, times) in sorted(data.items(), key=lambda x: x[0]):
-                            if part:
-                                self.add_new_data(year, days, part, lang, time=times, lang=lang)
-                            else:
-                                self.add_new_data(year, days, lang, time=times, lang=lang)
-
-                for d, name in zip((self.year_average_data, self.year_total_data), ("avg", "tot")):
+        """        
+        if not kwargs.get("log_all", False):
+            self.log_part(*args, **kwargs)
+        else: 
+            for part in range(3):
+                for year, y in sorted(self.part_data.items() if part else self.day_data.items(), key=lambda x: x[0]):
                     data = defaultdict(lambda: ([], []))
-                    for year in sorted(d.keys()):
-                        for lang, time in sorted(d[year].items(), key=lambda x: x[0]):
-                            data[lang][0].append(year)
+                    for day, day_data in sorted(y.items(), key=lambda x: x[0]):
+                        if part:
+                            day_data = day_data[part]
+                        for lang, time in day_data.items():
+                            data[lang][0].append(day)
                             data[lang][1].append(time)
+                    
+                    for lang, (days, times) in sorted(data.items(), key=lambda x: x[0]):
+                        if part:
+                            self.add_new_data(year, days, part, lang, time=times, lang=lang)
+                        else:
+                            self.add_new_data(year, days, lang, time=times, lang=lang)
 
-                    for lang, (years, times) in sorted(data.items(), key=lambda x: x[0]):
-                        self.add_new_data(years, lang, name, time=times, lang=lang)  
+            for d, name in zip((self.year_average_data, self.year_total_data), ("avg", "tot")):
+                data = defaultdict(lambda: ([], []))
+                for year in sorted(d.keys()):
+                    for lang, time in sorted(d[year].items(), key=lambda x: x[0]):
+                        data[lang][0].append(year)
+                        data[lang][1].append(time)
+
+                for lang, (years, times) in sorted(data.items(), key=lambda x: x[0]):
+                    self.add_new_data(years, lang, name, time=times, lang=lang)
+
+        super().log(*args, **kwargs)
         
     ### Logging helper functions
-    def log_part(self, year: int, day: int, part: int, *args, time: Optional[float]=None, lang: Optional[str]=None, **kwargs) -> None:
+    def log_part(self, year: int, day: int, part: int, lang: Optional[str]=None, time: Optional[float]=None, **kwargs) -> None:
         """
         Log the runtime data for a part
         """

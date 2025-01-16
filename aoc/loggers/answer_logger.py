@@ -16,7 +16,7 @@ from advent_of_code_ocr import convert_6
 from PIL import Image, ImageDraw
 
 from ..languages import LANGS
-from . import LogCTX, Logger, LoggerAction
+from . import Logger, LoggerAction
 
 
 def convert_ans(ans: Any) -> str:
@@ -82,6 +82,7 @@ class AnswerLogger(Logger):
     answer_data: dict[Any, dict[Any, dict[Any, dict[Any, str]]]] = field(default_factory=dict)
     name: str = "answers"
     data_start: int = 2
+    value_key: str = "ans"
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser) -> None:
@@ -89,16 +90,19 @@ class AnswerLogger(Logger):
         Add arguments to the parser
         """
         parser.add_argument("--answers", "-a", action=LoggerAction, nargs="*", help='Log answers. Add " verbose" or "v" to run in verbose mode', type=AnswerLogger)
+        parser.add_argument("--no-load", action="store_true", help="Don't load existing advent of code data")
+        parser.add_argument("--no-save", action="store_true", help="Don't save advent of code data")
 
     def log(self, *args, **kwargs) -> None:
         """
         Log an answer
         """
-        with LogCTX(self, kwargs):
-            if not kwargs.get("log_all", False):
-                self.log_part(*args, **kwargs)
+        if not kwargs.get("log_all", False):
+            self.log_part(*args, **kwargs)
 
-    def log_part(self, year: int, day: int, part: int, *args, ans: Optional[str]=None, lang: Optional[str]=None, **kwargs) -> None:
+        super().log(*args, **kwargs)
+
+    def log_part(self, year: int, day: int, part: int, lang: Optional[str]=None, ans: Optional[str]=None, **kwargs) -> None:
         """
         Log an answer for a part
         """
@@ -117,7 +121,7 @@ class AnswerLogger(Logger):
             answer_table = answer_table[table_ix]
 
         answer_table[lang] = ans
-        self.new_data.append((year, day, part, lang, ans))
+        self.add_new_data(year, day, part, lang, ans)
 
     def get_tables(self, new_only: bool=False, **kwargs) -> List[Tuple[int, pt.PrettyTable]]:
         """
