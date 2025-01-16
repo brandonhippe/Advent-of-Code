@@ -194,7 +194,7 @@ class AnswerLogger(Logger):
         Get incorrect answers
         """
         # Load correct answers
-        with open(Path(Path(__file__).parent.parent.parent, "aoc_answers.txt"), "r", encoding="utf-8") as f:
+        with open(Path(Path(__file__).parent, "aoc_answers.txt"), "r", encoding="utf-8") as f:
             correct_answers = {k: v for line in f.readlines() for k, v in [line.strip().split(": ")]}
 
         incorrect = {}
