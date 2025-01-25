@@ -3,52 +3,65 @@ Logger class for Advent of Code
 """
 
 import argparse
-import importlib
 import os
-import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from functools import reduce
 from pathlib import Path
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
-import prettytable as pt
 import yaml
 
 from ..languages import LANGS
+from ..subclass_container import SubclassContainer
+from ..data_tracker import DataTracker
+
+__all__ = ["Logger", "LoggerAction", "LOGGERS"]
+
 
 class LoggerAction(argparse.Action):
     """
     Action to instantiate a logger class and add it to the loggers list
     """
+
     def __init__(self, option_strings, dest, **kwargs):
         super().__init__(option_strings, dest, **kwargs)
-    
+
     def __call__(self, parser, namespace, values, option_string=None):
-        if "loggers" not in namespace:
-            namespace.loggers = []
-        namespace.loggers.append(self.type(namespace))
+        LOGGERS[self.type] = self.type(namespace)
         if len(values) and hasattr(values[0], "args"):
-            namespace.loggers[-1].verbose = True
-        namespace.loggers.sort()
+            LOGGERS[self.type].verbose = True
 
 
 @dataclass
 class Logger(ABC):
     args: argparse.Namespace
-    format: str = "DEFAULT"
     name: str = "logger"
-    new_data: list[Tuple[Tuple, dict]] = field(default_factory=list)
-    on_exit: List[Callable] = field(default_factory=list)
+    table_style: str = "DEFAULT"
+    new_data: List[Tuple[Tuple, Dict]] = field(default_factory=list)
+    post_load: List[Callable] = field(default_factory=list)
     on_log: List[Callable] = field(default_factory=list)
+    pre_exit: List[Callable] = field(default_factory=list)
+    on_exit: List[Callable] = field(default_factory=list)
+    post_exit: List[Callable] = field(default_factory=list)
+    value_key: str = "value"
     verbose: bool = False
 
+    def __post_init__(self):
+        self.started = True
+        if isinstance(self.args, argparse.Namespace):
+            self.verbose = vars(self.args).get("verbose", False)
+
+    def __hash__(self):
+        return hash(self.name)
+
     # Default methods
-    def __enter__(self) -> 'Logger':
+    def __enter__(self) -> "Logger":
         """
         Context manager entry point
         """
-        if not self.verbose:
-            self.verbose = "verbose" in self.args and self.args.verbose
+        if style := vars(self.args).get(f"{self.name}_table_style", None):
+            self.table_style = style
         
         self.print(f"Setting up")
         self.load_data()
@@ -62,40 +75,72 @@ class Logger(ABC):
             print(exc_val)
             print(exc_tb)
             return False
-        
-        self.log(log_all=True, on_exit=True)
+
+        for func in self.pre_exit:
+            func(from_logger=self, event="pre_exit", verbose=self.verbose)
+
         self.print(f"Finished logging")
-        print(self)
+
+        for var in filter(lambda v: v != self.data and issubclass(type(v), DataTracker) and len(v), vars(self).values()):
+            p_verbose, self.verbose = self.verbose, True
+            self.print("\n" + var(["Language", "Year", "Day", "Part"], style=self.table_style, logger_name=self.name) + "\n")
+            self.verbose = p_verbose
+
+        self.log(log_all=True, callables=self.on_exit)
         self.save_data()
+
+        for func in self.post_exit:
+            func(from_logger=self, event="post_exit", verbose=self.verbose)
+
         return True
 
-    def __str__(self) -> str:
-        def lower(s: str) -> str:
-            return s.lower()
-        
-        tables = self.get_tables(style=self.format, new_only=(self.verbose or self.format != "MARKDOWN"))
-        if self.format.upper() == "MARKDOWN":
-            md = f"# Advent of Code {self.name.title()}\n\nYearly {self.name} for all languages:\n\n"
+    def log(self, *args, callables: Optional[List[Callable]] = None, **kwargs) -> None:
+        """
+        Log a message
+        """
+        if callables is None:
+            callables = self.on_log
 
-            if tables:
-                for title_str, _ in tables:
-                    md += f"* [{title_str}](#{'-'.join(map(lower, title_str.split()))})\n\n"
+        for new_args, new_kwargs in sorted(
+            self.new_data, key=lambda d: tuple(map(len, d)), reverse=True
+        ):
+            for k, v in kwargs.items():
+                if k not in new_kwargs:
+                    new_kwargs[k] = v
+            
+            new_kwargs["event"] = new_kwargs.get("event", "on_log")
 
-                for title_str, year_table in tables:
-                    md += f"\n## {title_str}\n\n"
-                    md += f"[Back to top](#advent-of-code-{self.name})\n\n"
-                    md += year_table.get_string() + "\n"
-            else:
-                md += "No data to display"
+            for func in callables:
+                func(*new_args, from_logger=self, verbose=self.verbose, **new_kwargs)
 
-            return md
-        else:
-            return "\n\n".join(f"{year} {self.name.title()}:\n{table}" for year, table in tables)
-        
+        self.new_data = []
+
+    def __call__(self, *args, **kwargs) -> Dict[str, Any]:
+        dumping = {}
+        for name, tracker in vars(self).items():
+            if not issubclass(type(tracker), DataTracker) or not tracker.dump_this:
+                continue
+
+            data = dumping.get(name, {})
+            for year, day in self.runtime_days():
+                data[year] = data.get(year, {})
+                data[year][day] = data[year].get(day, {})
+
+                for part in [1, 2]:
+                    for lang in filter(lambda l: [l, year, day, part] in tracker, LANGS):
+                        data[year][day][part] = data[year][day].get(part, {})
+                        data[year][day][part][str(lang)] = tracker[
+                            lang, year, day, part
+                        ]
+
+            dumping[name] = data
+
+        return dumping
+
     def __lt__(self, other: object) -> bool:
         if other_name := getattr(other, "name", ""):
             return self.name < other_name
-        
+
         return True
 
     def print(self, *args, **kwargs) -> None:
@@ -103,7 +148,52 @@ class Logger(ABC):
         Print if verbose
         """
         if self.verbose:
-            print(f"{self.name.title()} Logger:", *args, **kwargs)
+            print(f"\n{self.name.title()} Logger:", *args, **kwargs)
+
+    def load_data(self) -> None:
+        """
+        Load logger data
+        """
+
+        def log_dict(d: dict, value_key: str, keys: List[Any] = []) -> None:
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    log_dict(v, value_key, keys + [k])
+                elif k.title() in LANGS and len(keys) == 3:
+                    LANGS[k.title()].add_part(*keys, **{value_key: v}, loggers=[self], event="on_load")
+
+        if vars(self.args).get("no_load", False) or not os.path.exists(
+            Path(Path(__file__).parent, f"{self.name}_data.yml")
+        ):
+            return
+
+        self.print("Loading data")
+
+        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "r") as f:
+            if data := yaml.safe_load(f):
+                for v in data.values():
+                    log_dict(v, self.value_key)
+
+        self.print("Data loaded")
+        self.print(self.data(["Language", "Year", "Day", "Part"], style=self.table_style))
+        
+        for func in self.post_load:
+            func(from_logger=self, event="post_load", verbose=self.verbose)
+
+    def save_data(self) -> None:
+        """
+        Save logger data
+        """
+        if vars(self.args).get("no_save", False):
+            return
+
+        self.print("Saving data")
+        self.print(self.data(["Language", "Year", "Day", "Part"], style=self.table_style))
+
+        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "w") as f:
+            yaml.safe_dump(self(), f)
+
+        self.print("Data saved")
 
     def add_new_data(self, *args, **kwargs) -> None:
         """
@@ -111,64 +201,14 @@ class Logger(ABC):
         """
         self.new_data.append((args, kwargs))
 
-    def load_data(self) -> None:
-        """
-        Load logger data
-        """
-        def log_dict(d: dict, value_key: str, keys: list[Any]=[]) -> None:
-            for k, v in d.items():
-                if isinstance(v, dict):
-                    log_dict(v, value_key, keys + [k])
-                elif k in LANGS and len(keys) == 3:
-                    LANGS[k].add_part(*keys, **{value_key: v}, loggers=[self])
-
-        if vars(self.args).get("no-load", False) or not os.path.exists(Path(Path(__file__).parent, f"{self.name}_data.yml")):
-            return
-
-        self.print("Loading data")
-        
-        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "r") as f:
-            data = yaml.safe_load(f)
-            for d in data.values():
-                if isinstance(d, dict):
-                    log_dict(d, self.value_key)
-
-        self.print("Data loaded")
-
-    def save_data(self) -> None:
-        """
-        Save logger data
-        """
-        if vars(self.args).get("no-save", False):
-            return
-        
-        self.print("Saving data")
-
-        to_dump = {}
-        for k, v in vars(self).items():
-            if not isinstance(v, dict):
-                continue
-
-            to_dump[k] = v
-
-        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "w") as f:
-            yaml.safe_dump(to_dump, f)
-
-        self.print("Data saved")
-
-    def log(self, *args, on_exit: bool=False, **kwargs) -> None:
-        """
-        Log a message
-        """
-        for new_args, new_kwargs in self.new_data:
-            for k, v in kwargs.items():
-                if k not in new_kwargs:
-                    new_kwargs[k] = v
-
-            for log in self.on_exit if on_exit else self.on_log:
-                log(*new_args, **new_kwargs)
-
-        self.new_data = []
+    def runtime_days(self, new_only: bool = False) -> List[Tuple[int, int]]:
+        return sorted(
+            reduce(
+                lambda a, b: a | b,
+                map(lambda l: l.changed if new_only else l.ran, LANGS),
+                set(),
+            )
+        )
 
     @abstractmethod
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -177,28 +217,5 @@ class Logger(ABC):
         """
         pass
 
-    @abstractmethod
-    def get_tables(self, new_only: bool=False, **kwargs) -> List[Tuple[str, pt.PrettyTable]]:
-        """
-        Get the tables for the logger
-        """
-        pass
 
-
-LOGGERS = []
-__all__ = ["Logger", "LoggerAction", "LOGGERS"]
-
-
-for filename in os.listdir(Path(__file__).parent):
-    if filename.endswith(".py") and filename != "__init__.py":
-        logger_name = filename[:-3]
-        class_name = "".join(map(lambda s: s.title(), logger_name.split("_")))
-        modname = f"aoc.loggers.{logger_name}"
-        importlib.import_module(modname)
-        
-        if hasattr(sys.modules[modname], class_name) and issubclass(getattr(sys.modules[modname], class_name), Logger):
-            LOGGERS.append((class_name, getattr(sys.modules[modname], class_name)))
-            __all__.append(class_name)
-            del modname
-
-LOGGERS = {k: v for k, v in sorted(LOGGERS, key=lambda x: x[0])}
+LOGGERS = SubclassContainer(Logger, __all__, Path(__file__).parent)

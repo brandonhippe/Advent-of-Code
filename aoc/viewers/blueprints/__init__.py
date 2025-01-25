@@ -1,93 +1,111 @@
 import re
-import sys
 from copy import deepcopy
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Optional, Tuple, Callable
+from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
 import rerun as rr
 import rerun.blueprint as rrb
 import yaml
 
-sys.path.append(Path(__file__).parent.parent)
-from aoc.languages import LANGS
+from ...languages import LANGS, Language
+from ...loggers import LOGGERS, Logger
+from ...viewers import map_to_entity_path
+
+__all__ = ["BlueprintMaker", "DEFAULT_BLUEPRINT_DIR"]
 
 
-BLUEPRINT_DIR: Path = Path(__file__).parent
-BLUEPRINT_YAMLS: dict[str, dict] = {}
-LOGGERS = []
+DEFAULT_BLUEPRINT_DIR = Path(__file__).parent
 
 
-def map_to_entity_path(entity_path: list[Any]) -> str:
+@dataclass
+class BlueprintMaker:
     """
-    Convert a list of entities to an entity path
+    Class to handle making blueprints
     """
-    if not entity_path or not entity_path[0].startswith("+"):
-        entity_path = [""] + entity_path
-    return "/".join(map(str, entity_path))
 
+    no_load: bool
+    blueprint_dir: Path = DEFAULT_BLUEPRINT_DIR
+    blueprint_yamls: Dict[str, Dict] = field(default_factory=dict)
+    scale_factor: float = 1.1
 
-def get_instantiator(k: str) -> Tuple[Optional[Callable], bool]:
-    check_mods = [rr, rrb, rrb.components, rrb.views, rrb.archetypes]
-    for mod in check_mods:
-        if k in dir(mod):
-            if isinstance(getattr(mod, k), Callable):
-                return getattr(mod, k), False
+    def __call__(self, filepath: Path, **kwargs) -> Optional[rrb.BlueprintLike]:
+        """
+        Load a blueprint from yaml file for the rerun viewer
+        """
+        if self.no_load:
+            return rrb.Blueprint()
 
-    m = globals().get(k, None)
-    if m and isinstance(m, Callable):
-        return m, True
-    return None, True
+        if str(filepath) not in self.blueprint_yamls:
+            # self.print(f"Loading blueprint from {filepath}")
+            with open(filepath) as f:
+                self.blueprint_yamls[str(filepath)] = yaml.safe_load(f)
 
+        assert issubclass(
+            type(
+                bp := self.construct_bp(
+                    deepcopy(self.blueprint_yamls[str(filepath)]), **kwargs
+                )
+            ),
+            rrb.BlueprintLike,
+        ), f"Blueprint {filepath} does not make a valid blueprint"
+        return bp
 
-def regex_replace(k: str, **kwargs):
-    regex_match = re.search(r"\$\{(.+?)\}", k)
-    if not regex_match:
-        return k
+    def construct_bp(
+        self, iter: Iterable, *args, **kwargs
+    ) -> rrb.BlueprintLike | Iterable:
+        """
+        Construct a blueprint from an iterable
+        """
+        if not isinstance(iter, Iterable):
+            return iter
 
-    name = regex_match.group(1)
-    if name in kwargs:
-        return k[:regex_match.start()] + kwargs[name] + k[regex_match.end():]
-    
-    type_instantiator = get_instantiator(k)
-    if type_instantiator:
-        return type_instantiator()
-    
-    return k
+        # Construct based on type (str or dict)
+        if func := getattr(self, f"construct_{type(iter).__name__.lower()}", False):
+            return func(iter, *args, **kwargs)
 
+        return_list = []
+        for i in iter:
+            v = self.construct_bp(i, **kwargs)
+            if isinstance(v, (list, set, tuple)):
+                return_list.extend(v)
+            else:
+                return_list.append(v)
 
-def construct_bp(iter: Iterable, *args, **kwargs) -> rrb.BlueprintLike | Iterable:
-    if not isinstance(iter, Iterable):
-        return iter
-    
-    if isinstance(iter, str):
-        iter = regex_replace(iter, **kwargs)
-        type_instantiator, include_passed_args = get_instantiator(iter)
+        return return_list
+
+    def construct_str(self, iter: str, *args, **kwargs) -> rrb.BlueprintLike | Iterable:
+        iter = self.regex_replace(iter, **kwargs)
+        type_instantiator, include_passed_args = self.get_instantiator(iter)
         if type_instantiator:
             if include_passed_args:
                 return type_instantiator(*args, **kwargs)
             else:
                 return type_instantiator()
         return iter
-    
-    if isinstance(iter, dict):
+
+    def construct_dict(
+        self, iter: Dict, *args, **kwargs
+    ) -> rrb.BlueprintLike | Iterable:
         return_dict = {}
         return_list = []
-        
+
         for k, v in iter.items():
             del_key = None
             if isinstance(v, dict) and "del_key" in v:
                 del_key = v["del_key"]
                 del v["del_key"]
 
-            v = construct_bp(v, **kwargs)
-            type_instantiator, include_passed_args = get_instantiator(k)
+            v = self.construct_bp(v, **kwargs)
+            type_instantiator, include_passed_args = self.get_instantiator(k)
             if type_instantiator:
                 if del_key is None:
                     del_key = True
                 new_args = []
                 new_kwargs = {}
+
                 if include_passed_args:
-                    new_args = args[:]
+                    new_args = list(args[:])
                     new_kwargs = kwargs.copy()
 
                 if isinstance(v, (list, set, tuple)):
@@ -101,7 +119,7 @@ def construct_bp(iter: Iterable, *args, **kwargs) -> rrb.BlueprintLike | Iterabl
                 else:
                     new_args.append(v)
 
-                v = type_instantiator(*new_args, **new_kwargs)
+                v = type_instantiator(*tuple(new_args), **new_kwargs)
 
             if del_key:
                 if isinstance(v, (list, set, tuple)):
@@ -113,86 +131,123 @@ def construct_bp(iter: Iterable, *args, **kwargs) -> rrb.BlueprintLike | Iterabl
             else:
                 return_dict[k] = v
 
-        if return_list:
-            if return_dict:
-                return return_list + [return_dict]
-            
+        if return_list and return_dict:
+            return return_list + [return_dict]
+        elif return_list:
             if len(return_list) == 1:
                 return return_list[0]
-            return return_list
-        return return_dict
+            else:
+                return return_list
+        elif return_dict:
+            return return_dict
 
-    return_list = []
-    for i in iter:
-        v = construct_bp(i, **kwargs)
-        if isinstance(v, (list, set, tuple)):
-            return_list.extend(v)
-        else:
-            return_list.append(v)
+    ### Helpers
+    def get_instantiator(self, k: str) -> Tuple[Optional[Callable], bool]:
+        check_mods = [rr, rrb, rrb.components, rrb.views, rrb.archetypes]
+        for mod in check_mods:
+            m = getattr(mod, k, False)
+            if isinstance(m, Callable):
+                return m, False
 
-    return return_list
+        m = getattr(self, k, False)
+        if isinstance(m, Callable):
+            return m, True
+        return None, True
 
+    def regex_replace(self, k: str, **kwargs):
+        regex_match = re.search(r"\$\{(.+?)\}", k)
+        if not regex_match:
+            return k
 
-def load_blueprint(filepath: Path, blueprint_dir: Optional[Path]=None, loggers: list[Any]=[], **kwargs) -> Optional[rrb.BlueprintLike]:
-    """
-    Load a blueprint from yaml file for the rerun viewer
-    """
-    if blueprint_dir:
-        globals()["BLUEPRINT_DIR"] = blueprint_dir
+        name = regex_match.group(1)
+        if name in kwargs:
+            return f"{k[:regex_match.start()]}{kwargs[name]}{k[regex_match.end():]}"
 
-    if loggers:
-        globals()["LOGGERS"] = loggers
+        type_instantiator = self.get_instantiator(k)
+        if type_instantiator:
+            return type_instantiator()
 
-    if str(filepath) not in BLUEPRINT_YAMLS:
-        # self.print(f"Loading blueprint from {filepath}")
-        with open(filepath) as f:
-            BLUEPRINT_YAMLS[str(filepath)] = yaml.safe_load(f)
+        return k
 
-    v = construct_bp(deepcopy(BLUEPRINT_YAMLS[str(filepath)]), **kwargs)
-    if isinstance(v, list):
-        v = v[0]
+    def get_language_views(
+        self, path: Path = "", bp_dir: bool = False, **kwargs
+    ) -> rrb.BlueprintLike | Iterable:
+        """
+        Generate blueprint views for all languages
+        """
+        if bp_dir:
+            path = Path(self.blueprint_dir, path)
 
-    return v
+        views = {}
+        for lang in LANGS:
+            if not len(lang):
+                continue
 
+            views[lang] = self(path, lang=lang, lang_title=str(lang).title(), **kwargs)
 
-def get_language_views(path: Path="", bp_dir: bool=False, **kwargs) -> rrb.BlueprintLike | Iterable:
-    """
-    Generate blueprint views for all languages
-    """
-    if bp_dir:
-        path = Path(BLUEPRINT_DIR, path)
+        if not views:
+            views = [
+                rrb.TextDocumentView(
+                    origin="/", name="No languages found", contents="+ $origin/no-langs"
+                )
+            ]
+        return views
 
-    views = {}
-    for lang in sorted(LANGS.values()):
-        if not len(lang):
-            continue
+    def get_languages_list(
+        self, path_ext: List[str], **kwargs
+    ) -> rrb.BlueprintLike | Iterable:
+        """
+        Generate a list of entity paths for all languages
+        """
+        return [
+            map_to_entity_path(["+ $origin", lang] + path_ext)
+            for lang in filter(lambda l: len(l), LANGS)
+        ]
 
-        views[lang] = load_blueprint(path, lang=lang.lang, lang_title=lang.lang.title(), **kwargs)
+    def get_logger_views(
+        self, path: Path = "", bp_dir: bool = False, **kwargs
+    ) -> rrb.BlueprintLike | Iterable:
+        """
+        Generate blueprint views for all loggers
+        """
+        if bp_dir:
+            path = Path(self.blueprint_dir, path)
 
-    if not views:
-        views = [rrb.TextDocumentView(origin="/", name="No languages found", contents="+ $origin/no-langs")]
-    return views
+        views = []
+        for logger in LOGGERS:
+            views.append(self(Path(path, f"{logger.name}.yml"), **kwargs))
 
+        return views
 
-def get_languages_list(path_ext: list[str], **kwargs) -> rrb.BlueprintLike | Iterable:
-    """
-    Generate a list of entity paths for all languages
-    """
-    return [map_to_entity_path(["+ $origin", lang] + path_ext) for lang in sorted(LANGS.keys()) if len(LANGS[lang])]
+    def get_range(
+        self, lang: Optional[Language] = None, **kwargs
+    ) -> Tuple[float, float]:
+        """
+        Get the range of a log
+        """
+        logger = LOGGERS["RuntimeLogger"]
+        max_time = logger.max_time[lang] * self.scale_factor
+        min_time = logger.max_time[lang] - max_time
+        return min_time, max_time
 
+    def get_active_tab(self, *args, **kwargs) -> int | str:
+        """
+        Get the active tab
+        """
+        if not len(args):
+            return 0
 
-def get_logger_views(path: Path="", bp_dir: bool=False, **kwargs) -> rrb.BlueprintLike | Iterable:
-    """
-    Generate blueprint views for all loggers
-    """
-    if bp_dir:
-        path = Path(BLUEPRINT_DIR, path)
+        val = kwargs.get(args[0], 0)
+        if isinstance(val, int):
+            return val
 
-    views = []
-    for logger in LOGGERS:
-        views.append(load_blueprint(Path(path, f"{logger.name}.yml"), **kwargs))
+        if isinstance(val, str):
+            return val
 
-    return views
-    
+        if isinstance(val, Language):
+            return list(filter(lambda l: len(l), LANGS)).index(val)
 
-__all__ = ["load_blueprint", "get_language_views", "get_languages_list", "get_logger_views"]
+        if isinstance(val, Logger):
+            return list(LOGGERS).index(val)
+
+        raise NotImplementedError(f"Active tab not implemented for {type(val)}")

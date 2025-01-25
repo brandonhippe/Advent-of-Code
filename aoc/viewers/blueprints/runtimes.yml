@@ -31,3 +31,6 @@ Tabs:
               path: "lang_runtimes.yml"
               bp_dir: True
         name: "By Language"
+        active_tab: 
+          get_active_tab: recent_lang
+  active_tab: 3

@@ -1,0 +1,22 @@
+# RuntimeLogger:
+#   post_load:
+#     - clear
+#   on_log:
+#     - view
+#   pre_exit:
+#     - clear
+#   on_exit:
+#     - view
+#   post_exit:
+#     - clear
+# AnswerLogger:
+#   post_load:
+#     - clear
+#   on_log:
+#     - view
+#   pre_exit:
+#     - clear
+  # on_exit:
+  #   - view
+  # post_exit:
+  #   - clear

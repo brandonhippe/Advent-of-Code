@@ -30,5 +30,5 @@
         "**/target": true
     },
     "python.analysis.typeCheckingMode": "off",
-    "python.analysis.autoImportCompletions": false // regular expression to use for detecting placeholders
+    "python.analysis.autoImportCompletions": true // regular expression to use for detecting placeholders
 }

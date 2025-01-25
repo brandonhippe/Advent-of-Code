@@ -2,12 +2,10 @@
 
 import argparse
 from itertools import product
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from aoc import LANGS, Language, add_arguments, aoc, get_released
 from Modules.progressbar import printProgressBar
-
-DONT_RUN = {}
 
 
 def contiguous_groups(l: List[int]) -> List[Tuple[int, int]]:
@@ -25,12 +23,18 @@ def contiguous_groups(l: List[int]) -> List[Tuple[int, int]]:
     return ranges
 
 
-def run(language_year_days: dict[Language, tuple[int, int]], progressBar: bool, loggers=()):
-    year_days_langs: dict[tuple[tuple[int, int],], list[Language]] = {tuple(sorted(list(year_days))): [] for year_days in language_year_days.values() if len(year_days) != 0}
+def run(
+    language_year_days: Dict[Language, Tuple[int, int]], progressBar: bool, loggers=()
+):
+    year_days_langs: Dict[Tuple[Tuple[int, int],], List[Language]] = {
+        tuple(sorted(list(year_days))): []
+        for year_days in language_year_days.values()
+        if len(year_days) != 0
+    }
     for lang, year_days in language_year_days.items():
         if len(year_days) != 0:
             year_days_langs[tuple(sorted(list(year_days)))].append(lang)
-    
+
     for year_days, langs in year_days_langs.items():
         print(f"Running {', '.join(l.lang for l in langs)} for:")
         for year in sorted(list(set(y for y, _ in year_days))):
@@ -39,7 +43,9 @@ def run(language_year_days: dict[Language, tuple[int, int]], progressBar: bool, 
                 print(f"{year}, day {days_for_year[0]}")
             else:
                 ranges = contiguous_groups(days_for_year)
-                print(f"{year}, days {', '.join(f'{start}-{end}' if start != end else str(start) for start, end in ranges)}")
+                print(
+                    f"{year}, days {', '.join(f'{start}-{end}' if start != end else str(start) for start, end in ranges)}"
+                )
 
         print()
 
@@ -54,7 +60,7 @@ def run(language_year_days: dict[Language, tuple[int, int]], progressBar: bool, 
 
         print(f"Running {language}...")
 
-        for (i, (year, day)) in enumerate(year_days):
+        for i, (year, day) in enumerate(year_days):
             if progressBar and i == 0:
                 printProgressBar(i, len(year_days))
 
@@ -68,55 +74,98 @@ def run(language_year_days: dict[Language, tuple[int, int]], progressBar: bool, 
 
 
 def main(args: argparse.Namespace):
-    years = args.year
-    days = args.day
-    common = args.common
-    languages = {l: LANGS[l] for l in sorted(args.languages) if l not in args.exclude}
-    
+    years = vars(args).get("year", get_released())
+    days = vars(args).get("day", list(range(1, 26)))
+    common = vars(args).get("common", False)
+    languages = {
+        l: LANGS[l.title()] for l in sorted(vars(args).get("languages", LANGS)) if l not in vars(args).get("exclude", [])
+    }
+
     year_days = set((year, day) for year, day in product(years, days))
-    year_days.difference_update(DONT_RUN)
 
     if len(year_days) == 0:
-        if args.verbose:
-            print("No valid years/days for the given languages")
-        return
+        raise ValueError("No valid years/days for the given languages")
 
-    progressBar = not args.verbose and len(year_days) > 1
+    progressBar = not vars(args).get("verbose", False) and len(year_days) > 1
 
     if common:
         for s in [set(lang.discover()) for lang in languages.values()]:
             year_days.intersection_update(s)
 
-    language_year_days = {lang: sorted(list(year_days.intersection(set(lang.discover())))) for lang in languages.values()}
+    language_year_days = {
+        lang: sorted(list(year_days.intersection(set(lang.discover()))))
+        for lang in languages.values()
+    }
     if all(len(k) == 0 for k in language_year_days.values()):
-        if args.verbose:
-            print("No valid years/days for the given languages")
-        return
+        raise ValueError("No valid years/days for the given languages")
 
-    if args.verbose:
+    if vars(args).get("verbose", False):
         print("Running:")
 
-    loggers = vars(args).get("loggers", [])
-    viewers = vars(args).get("viewers", [])
-    with aoc(loggers, viewers):
-        run(language_year_days, progressBar, loggers)
+    with aoc(args) as aoc_runner:
+        if not vars(args).get("no_run", False):
+            run(language_year_days, progressBar, aoc_runner.loggers)
 
 
 def aoc_parser() -> argparse.ArgumentParser:
+    langs_iter = list(map(str, LANGS))
     year_iterable = get_released()
     day_iterable = list(range(1, 26))
 
-    parser = argparse.ArgumentParser(description="Run Advent of Code solutions.", conflict_handler="resolve")
-    parser.add_argument('--year', '-y', type=int, nargs='+', default=year_iterable, help='Specify year(s) to run. Default: All')
-    parser.add_argument('--day', '-d', type=int, nargs='+', default=day_iterable, help='Specify day(s) to run. Default: All')
+    parser = argparse.ArgumentParser(
+        description="Run Advent of Code solutions.", conflict_handler="resolve"
+    )
+
+    parser.add_argument(
+        "--year",
+        "-y",
+        type=int,
+        nargs="+",
+        default=year_iterable,
+        help="Specify year(s) to run. Default: All",
+    )
+    parser.add_argument(
+        "--day",
+        "-d",
+        type=int,
+        nargs="+",
+        default=day_iterable,
+        help="Specify day(s) to run. Default: All",
+    )
+    parser.add_argument(
+        "--no-run",
+        action="store_true",
+        help="Do not run the programs, only load existing data. Default: False",
+    )
 
     lang_group = parser.add_mutually_exclusive_group()
-    lang_group.add_argument('--languages', '-l', type=str, nargs='+', default=LANGS.keys(), choices=LANGS.keys(), help='Specify language(s) to run. Default: All')
-    lang_group.add_argument('--exclude', '-e', type=str, nargs='+', default=[], choices=LANGS.keys(), help='Exclude language(s) from running. Default: None')
+    lang_group.add_argument(
+        "--languages",
+        "-l",
+        type=str,
+        nargs="+",
+        default=langs_iter,
+        choices=langs_iter,
+        help="Specify language(s) to run. Default: All",
+    )
+    lang_group.add_argument(
+        "--exclude",
+        type=str,
+        nargs="+",
+        default=[],
+        choices=langs_iter,
+        help="Exclude language(s) from running. Default: None",
+    )
 
-    parser.add_argument('--common', '-c', action='store_true', help='Run only programs that exist in all specified languages. Default: False')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Print verbose output. Default: False')
-   
+    parser.add_argument(
+        "--common",
+        action="store_true",
+        help="Run only programs that exist in all specified languages. Default: False",
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Print verbose output. Default: False"
+    )
+
     add_arguments(parser)
     return parser
 

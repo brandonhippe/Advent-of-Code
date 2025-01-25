@@ -5,200 +5,274 @@ Runtime logger for Advent of Code
 import argparse
 from collections import defaultdict
 from dataclasses import dataclass, field
-from functools import reduce
-from typing import Any, List, Optional, Tuple
+from heapq import nlargest
+from typing import Any, Hashable, Optional, Tuple, Dict, List
 
-import prettytable as pt
-
-from ..languages import LANGS
-from . import Logger, LoggerAction
+from ..languages import LANGS, Language
+from . import Logger, LoggerAction, DataTracker
 
 
-def init_dict(dict: dict[Any], keys: List[Any]):
+@dataclass
+class RuntimeTracker(DataTracker):
     """
-    Initialize a multi-level dictionary
+    Track runtime data
     """
-    key = keys[0]
-    if len(keys) == 1:
-        if key not in dict:
-            dict[key] = 0.0
-    else:
-        if key not in dict:
-            dict[key] = {}
-        init_dict(dict[key], keys[1:])
 
+    total: float = 0
+    average: float = 0
+
+    def __call__(self, index_labels: List[str], style: str="DEFAULT", **kwargs) -> str:
+        self.longest_runtimes()
+        return super().__call__(index_labels, style, **kwargs)
+
+    def update(self):
+        self.total = sum(
+            v if isinstance(v, float) else v.total for v in self.data.values()
+        )
+        self.average = self.total / len(self.data)
+    
+    def keys_to_indecies(self, keys: List[Hashable]) -> Optional[Tuple[List[str], List[Any], int]]:
+        *keys, k = keys
+        if "longest" in keys:
+            if isinstance(k, tuple):
+                col_name = "time"
+                row_indecies = k
+                tab_name = keys[-1]
+            else:
+                return
+        elif len(keys) < 2:
+            col_name = str(k)
+            tab_name = f"Data"
+            row_indecies = keys
+        else:
+            if len(keys) == 3 and k == "average":
+                return
+            
+            col_name, tab_name, *row_indecies = keys[-3:] + [k]
+
+        if isinstance(k, tuple):
+            return (col_name, tab_name, *row_indecies), (False, False, True, slice(1, None)), 0
+        else:
+            return (col_name, tab_name, *row_indecies), (True, True, False, slice(None)), len(keys)
+
+    def longest_runtimes(
+        self, n_longest=10
+    ) -> None:
+        longest_arr = []
+        def find_times(d: Dict[Hashable, Any], keys: List[Hashable]=[]) -> None:
+            for k, v in list(d.items()):
+                if isinstance(v, dict):
+                    find_times(v, keys + [k])
+                elif isinstance(v, type(self)):
+                    if len(keys) == 2:
+                        longest_arr.append((v.total, keys + [k]))
+                    else:
+                        find_times(v.data, keys + [k])
+                elif isinstance(v, float):
+                    longest_arr.append((v, keys + [k]))
+                else:
+                    raise TypeError("Unexpected data type")
+                
+        find_times(self.data)
+
+        longest_data = nlargest(n_longest, longest_arr, key=lambda x: x[0])
+        self.longest = RuntimeTracker(False)
+        for i, (k, v) in enumerate(longest_data):
+            self.longest.add_data(((i, *v),), new_data=k)
+
+        # for year, day in self.runtime_days():
+        #     for lang in LANGS:
+        #         if [lang, year, day] not in self.data:
+        #             continue
+        #         for part in [1, 2]:
+        #             if [lang, year, day, part] in self.data:
+        #                 longest_arr.append(
+        #                     (
+        #                         self.data[lang, year, day, part],
+        #                         (year, day, part, lang),
+        #                     )
+        #                 )
 
 @dataclass
 class RuntimeLogger(Logger):
     """
     Runtime logger for Advent of Code
     """
-    part_data: dict[int, dict[int, dict[int, dict[str, float]]]] = field(default_factory=dict)
-    day_data: dict[int, dict[int, dict[str, float]]] = field(default_factory=dict)
-    year_average_data: dict[int, dict[str, float]] = field(default_factory=dict)
-    year_total_data: dict[int, dict[str, float]] = field(default_factory=dict)
+
+    data: RuntimeTracker = field(default_factory=RuntimeTracker)
+    max_time: Dict[Language, float] = field(default_factory=lambda: defaultdict(float))
+    min_time: Dict[Language, float] = field(
+        default_factory=lambda: defaultdict(lambda: float("inf"))
+    )
     name: str = "runtimes"
     value_key: str = "time"
+    table_style: str = "DOUBLE_BORDER"
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser) -> None:
         """
         Add arguments to the parser
         """
-        parser.add_argument("--runtimes", "-r", action=LoggerAction, nargs="*", help='Log runtimes. Add " verbose" or "v" to run in verbose mode', type=RuntimeLogger)
-        parser.add_argument("--no-load", action="store_true", help="Don't load existing advent of code data")
-        parser.add_argument("--no-save", action="store_true", help="Don't save advent of code data")
+        parser.add_argument(
+            "--runtimes",
+            "-r",
+            action=LoggerAction,
+            nargs="*",
+            help='Log runtimes. Add " verbose" or "v" to run in verbose mode',
+            type=RuntimeLogger,
+        )
+        parser.add_argument(
+            "--no-load",
+            action="store_true",
+            help="Don't load existing advent of code data",
+        )
+        parser.add_argument(
+            "--no-save", action="store_true", help="Don't save advent of code data"
+        )
+        parser.add_argument(
+            "--runtimes-table-style", type=str, choices=["DEFAULT", "SINGLE_BORDER", "DOUBLE_BORDER"], help="Style of the answer table"
+        )
 
+    ### Context manager functions
+    def __enter__(self):
+        # Load correct answers
+        super().__enter__()
+        self.changed_data = RuntimeTracker(False)
+        return self
+
+    ### Logging helper functions
     def log(self, *args, **kwargs) -> None:
         """
         Log a runtime
-        """        
+        """
+
+        def prep_dict_log(d: Dict, *args) -> None:
+            if not any(isinstance(v, dict) for v in d.values()):
+                x_data = sorted(d.keys())
+                y_data = [d[k] for k in x_data]
+                if len(args) == 3:
+                    if isinstance(args[2], int):
+                        self.add_new_data(
+                            args[1],
+                            x_data,
+                            args[2],
+                            args[0],
+                            lang=args[0],
+                            **{self.value_key: y_data},
+                        )
+                    else:
+                        self.add_new_data(
+                            args[1],
+                            x_data,
+                            args[0],
+                            lang=args[0],
+                            **{self.value_key: y_data},
+                        )
+                elif len(args) == 2:
+                    self.add_new_data(
+                        x_data,
+                        args[0],
+                        args[1],
+                        lang=args[0],
+                        **{self.value_key: y_data},
+                    )
+
+                return
+
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    prep_dict_log(d[k], *args, k)
+                else:
+                    pass
+
         if not kwargs.get("log_all", False):
             self.log_part(*args, **kwargs)
-        else: 
-            for part in range(3):
-                for year, y in sorted(self.part_data.items() if part else self.day_data.items(), key=lambda x: x[0]):
-                    data = defaultdict(lambda: ([], []))
-                    for day, day_data in sorted(y.items(), key=lambda x: x[0]):
-                        if part:
-                            day_data = day_data[part]
-                        for lang, time in day_data.items():
-                            data[lang][0].append(day)
-                            data[lang][1].append(time)
-                    
-                    for lang, (days, times) in sorted(data.items(), key=lambda x: x[0]):
-                        if part:
-                            self.add_new_data(year, days, part, lang, time=times, lang=lang)
-                        else:
-                            self.add_new_data(year, days, lang, time=times, lang=lang)
+        else:
+            data = defaultdict(lambda: defaultdict(dict))
+            for lang in LANGS:
+                for year, day in filter(lambda yd: [lang, *yd] in self.data, self.runtime_days(new_only=False)):
+                    if year not in data[lang]:
+                        data[lang][year] = defaultdict(
+                            lambda: defaultdict(dict), {"combined": {}}
+                        )
 
-            for d, name in zip((self.year_average_data, self.year_total_data), ("avg", "tot")):
-                data = defaultdict(lambda: ([], []))
-                for year in sorted(d.keys()):
-                    for lang, time in sorted(d[year].items(), key=lambda x: x[0]):
-                        data[lang][0].append(year)
-                        data[lang][1].append(time)
+                    for part in range(1, 3):
+                        if [lang, year, day, part] in self.data:
+                            data[lang][year][part][day] = self.data[
+                                lang, year, day, part
+                            ]
 
-                for lang, (years, times) in sorted(data.items(), key=lambda x: x[0]):
-                    self.add_new_data(years, lang, name, time=times, lang=lang)
+                    if len(self.data[lang, year]) // 2 > 1:
+                        data[lang]["avg"][year] = self.data[lang, year].average
+                    if len(self.data[lang, year]) // 2 == 25:
+                        data[lang]["tot"][year] = self.data[lang, year].total
+                    if len(self.data[lang, year, day]) == 2:
+                        data[lang][year]["combined"][day] = self.data[
+                            lang, year, day
+                        ].total
+
+            prep_dict_log(data)
 
         super().log(*args, **kwargs)
-        
-    ### Logging helper functions
-    def log_part(self, year: int, day: int, part: int, lang: Optional[str]=None, time: Optional[float]=None, **kwargs) -> None:
+
+    def log_part(
+        self,
+        year: int,
+        day: int,
+        part: int,
+        lang: Optional[Language] = None,
+        time: Optional[float] = None,
+        event: Optional[str]="on_log",
+        **kwargs,
+    ) -> None:
         """
         Log the runtime data for a part
         """
         if time is None:
             return
-        
+
         if not all((lang, year, day, part)):
-            raise ValueError("Language, year, day, and part must be provided for runtime logging")
+            raise ValueError(
+                "Language, year, day, and part must be provided for runtime logging"
+            )
         
-        if part:
-            init_dict(self.part_data, [year, day, part, lang])
-            self.part_data[year][day][part][lang] = time
-            self.add_new_data(year, day, part, lang, time=time)
-        
-        finished_parts = [p for p in self.part_data[year][day].keys() if lang in self.part_data[year][day][p]]
-        if len(finished_parts) != 2:
-            return
+        if event == "on_log":
+            self.changed_data.add_data((lang, year, day, part), new_data=time)
+        self.data.add_data((lang, year, day, part), new_data=time)
 
-        init_dict(self.day_data, [year, day, lang])
-        self.day_data[year][day][lang] = sum(self.part_data[year][day][p][lang] for p in finished_parts)
-        self.add_new_data(year, day, lang, time=self.day_data[year][day][lang])
+        args = [year, day, part]
+        while len(args):
+            t = self.data[[lang, *args]]
+            if len(args) == 3:
+                self.add_new_data(*args, lang, time=t)
+                if t < self.min_time[lang]:
+                    self.min_time[lang] = t
+                    self.new_data[-1][-1]["min_time"] = t
+            elif len(args) == 2:
+                if len(t) == 2:
+                    self.add_new_data(*args, lang, time=t.total)
+                    if t.total > self.max_time[lang]:
+                        self.max_time[lang] = t.total
+                        self.new_data[-1][-1]["max_time"] = t.total
+            elif len(args) == 1:
+                if len(t) // 2 > 1:
+                    self.add_new_data(*args, lang, "avg", time=t.average)
+                if len(t) // 2 == 25:
+                    self.add_new_data(*args, lang, "tot", time=t.total)
 
-        finished_days = [d for d in self.day_data[year].keys() if lang in self.day_data[year][d]]
-        init_dict(self.year_average_data, [year, lang])
-        self.year_average_data[year][lang] = sum(self.day_data[year][d][lang] for d in finished_days) / len(finished_days)
-        self.add_new_data(year, lang, "avg", time=self.year_average_data[year][lang])
+            args.pop()
 
-        if len(finished_days) == 25:
-            init_dict(self.year_total_data, [year, lang])
-            self.year_total_data[year][lang] = sum(self.day_data[year][d][lang] for d in finished_days)
-            self.add_new_data(year, lang, "tot", time=self.year_total_data[year][lang])
 
-    def get_tables(self, new_only: bool=False, **kwargs) -> List[Tuple[int, pt.PrettyTable]]:
-        """
-        Get runtime tables
-        """
-        def add_times(data: dict[Any], new_labels: dict={}, hide_no_time: bool=False) -> str:
-            for ix, (lang, time) in enumerate(sorted(data.items(), key=lambda x: x[0])):
-                if lang not in columns:
-                    columns[lang] = []
-
-                while len(columns[lang]) < max(map(len, columns.values())):
-                    columns[lang].append("")
-                
-                if ix == 0:
-                    columns[lang].append("")
-                if not hide_no_time or time:
-                    columns[lang][-1] = f"{time:.4f}"
-
-            for col, label in new_labels.items():
-                while len(columns[col]) < max(map(len, columns.values())):
-                    columns[col].append("")
-
-                columns[col][-1] = label
-
-        tables = []
-        for k, v in kwargs.items():
-            if hasattr(pt, v):
-                kwargs[k] = getattr(pt, v)
-
-        if longest_runtimes := self.longest_runtimes():
-            longest_runtimes_table = pt.PrettyTable(**kwargs)
-            longest_runtimes_table.field_names = ["Year", "Day", "Part", "Language", "Time"]
-            for year, day, part, lang in longest_runtimes:
-                if not new_only or (year, day) in LANGS[lang].changed:
-                    longest_runtimes_table.add_row([year, day, part, lang.title(), f"{self.part_data[year][day][part][lang]:.4f}"])
-            if len(longest_runtimes_table._rows):
-                tables.append((f"Longest", longest_runtimes_table))
-
-        changed = reduce(lambda x, y: x.union(y), [lang.changed for lang in LANGS.values()], set())
-        for year in sorted(self.year_average_data.keys()):
-            year_table = pt.PrettyTable(**kwargs)
-            columns = {"Day": [], "Part": []}
-            for day, day_data in sorted(self.day_data.get(year, {}).items(), key=lambda x: x[0]):
-                if not len(day_data) or (new_only and (year, day) not in changed):
-                    continue
-                
-                for part, part_data in sorted(self.part_data.get(year, {}).get(day, {}).items(), key=lambda x: x[0]):
-                    if not len(part_data):
-                        continue
-
-                    add_times(part_data, {"Day": f"{day}" if part == 1 else "", "Part": f"Part {part}"})
-
-                add_times(day_data, {"Part": "Combined"})
-
-            if len(columns["Day"]) == 0:
-                continue
-
-            add_times(self.year_average_data.get(year, {}), {"Day": "Year Average"})
-            add_times(self.year_total_data.get(year, {}), {"Day": "Year Total"}, hide_no_time=True)
-
-            for col_label, col_data in columns.items():
-                while len(col_data) < max(map(len, columns.values())):
-                    col_data.append("")
-                year_table.add_column(col_label.title().center(5), col_data)
-
-            tables.append((str(year), year_table))
-        
-        if s := kwargs.get("style", False):
-            for _, year_table in tables:
-                year_table.set_style(s)
-
-        return tables
-
-    def longest_runtimes(self, n_longest: int=10) -> List[Tuple[Any,]]:
-        def collect_runtimes(runtime_data: dict[Any], indecies: Tuple[Any,]=()) -> None:
-            for k, v in runtime_data.items():
-                if isinstance(v, dict):
-                    collect_runtimes(v, indecies + (k,))
-                else:
-                    all_parts[indecies + (k,)] = v
-        
-        all_parts = {}
-        collect_runtimes(self.part_data)
-        sorted_ixs = sorted(all_parts, key=lambda x: all_parts[x], reverse=True)
-        return sorted_ixs[:n_longest]
+        # if longest_runtimes := self.longest_runtimes(new_only):
+        #     tables["Longest"] = TableMaker(["Year", "Day", "Part", "Language"])
+        #     for t, (year, day, part, lang) in longest_runtimes:
+        #         tables["Longest"].add_data(
+        #             f"{t:.4f}",
+        #             "Time",
+        #             {
+        #                 "Day": f"{day}",
+        #                 "Part": f"{part}",
+        #                 "Year": f"{year}",
+        #                 "Language": lang_name(lang),
+        #             },
+        #         )

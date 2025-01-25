@@ -10,7 +10,8 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd":"${workspaceFolder}/${relativeFileDirname}"
+            "cwd":"${workspaceFolder}/${relativeFileDirname}",
+            "args": ["-r", "-a", "--no-run", "--rerun"]
         },
         // {
         //     "name": "C: Current File",
