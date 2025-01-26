@@ -5,6 +5,7 @@ Answer logger for Advent of Code
 import argparse
 from collections import defaultdict
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
 from typing import Any, Dict, Hashable, List, Optional, Tuple
 
@@ -14,7 +15,8 @@ import pytesseract
 from advent_of_code_ocr import convert_6
 from PIL import Image, ImageDraw
 
-from ..languages import LANGS, Language
+from ..languages import LANGS, Language, get_released
+from ..utils.aoc_web import get_answers
 from . import Logger, LoggerAction, DataTracker
 
 
@@ -144,6 +146,7 @@ class AnswerLogger(Logger):
     data_start: int = 2
     value_key: str = "ans"
     table_style: str = "DOUBLE_BORDER"
+    correct_answers: Dict[Tuple[int, int, int], str] = field(default_factory=dict)
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser) -> None:
@@ -173,15 +176,34 @@ class AnswerLogger(Logger):
     ### Context manager functions
     def __enter__(self):
         # Load correct answers
-        with open(
-            Path(Path(__file__).parent, "aoc_answers.txt"), "r", encoding="utf-8"
-        ) as f:
-            self.correct_answers = {
-                tuple([*map(int, k.split("-")), i]): ans
-                for line in f.readlines()
-                for k, v in [line.strip().split(": ")]
-                for i, ans in enumerate(v.split(";"), 1)
-            }
+        correct_answers_path = Path(Path(__file__).parent, "aoc_answers.txt")
+        if os.path.exists(correct_answers_path):
+            with open(
+                correct_answers_path, "r", encoding="utf-8"
+            ) as f:
+                self.correct_answers = {
+                    tuple([*map(int, k.split("-")), i]): ans
+                    for line in f.readlines()
+                    for k, v in [line.strip().split(": ")]
+                    for i, ans in filter(lambda ans: len(ans[1]), enumerate(v.split(";"), 1))
+                }
+
+        changed = False
+        for year in get_released():
+            for day in get_released(year):
+                if any((year, day, i) not in self.correct_answers for i in ([1] if day == 25 else [1, 2])):
+                    for part, ans in get_answers(year, day).items():
+                        self.correct_answers[(year, day, part)] = ans
+                        changed = True
+
+        if changed:
+            with open(
+                correct_answers_path, "w", encoding="utf-8"
+            ) as f:
+                for year in get_released():
+                    for day in get_released(year):
+                        answers = f"{self.correct_answers.get((year, day, 1), '')};{self.correct_answers.get((year, day, 2), '')}"
+                        f.write(f"{year}-{day}: {answers}\n")
 
         super().__enter__()
         self.changed_data = AnswerTracker(False)
