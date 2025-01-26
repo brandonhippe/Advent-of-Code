@@ -13,6 +13,7 @@ from typing import Any, List, Optional, Set, Tuple
 from zoneinfo import ZoneInfo
 
 from ..subclass_container import SubclassContainer
+from ..utils.aoc_web import get_input
 
 __all__ = ["Language", "LANGS", "get_released"]
 
@@ -197,7 +198,7 @@ class Language(ABC):
         """
         Get the input location for the given year and day.
         """
-        return Path(Path(__file__).parent, "Inputs", f"{year}_{day}.txt")
+        return Path(Path(__file__).parent.parent.parent, "Inputs", f"{year}_{day}.txt")
 
     @abstractmethod
     def parent_dir(self, year: int, day: int) -> Path:
@@ -234,6 +235,11 @@ class Language(ABC):
         Raises FileNotFoundError if the file does not exist.
         """
         if self.exists(year, day):
+            # Get the input if it doesn't exist
+            if not os.path.exists(self.input_loc(year, day)):
+                with open(self.input_loc(year, day), "w") as f:
+                    f.write(get_input(year, day))
+
             results = []
             for part, (ans, time) in enumerate(self.run_func(year, day, verbose), 1):
                 results.append((ans, time))

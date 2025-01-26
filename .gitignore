@@ -70,6 +70,7 @@ Cargo.lock
 **/Inputs/*.txt
 *answers.txt
 **/*_data.yml
+*.env
 
 # Other random things
 *.html
