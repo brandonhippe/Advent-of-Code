@@ -1,3 +1,10 @@
+import re
+import sys
+from pathlib import Path
+from typing import Any, List, Optional, Tuple
+
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from Modules.timer import Timer
 from typing import Any, List, Tuple, Optional
 from collections import defaultdict, deque
 from itertools import product
@@ -14,7 +21,6 @@ def part1(data: List[str]) -> Any:
         a, b = line.split("-")
         connections[a].add(b)
         connections[b].add(a)
-
     total = set()
     for k, connected in connections.items():
         if k[0] != 't':
@@ -58,20 +64,14 @@ def part2(data: List[str]) -> Any:
     return ",".join(sorted(max(bron_kerbosch(connections, set(), set(connections.keys()), set()), key=lambda x: len(x))))
 
 
-def main(verbose: bool = False) -> Tuple[Tuple[Any, float]]:
-    import re
-    import sys
-    from pathlib import Path
-
-    sys.path.append(str(Path(__file__).parent.parent.parent))
-    from Modules.timer import Timer
-
-    year, day = re.findall(r"\d+", str(__file__))[-2:]
-
-    with open(
-        Path(__file__).parent.parent.parent / f"Inputs/{year}_{day}.txt", encoding="UTF-8"
-    ) as f:
-        data = [line.strip("\n") for line in f.readlines()]
+def main(input_path: Optional[Path | str]=None, verbose: bool=False) -> Tuple[Tuple[Any, float]]:
+    if not input_path:
+        if not (input_path := sys.argv[1] if len(sys.argv) > 1 else None):
+            year, day = re.findall(r'\d+', str(__file__))[-2:]
+            input_path = Path(Path(__file__).parent.parent.parent, "Inputs", f"{year}_{day}.txt")
+    
+    with open(input_path, encoding='UTF-8') as f:
+        data = [line.strip('\n') for line in f.readlines()]
 
     with Timer() as p1_time:
         p1 = part1(data)
@@ -89,4 +89,4 @@ def main(verbose: bool = False) -> Tuple[Tuple[Any, float]]:
 
 
 if __name__ == "__main__":
-    main(True)
+    main(verbose=True)

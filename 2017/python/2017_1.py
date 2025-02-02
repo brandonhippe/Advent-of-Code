@@ -1,3 +1,10 @@
+import re
+import sys
+from pathlib import Path
+from typing import Any, List, Optional, Tuple
+
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from Modules.timer import Timer
 def part1(data):
     """ 2017 Day 1 Part 1
 
@@ -47,14 +54,13 @@ def part2(data):
     return sum([int(word[i]) if word[i] == word[(i + (len(word) // 2)) % len(word)] else 0 for i in range(len(word))])
 
 
-def main(verbose = False):
-    from pathlib import Path
-    import sys, re
-    sys.path.append(str(Path(__file__).parent.parent.parent))
-    from Modules.timer import Timer
-    year, day = re.findall('\d+', str(__file__))[-2:]
+def main(input_path: Optional[Path | str]=None, verbose: bool=False) -> Tuple[Tuple[Any, float]]:
+    if not input_path:
+        if not (input_path := sys.argv[1] if len(sys.argv) > 1 else None):
+            year, day = re.findall(r'\d+', str(__file__))[-2:]
+            input_path = Path(Path(__file__).parent.parent.parent, "Inputs", f"{year}_{day}.txt")
     
-    with open(Path(__file__).parent.parent.parent / f"Inputs/{year}_{day}.txt", encoding='UTF-8') as f:
+    with open(input_path, encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     with Timer() as p1_time:
@@ -73,4 +79,4 @@ def main(verbose = False):
 
 
 if __name__ == "__main__":
-    main(True)
+    main(verbose=True)

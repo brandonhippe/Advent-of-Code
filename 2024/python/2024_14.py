@@ -1,4 +1,10 @@
-from typing import List, Tuple, Any
+import re
+import sys
+from pathlib import Path
+from typing import Any, List, Optional, Tuple
+
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from Modules.timer import Timer
 import re
 import numpy as np
 
@@ -88,14 +94,13 @@ def part2(data: List[str]) -> Any:
     return sum(a * y * z for a, y, z in zip(a_s, y_s, z_s)) % np.prod(n_s)
 
 
-def main(verbose: bool=False) -> Tuple[Tuple[Any, float]]:
-    from pathlib import Path
-    import sys, re
-    sys.path.append(str(Path(__file__).parent.parent.parent))
-    from Modules.timer import Timer
-    year, day = re.findall(r'\d+', str(__file__))[-2:]
+def main(input_path: Optional[Path | str]=None, verbose: bool=False) -> Tuple[Tuple[Any, float]]:
+    if not input_path:
+        if not (input_path := sys.argv[1] if len(sys.argv) > 1 else None):
+            year, day = re.findall(r'\d+', str(__file__))[-2:]
+            input_path = Path(Path(__file__).parent.parent.parent, "Inputs", f"{year}_{day}.txt")
     
-    with open(Path(__file__).parent.parent.parent / f"Inputs/{year}_{day}.txt", encoding='UTF-8') as f:
+    with open(input_path, encoding='UTF-8') as f:
         data = [line.strip('\n') for line in f.readlines()]
 
     with Timer() as p1_time:
@@ -114,4 +119,4 @@ def main(verbose: bool=False) -> Tuple[Tuple[Any, float]]:
 
 
 if __name__ == "__main__":
-    main(True)
+    main(verbose=True)
