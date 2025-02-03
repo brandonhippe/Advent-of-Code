@@ -46,11 +46,14 @@ class Logger(ABC):
     post_exit: List[Callable] = field(default_factory=list)
     value_key: str = "value"
     verbose: bool = False
+    data_prefix: str = ""
+    data_yaml_path: Path = field(init=False)
 
     def __post_init__(self):
         self.started = True
         if isinstance(self.args, argparse.Namespace):
             self.verbose = vars(self.args).get("verbose", False)
+            self.data_yaml_path = Path(Path(__file__).parent, "_".join(filter(None, (self.name, self.data_prefix, "data.yml"))))
 
     def __hash__(self):
         return hash(self.name)
@@ -154,7 +157,6 @@ class Logger(ABC):
         """
         Load logger data
         """
-
         def log_dict(d: dict, value_key: str, keys: List[Any] = []) -> None:
             for k, v in d.items():
                 if isinstance(v, dict):
@@ -162,14 +164,13 @@ class Logger(ABC):
                 elif k.title() in LANGS and len(keys) == 3:
                     LANGS[k.title()].add_part(*keys, **{value_key: v}, loggers=[self], event="on_load")
 
-        if vars(self.args).get("no_load", False) or not os.path.exists(
-            Path(Path(__file__).parent, f"{self.name}_data.yml")
-        ):
+
+        if vars(self.args).get("no_load", False) or not os.path.exists(self.data_yaml_path):
             return
 
         self.print("Loading data")
 
-        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "r") as f:
+        with open(self.data_yaml_path, "r") as f:
             if data := yaml.safe_load(f):
                 for v in data.values():
                     log_dict(v, self.value_key)
@@ -190,7 +191,7 @@ class Logger(ABC):
         self.print("Saving data")
         self.print(self.data(["Language", "Year", "Day", "Part"], style=self.table_style))
 
-        with open(Path(Path(__file__).parent, f"{self.name}_data.yml"), "w") as f:
+        with open(self.data_yaml_path, "w") as f:
             yaml.safe_dump(self(), f)
 
         self.print("Data saved")

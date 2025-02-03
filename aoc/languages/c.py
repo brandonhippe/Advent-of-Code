@@ -23,5 +23,5 @@ class C(Language):
 
     def run_str(self, year: int, day: int) -> str:
         return (
-            f".{os.sep}{year}_{day}{'.exe' if platform.system() == 'Windows' else ''}"
+            f".{os.sep}{year}_{day}{'.exe' if platform.system() == 'Windows' else ''} {self.input_loc(year, day)}"
         )

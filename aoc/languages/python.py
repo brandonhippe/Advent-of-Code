@@ -29,7 +29,7 @@ class Python(Language):
         if verbose:
             print(f"\n{self.lang.title()} {year} day {day} output:", end="")
 
-        (p1, p1_elapsed), (p2, p2_elapsed) = code.main(verbose)
+        (p1, p1_elapsed), (p2, p2_elapsed) = code.main(input_path=self.input_loc(year, day), verbose=verbose)
 
         os.chdir(thisDir)
         sys.path.pop()

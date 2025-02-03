@@ -16,7 +16,7 @@ from advent_of_code_ocr import convert_6
 from PIL import Image, ImageDraw
 
 from ..languages import LANGS, Language, get_released
-from ..utils.aoc_web import get_answers
+from ..utils.aoc_web import AOC_COOKIE, get_answers, submit_answer
 from . import Logger, LoggerAction, DataTracker
 
 
@@ -147,6 +147,9 @@ class AnswerLogger(Logger):
     value_key: str = "ans"
     table_style: str = "DOUBLE_BORDER"
     correct_answers: Dict[Tuple[int, int, int], str] = field(default_factory=dict)
+    correct_changed: bool = False
+    correct_answers_path = Path(Path(__file__).parent, "correct_answers", f"{AOC_COOKIE}_answers.txt")
+    data_prefix: str = AOC_COOKIE
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser) -> None:
@@ -176,38 +179,42 @@ class AnswerLogger(Logger):
     ### Context manager functions
     def __enter__(self):
         # Load correct answers
-        correct_answers_path = Path(Path(__file__).parent, "aoc_answers.txt")
-        if os.path.exists(correct_answers_path):
+        if os.path.exists(self.correct_answers_path):
             with open(
-                correct_answers_path, "r", encoding="utf-8"
+                self.correct_answers_path, "r", encoding="utf-8"
             ) as f:
                 self.correct_answers = {
                     tuple([*map(int, k.split("-")), i]): ans
                     for line in f.readlines()
                     for k, v in [line.strip().split(": ")]
-                    for i, ans in filter(lambda ans: len(ans[1]), enumerate(v.split(";"), 1))
+                    for i, ans in enumerate(v.split(";"), 1)
+                    # for i, ans in filter(lambda ans: len(ans[1]), enumerate(v.split(";"), 1))
                 }
 
-        changed = False
-        for year in get_released():
-            for day in get_released(year):
-                if any((year, day, i) not in self.correct_answers for i in ([1] if day == 25 else [1, 2])):
-                    for part, ans in get_answers(year, day).items():
-                        self.correct_answers[(year, day, part)] = ans
-                        changed = True
-
-        if changed:
-            with open(
-                correct_answers_path, "w", encoding="utf-8"
-            ) as f:
-                for year in get_released():
-                    for day in get_released(year):
-                        answers = f"{self.correct_answers.get((year, day, 1), '')};{self.correct_answers.get((year, day, 2), '')}"
-                        f.write(f"{year}-{day}: {answers}\n")
+        # for year in get_released():
+        #     for day in get_released(year):
+        #         if any((year, day, i) not in self.correct_answers for i in ([1] if day == 25 else [1, 2])):
+        #             for part, ans in get_answers(year, day).items():
+        #                 self.correct_answers[(year, day, part)] = ans
+        #                 self.correct_changed = True
 
         super().__enter__()
         self.changed_data = AnswerTracker(False)
         return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        if super().__exit__(exc_type, exc_val, exc_tb):
+            if self.correct_changed:
+                self.correct_answers_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(
+                    Path(self.correct_answers_path), "w", encoding="utf-8"
+                ) as f:
+                    for year in get_released():
+                        for day in get_released(year):
+                            answers = f"{self.correct_answers.get((year, day, 1), ' ')};{self.correct_answers.get((year, day, 2), ' ')}"
+                            f.write(f"{year}-{day}: {answers}\n")
+        
+        return not bool(exc_type)
 
     def log(self, *args, **kwargs) -> None:
         """
@@ -305,14 +312,15 @@ class AnswerLogger(Logger):
 
         if event == "on_log":
             self.changed_data.add_data((lang, year, day, part), new_data=ans, incorrect=incorrect)
-            # if (year, day, part) in self.correct_answers and ans != self.correct_answers[(year, day, part)]:
-            #     self.incorrect.add_data((lang, year, day, part), new_data=ans)
 
         self.add_new_data(
             year, day, part, lang, ans=ans
         )
-        # if part == 2:
-        #     self.add_new_data(year, day, lang, ans="")
+
+        if (year, day, part) not in self.correct_answers:
+            if submit_answer(year, day, part, ans):
+                self.correct_answers[(year, day, part)] = ans
+                self.correct_changed = True
 
     def get_incorrect(self, new_only: bool = False) -> Dict[Tuple[Any,], str]:
         """

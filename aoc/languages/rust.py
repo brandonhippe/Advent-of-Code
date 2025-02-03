@@ -21,4 +21,4 @@ class Rust(Language):
         return "cargo build --release"
 
     def run_str(self, year: int, day: int) -> str:
-        return "cargo run --release"
+        return f"cargo run --release {self.input_loc(year, day)}"

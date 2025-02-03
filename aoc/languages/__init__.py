@@ -13,7 +13,7 @@ from typing import Any, List, Optional, Set, Tuple
 from zoneinfo import ZoneInfo
 
 from ..subclass_container import SubclassContainer
-from ..utils.aoc_web import get_input
+from ..utils.aoc_web import get_input, AOC_COOKIE
 
 __all__ = ["Language", "LANGS", "get_released"]
 
@@ -198,7 +198,10 @@ class Language(ABC):
         """
         Get the input location for the given year and day.
         """
-        return Path(Path(__file__).parent.parent.parent, "Inputs", f"{year}_{day}.txt")
+        if AOC_COOKIE:
+            return Path(Path(__file__).parent.parent, "Inputs", AOC_COOKIE, f"{year}_{day}.txt")
+        else:
+            return Path(Path(__file__).parent.parent.parent, "Inputs", f"{year}_{day}.txt")
 
     @abstractmethod
     def parent_dir(self, year: int, day: int) -> Path:
@@ -236,8 +239,10 @@ class Language(ABC):
         """
         if self.exists(year, day):
             # Get the input if it doesn't exist
-            if not os.path.exists(self.input_loc(year, day)):
-                with open(self.input_loc(year, day), "w") as f:
+            input_loc = self.input_loc(year, day)
+            if not os.path.exists(input_loc):
+                input_loc.parent.mkdir(parents=True, exist_ok=True)
+                with open(input_loc, "w") as f:
                     f.write(get_input(year, day))
 
             results = []

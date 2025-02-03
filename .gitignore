@@ -67,7 +67,8 @@ target
 Cargo.lock
 
 # Advent of Code Ignored
-**/Inputs/*.txt
+**/Inputs/*
+!**/Inputs/.gitkeep
 *answers.txt
 **/*_data.yml
 *.env
