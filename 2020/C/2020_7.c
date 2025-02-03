@@ -4,17 +4,17 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
-#define fileName "../../Inputs/2020_7.txt"
+#define defaultInput "../../Inputs/2020_7.txt"
 #define dataLine 500
 #define nameLen 100
 
 
 struct bag *createBag(struct bag *b, char bagName[25], int arrLen, int *arr, char *amounts);
 void printBag(struct bag *b);
-int findLines();
-struct bag **readData(int numBags, char *bagNames);
+int findLines(char *fileName);
+struct bag **readData(int numBags, char *bagNames, char *fileName);
 int getBagIndex(char *search, char *bagsList);
-char* getBagNames();
+char* getBagNames(char *fileName);
 void findBagContents(char *inputText, int *arr, int arrIndex);
 int getAmount(char *amts, int index);
 int numInstances(char *str, char character);
@@ -50,7 +50,7 @@ void printBag(struct bag *b) {
     printf("\n");
 }
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -71,7 +71,7 @@ int findLines() {
 	return numLines;
 }
 
-struct bag **readData(int numBags, char *bagNames) {
+struct bag **readData(int numBags, char *bagNames, char *fileName) {
     struct bag **bags = (struct bag **)calloc(numBags, sizeof(struct bag *));
     int lineNum = 0;
 	char textRead[dataLine];
@@ -184,7 +184,7 @@ int getBagIndex(char *search, char *bagsList) {
     return index;
 }
 
-char* getBagNames() {
+char* getBagNames(char *fileName) {
     int lineNum = 0;
 	char textRead[dataLine], *p, *bagStr;
 
@@ -295,17 +295,22 @@ int part2(struct bag **bags, char *bagNames) {
     return numContain(bags[getBagIndex("shiny gold", bagNames)], bags);
 }
 
-int main () {
-    int numLines = findLines();
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
+    int numLines = findLines(inputPath);
 
 	if (numLines == -1) {
         printf("Error: Could not read input file. Quitting\n");
         return -1;
 	}
 
-	char *bagNames = getBagNames();
+	char *bagNames = getBagNames(inputPath);
 
-	struct bag** bags = readData(numLines, bagNames);
+	struct bag** bags = readData(numLines, bagNames, inputPath);
 
     clock_t t; 
     t = clock(); 

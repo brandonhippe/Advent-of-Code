@@ -4,10 +4,10 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
-#define fileName "../../Inputs/2020_5.txt"
+#define defaultInput "../../Inputs/2020_5.txt"
 #define dataLine 15
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -28,7 +28,7 @@ int findLines() {
 	return numLines;
 }
 
-void readData(int *seats) {
+void readData(int *seats, char *fileName) {
     int index = 0;
 	char textRead[dataLine], *p;
 
@@ -128,10 +128,15 @@ int part2(int *seats, int numLines) {
     return seat;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
 	int numLines, count = 0, max;
 
-	numLines = findLines();
+	numLines = findLines(inputPath);
 
 	if (numLines == -1) {
         printf("Error: Could not read input file. Quitting\n");
@@ -139,7 +144,7 @@ int main () {
 	}
 
     int seats[numLines];
-    readData(&seats[0]);
+    readData(&seats[0], inputPath);
 
     clock_t t; 
     t = clock(); 
@@ -156,4 +161,3 @@ int main () {
 
 	return 0;
 }
-

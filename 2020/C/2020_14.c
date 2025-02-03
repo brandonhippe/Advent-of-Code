@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_14.txt"
+#define defaultInput "../../Inputs/2020_14.txt"
 #define dataLine 50
 
 void uLtoBin(unsigned long long int inp, int *arr, int numBits);
@@ -16,7 +16,7 @@ void applyBitmask_p2(char *bitmask, unsigned long long int addr, unsigned long l
 int findIndex(unsigned long long int addrs, unsigned long long int *memAddrs, int num);
 
 
-unsigned long long int findAddr() {
+unsigned long long int findAddr(char *fileName) {
     unsigned long long int numAddr = 0;
 	char textRead[dataLine], *p, bitmask[dataLine];
 
@@ -56,7 +56,7 @@ int countChar(char *bitmask, char id) {
 }
 
 
-int readData_p2(unsigned long long int *memAddrs, unsigned long long int *memVals, int numAddr) {
+int readData_p2(unsigned long long int *memAddrs, unsigned long long int *memVals, int numAddr, char *fileName) {
     unsigned long long int val, addr;
 	char textRead[dataLine], bitmask[37], *p, *endp;
 	int addrsAssigned = 0;
@@ -174,7 +174,7 @@ unsigned long long int binToUL (int *arr, int numBits) {
     return result;
 }
 
-unsigned long long int findMaxAddr() {
+unsigned long long int findMaxAddr(char *fileName) {
 	unsigned long int maxAddr = 0, addr;
 	char textRead[dataLine], *p;
 
@@ -205,7 +205,7 @@ unsigned long long int findMaxAddr() {
 	return maxAddr + 1;
 }
 
-void readData_p1(unsigned long long int *memory) {
+void readData_p1(unsigned long long int *memory, char *fileName) {
     unsigned long long int temp;
     unsigned int addr;
 	char textRead[dataLine], bitmask[37], *p, *endp;
@@ -259,8 +259,8 @@ unsigned long long int applyBitmask_p1(char *bitmask, unsigned long long int inp
     return inp;
 }
 
-unsigned long long int part1() {
-    unsigned long long int memSum = 0, *memory, largestAddr = findMaxAddr();
+unsigned long long int part1(char *fileName) {
+    unsigned long long int memSum = 0, *memory, largestAddr = findMaxAddr(fileName);
 
     if (largestAddr < 0) {
         printf("Error: could not open file.\n");
@@ -268,7 +268,7 @@ unsigned long long int part1() {
     }
 
     memory = (unsigned long long int *)calloc(largestAddr, sizeof(unsigned long long int));
-    readData_p1(memory);
+    readData_p1(memory, fileName);
 
     for (unsigned int i = 0; i < largestAddr; i++) {
         //printf("%lu\n", memory[i]);
@@ -278,8 +278,8 @@ unsigned long long int part1() {
     return memSum;
 }
 
-unsigned long long int part2() {
-    unsigned long long int numAddr = findAddr();
+unsigned long long int part2(char *fileName) {
+    unsigned long long int numAddr = findAddr(fileName);
     unsigned long long int *memAddrs = (unsigned long long int*)calloc(numAddr, sizeof(unsigned long long int)), *memVals = (unsigned long long int*)calloc(numAddr, sizeof(unsigned long long int));
 
     // unsigned long long int memAddrs[numAddr], memVals[numAddr];
@@ -289,7 +289,7 @@ unsigned long long int part2() {
     //     memVals[i] = 0;
     // }
 
-    int assigned = readData_p2(memAddrs, memVals, numAddr);
+    int assigned = readData_p2(memAddrs, memVals, numAddr, fileName);
 
     unsigned long long int memSum = 0;
 
@@ -302,16 +302,21 @@ unsigned long long int part2() {
 
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t; 
     t = clock(); 
-    unsigned long long int p1 = part1();
+    unsigned long long int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nThe sum of all values left in memory is: %llu\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    unsigned long long int p2 = part2();
+    unsigned long long int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nThe sum of all values left in memory is: %llu\nRan in %f seconds\n", p2, t_p2);

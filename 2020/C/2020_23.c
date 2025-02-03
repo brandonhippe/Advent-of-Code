@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_23.txt"
+#define defaultInput "../../Inputs/2020_23.txt"
 #define dataLine 10
 
 typedef struct deque {
@@ -161,7 +161,7 @@ int find_back(struct deque *d, int c) {
     return -1;
 }
 
-int *readData() {
+int *readData(char *fileName) {
     int *d = (int*)calloc(10, sizeof(int));
 	char textRead[dataLine];
 
@@ -196,8 +196,8 @@ int arr_index(int *arr, int size, int val) {
     return -1;
 }
 
-int part1() {
-    int *data = readData();
+int part1(char *fileName) {
+    int *data = readData(fileName);
     struct deque *order = createDeque();
     for (int i = 0; i < 9; i++) {
         pushBack(order, data[i]);
@@ -244,8 +244,8 @@ int part1() {
     return result;
 }
 
-unsigned long long part2() {
-    int *data = readData();
+unsigned long long part2(char *fileName) {
+    int *data = readData(fileName);
     int moves = 10000000;
 
     int *cups = (int*)calloc(1000001, sizeof(int));
@@ -302,16 +302,21 @@ unsigned long long part2() {
     return (unsigned long long) cups[1] * (unsigned long long) cups[cups[1]];
 }
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nCup order: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    unsigned long long p2 = part2();
+    unsigned long long p2 = part2(inputPath);
     t = clock() - t; 
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nProduct of next two labels: %llu\nRan in %f seconds\n", p2, t_p2);

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_24.txt"
+#define defaultInput "../../Inputs/2020_24.txt"
 #define dataLine 100
 
 typedef struct tile {
@@ -35,7 +35,7 @@ int getIndex(int col, int row, int max) {
     return (row * ((2 * max) + 1)) + col;
 }
 
-Tile **readData(int *numT, int *maxVal) {
+Tile **readData(int *numT, int *maxVal, char *fileName) {
 	char textRead[dataLine];
 	Tile **tiles = (Tile **)calloc(1, sizeof(Tile *));
 	int numTiles = 0, allocated = 1, max = 0;
@@ -139,9 +139,9 @@ int countNeighbors(int col, int row, bool *states, int max) {
     return count;
 }
 
-int part1() {
+int part1(char *fileName) {
     int numTiles, max;
-    Tile **tiles = readData(&numTiles, &max);
+    Tile **tiles = readData(&numTiles, &max, fileName);
 
     int count = 0;
 
@@ -153,9 +153,9 @@ int part1() {
     return count;
 }
 
-int part2() {
+int part2(char *fileName) {
     int numTiles, max;
-    Tile **tiles = readData(&numTiles, &max);
+    Tile **tiles = readData(&numTiles, &max, fileName);
     int size = ((2 * max) + 1) * ((2 * max) + 1), allocated;
     bool *states = (bool*)calloc(size, sizeof(bool)), resize = true;
 
@@ -265,16 +265,21 @@ int part2() {
     return count;
 }
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\n# of black tiles: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\n# of black tiles: %d\nRan in %f seconds\n", p2, t_p2);

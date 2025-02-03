@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_15.txt"
+#define defaultInput "../../Inputs/2020_15.txt"
 #define dataLine 100
 
-int* readData(int *start, int *prev, int end) {
+int* readData(int *start, int *prev, int end, char *fileName) {
     int *arr = (int*)calloc(end + 1, sizeof(int));
     char textRead[dataLine], *p;
     int i = 0;
@@ -53,30 +53,35 @@ int cycle(int start, int end, int *spoken, int prev) {
     return prev;
 }
 
-int part1() {
+int part1(char *fileName) {
     int *start = (int*)calloc(1, sizeof(int)), *prev = (int*)calloc(1, sizeof(int));
-    int *spoken = readData(start, prev, 2020);
+    int *spoken = readData(start, prev, 2020, fileName);
 
     return cycle(*start, 2020, spoken, *prev);
 }
 
-int part2() {
+int part2(char *fileName) {
     int *start = (int*)calloc(1, sizeof(int)), *prev = (int*)calloc(1, sizeof(int));
-    int *spoken = readData(start, prev, 30000000);
+    int *spoken = readData(start, prev, 30000000, fileName);
 
     return cycle(*start, 30000000, spoken, *prev);
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t; 
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nThe 2020th spoken number is: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nThe 30000000th spoken number is: %d\nRan in %f seconds\n", p2, t_p2);

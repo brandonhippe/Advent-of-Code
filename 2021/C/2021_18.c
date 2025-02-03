@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
+#define defaultInput "../../Inputs/2021_18.txt"
 #include "../../Modules/input.h"
 #include "../../Modules/set.h"
-#define fileName "../../Inputs/2021_18.txt"
 
 
 struct snailfish {
@@ -181,7 +181,7 @@ int sfMag(struct snailfish *sf) {
     return 3 * sfMag(sf->left) + 2 * sfMag(sf->right);
 }
 
-int part1() {
+int part1(char *fileName) {
     struct vector *input_data = multiLine(fileName), *snailfishes = createVector(snailfishSize, copyElement);
 
     for (int i = 0; i < input_data->len; i++) {
@@ -200,7 +200,7 @@ int part1() {
     return sfMag(sf);
 }
 
-int part2() {
+int part2(char *fileName) {
     struct vector *input_data = multiLine(fileName), *snailfishes = createVector(snailfishSize, copyElement);
 
     for (int i = 0; i < input_data->len; i++) {
@@ -232,16 +232,21 @@ int part2() {
 }
 
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nMagnitude of snailfish sum: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nMaximum magnitude of sum of 2 snailfish numbers: %d\nRan in %f seconds\n", p2, t_p2);

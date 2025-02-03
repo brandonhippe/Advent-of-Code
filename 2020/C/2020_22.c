@@ -5,8 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_22.txt"
-// #define fileName "example.txt"
+#define defaultInput "../../Inputs/2020_22.txt"
 #define dataLine 20
 #define size 50
 
@@ -46,7 +45,7 @@ void printHand(struct hand *h) {
     return;
 }
 
-void readData(struct hand **players) {
+void readData(struct hand **players, char *fileName) {
     int player = 0, index = size;
 	char textRead[dataLine];
 	struct hand *h;
@@ -218,13 +217,13 @@ int newGame(struct hand **players) {
     }
 }
 
-int part1() {
+int part1(char *fileName) {
     struct hand **players = (struct hand**)calloc(2, sizeof(struct hand*));
     for (int i = 1; i <= 2; i++) {
         players[i - 1] = createHand(i);
     }
 
-    readData(players);
+    readData(players, fileName);
 
     bool finished = false;
     while (!finished) {
@@ -269,13 +268,13 @@ int part1() {
     return count;
 }
 
-int part2() {
+int part2(char *fileName) {
     struct hand **players = (struct hand**)calloc(2, sizeof(struct hand*));
     for (int i = 1; i <= 2; i++) {
         players[i - 1] = createHand(i);
     }
 
-    readData(players);
+    readData(players, fileName);
     newGame(players);
 
     int count = 0;
@@ -293,16 +292,21 @@ int part2() {
 }
 
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nWinner's Score: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t; 
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nWinner's Score: %d\nRan in %f seconds\n", p2, t_p2);

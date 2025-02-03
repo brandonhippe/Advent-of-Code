@@ -3,10 +3,10 @@
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
-#define fileName "../../Inputs/2020_3.txt"
 #define dataLine 33
+#define defaultInput "../../Inputs/2020_3.txt"
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -27,12 +27,12 @@ int findLines() {
 	return numLines;
 }
 
-int part1 () {
+int part1(char *fileName) {
 	int numLines, count = 0;
 	int slope[2] = {3, 1};
 	int loc[2] = {0, 0};
 
-	numLines = findLines();
+	numLines = findLines(fileName);
 
 	if (numLines == -1) {
 		printf("Error: could not open file. Quitting\n");
@@ -63,12 +63,13 @@ int part1 () {
     return count;
 }
 
-int part2 () {
+int part2(char *fileName) {
 	int numLines, count, product = 1;
 	int slope[2];
 	int loc[2];
 
-	numLines = findLines();
+
+	numLines = findLines(fileName);
 
 	if (numLines == -1) {
 		printf("Error: could not open file. Quitting\n");
@@ -124,16 +125,21 @@ int part2 () {
     return product;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t; 
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nTrees hit: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nProduct of trees hit at different slopes: %d\nRan in %f seconds\n", p2, t_p2);

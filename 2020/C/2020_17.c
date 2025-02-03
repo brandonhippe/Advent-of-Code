@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_17.txt"
+#define defaultInput "../../Inputs/2020_17.txt"
 #define dataLine 10
 
 int numLines, iterations, wLen, xLen, yLen, zLen;
@@ -82,7 +82,7 @@ struct cube_p1 *createCube_p1(struct cube_p1 *c, int x, int y, int z) {
     return c;
 }
 
-int findLines() {
+int findLines(char *fileName) {
     int numLines = 0;
 	char textRead[dataLine];
 
@@ -103,7 +103,7 @@ int findLines() {
 	return numLines;
 }
 
-void readData_p1(int *states) {
+void readData_p1(int *states, char *fileName) {
     int index = 0;
 	char textRead[dataLine];
 
@@ -224,7 +224,7 @@ struct cube_p2 *createCube_p2(struct cube_p2 *c, int x, int y, int z, int w) {
     return c;
 }
 
-void readData_p2(int *states) {
+void readData_p2(int *states, char *fileName) {
     int index = 0;
 	char textRead[dataLine];
 
@@ -279,7 +279,7 @@ void assignNeighbors_p2(struct cube_p2 **cubes) {
     return;
 }
 
-int part1() {
+int part1(char *fileName) {
     iterations = 6;
     xLen = numLines + 2 * iterations;
     yLen = numLines + 2 * iterations;
@@ -309,7 +309,7 @@ int part1() {
     }
 
     int initial[numLines * numLines];
-    readData_p1(&initial[0]);
+    readData_p1(&initial[0], fileName);
 
     y = -1;
     z = 0;
@@ -377,7 +377,7 @@ int part1() {
     return count;
 }
 
-int part2() {
+int part2(char *fileName) {
     xLen = numLines + 2 * iterations;
     yLen = numLines + 2 * iterations;
     zLen = 1 + 2 * iterations;
@@ -411,7 +411,7 @@ int part2() {
     }
 
     int initial[numLines * numLines];
-    readData_p2(&initial[0]);
+    readData_p2(&initial[0], fileName);
 
     y = -1;
     z = 0;
@@ -480,18 +480,23 @@ int part2() {
     return count;
 }
 
-int main() {
-    numLines = findLines();
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
+    numLines = findLines(inputPath);
 
     clock_t t; 
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nActive cubes: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nActive cubes: %d\nRan in %f seconds\n", p2, t_p2);

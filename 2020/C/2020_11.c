@@ -4,10 +4,10 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
-#define fileName "../../Inputs/2020_11.txt"
+#define defaultInput "../../Inputs/2020_11.txt"
 #define dataLine 105
 
-int findLines(int *len) {
+int findLines(int *len, char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -29,7 +29,7 @@ int findLines(int *len) {
 	return numLines;
 }
 
-void readData(int *nums, int line) {
+void readData(int *nums, int line, char *fileName) {
     int lineNum = 0, index;
 	char textRead[dataLine];
 
@@ -195,9 +195,14 @@ int part2(int *seats, int lines, int line) {
     return countOcc(seats, lines * line);
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     int numLines, len = 0;
-	numLines = findLines(&len);
+	numLines = findLines(&len, inputPath);
 	len--;
 
 	if (numLines == -1) {
@@ -206,7 +211,7 @@ int main () {
 	}
 
 	int seats[numLines][len];
-	readData(&seats[0][0], len);
+	readData(&seats[0][0], len, inputPath);
 
     clock_t t; 
     t = clock(); 
@@ -215,7 +220,7 @@ int main () {
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nNumber of occupied seats: %d\nRan in %f seconds\n", p1, t_p1);
 
-    readData(&seats[0][0], len);
+    readData(&seats[0][0], len, inputPath);
     t = clock();
     int p2 = part2(&seats[0][0], numLines, len);
     t = clock() - t;

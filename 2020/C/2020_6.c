@@ -4,10 +4,10 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
-#define fileName "../../Inputs/2020_6.txt"
+#define defaultInput "../../Inputs/2020_6.txt"
 #define dataLine 30
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -28,7 +28,7 @@ int findLines() {
 	return numLines;
 }
 
-void groupSize(int *groups) {
+void groupSize(int *groups, char *fileName) {
     int group = 0, i = 0;
 	char textRead[dataLine];
 
@@ -60,7 +60,7 @@ int charCount(char *str, int ch) {
     return count;
 }
 
-int part1() {
+int part1(char *fileName) {
     int count = 0;
 	char textRead[dataLine], ans[dataLine];
 	for (int i = 0; i < dataLine; i++) {
@@ -111,7 +111,7 @@ int part1() {
     return count;
 }
 
-int part2(int *groups) {
+int part2(int *groups, char *fileName) {
     int count = 0, lineNum = 0;
 	char textRead[dataLine], *ans;
 
@@ -147,10 +147,15 @@ int part2(int *groups) {
     return count;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
 	int numLines, count = 0, max;
 
-	numLines = findLines();
+	numLines = findLines(inputPath);
 
 	if (numLines == -1) {
         printf("Error: Could not read input file. Quitting\n");
@@ -158,21 +163,20 @@ int main () {
 	}
 
     int groups[numLines];
-    groupSize(&groups[0]);
+    groupSize(&groups[0], inputPath);
 
     clock_t t; 
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nNumber of questions answered yes: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    int p2 = part2(&groups[0]);
+    int p2 = part2(&groups[0], inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nNumber of questions answered yes by everyone in a group: %d\nRan in %f seconds\n", p2, t_p2);
 
 	return 0;
 }
-

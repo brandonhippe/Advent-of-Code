@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_21.txt"
+#define defaultInput "../../Inputs/2020_21.txt"
 #define dataLine 600
 
 
@@ -170,7 +170,7 @@ bool inCSV(char *check, char *csv) {
     return false;
 }
 
-int numLines() {
+int numLines(char *fileName) {
 	char textRead[dataLine];
 	int size = 0;
 
@@ -191,7 +191,7 @@ int numLines() {
 	return size;
 }
 
-void readData(struct food **foods) {
+void readData(struct food **foods, char *fileName) {
 	char textRead[dataLine];
 	int size = 0;
 
@@ -586,10 +586,15 @@ char *part2(struct allergen **allergens, struct ingredient **ingredients, char *
 }
 
 
-int main() {
-    int numFoods = numLines();
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
+    int numFoods = numLines(inputPath);
     struct food **foods = (struct food **)calloc(numFoods, sizeof(struct food *));
-    readData(foods);
+    readData(foods, inputPath);
 
     char *allergenNames = findAllergens(foods, numFoods);
 

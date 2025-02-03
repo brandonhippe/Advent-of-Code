@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_18.txt"
+#define defaultInput "../../Inputs/2020_18.txt"
 #define dataLine 200
 
 int countChar(char *str, char search) {
@@ -177,7 +177,7 @@ unsigned long long int collapse_p2(char *str) {
     return count;
 }
 
-unsigned long long int part1() {
+unsigned long long int part1(char *fileName) {
     unsigned long long int count = 0;
     char *textRead = (char*)calloc(dataLine, sizeof(char));
 
@@ -206,7 +206,7 @@ unsigned long long int part1() {
     return count;
 }
 
-unsigned long long int part2() {
+unsigned long long int part2(char *fileName) {
     unsigned long long int count = 0;
     char *textRead = (char*)calloc(dataLine, sizeof(char));
 
@@ -235,16 +235,21 @@ unsigned long long int part2() {
 	return count;
 }
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t; 
     t = clock(); 
-    unsigned long long int p1 = part1();
+    unsigned long long int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nSum: %llu\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    unsigned long long int p2 = part2();
+    unsigned long long int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nSum: %llu\nRan in %f seconds\n", p2, t_p2);

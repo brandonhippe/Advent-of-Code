@@ -3,8 +3,8 @@
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
-#define fileName "../../Inputs/2020_2.txt"
 #define passwordLength 50
+#define defaultInput "../../Inputs/2020_2.txt"
 #define dataLine 100
 
 typedef struct passwordInfo {
@@ -14,7 +14,7 @@ typedef struct passwordInfo {
 	int max;
 } PasswordInfo;
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -35,7 +35,7 @@ int findLines() {
 	return numLines;
 }
 
-void readData(struct passwordInfo *passwords, int numLines){
+void readData(struct passwordInfo *passwords, int numLines, char *fileName) {
 	char textRead[dataLine], *p;
 	int lineNum = 0;
 
@@ -124,11 +124,16 @@ int part2(PasswordInfo *passwords, int numLines) {
     return countValid;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
 	int numLines;
 	struct passwordInfo *passwords;
 
-	numLines = findLines();
+	numLines = findLines(inputPath);
 
 	if (numLines == -1) {
 		printf("Error: could not open file. Quitting\n");
@@ -137,7 +142,7 @@ int main () {
 
 	passwords = (PasswordInfo *)calloc(numLines, sizeof(PasswordInfo));
 
-	readData(passwords, numLines);
+	readData(passwords, numLines, inputPath);
 
     clock_t t; 
     t = clock(); 
@@ -154,4 +159,3 @@ int main () {
 
 	return 0;
 }
-

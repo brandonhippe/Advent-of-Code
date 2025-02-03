@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_25.txt"
+#define defaultInput "../../Inputs/2020_25.txt"
 #define dataLine 10
 
-int *readData() {
+int *readData(char *fileName) {
 	char textRead[dataLine];
     int *nums = (int*)calloc(2, sizeof(int));
     int index = 0;
@@ -48,8 +48,8 @@ int findLoopSize(int pk) {
     return count;
 }
 
-unsigned long long int part1() {
-    int *nums = readData();
+unsigned long long int part1(char *fileName) {
+    int *nums = readData(fileName);
     if (!nums) {
         printf("Failed to read file\n");
         return 1;
@@ -75,10 +75,15 @@ char *part2() {
     return "Christmas has been saved!";
 }
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    unsigned long long int p1 = part1();
+    unsigned long long int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nThe encryption key is: %llu\nRan in %f seconds\n", p1, t_p1);

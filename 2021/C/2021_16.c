@@ -5,9 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
+#define defaultInput "../../Inputs/2021_16.txt"
 #include "../../Modules/input.h"
-#define fileName "../../Inputs/2021_16.txt"
-// #define fileName "example.txt"
 
 
 int bin2int(char *b, int len) {
@@ -122,7 +121,7 @@ char *parse_packet(char *packet, int *version_sum, long long int *packet_value) 
     return p;
 }
 
-int part1() {
+int part1(char *fileName) {
     FILE *fp = fopen(fileName, "r");
     if (!fp) {
         return -1;
@@ -162,7 +161,7 @@ int part1() {
     return *vSum;
 }
 
-long long int part2() {
+long long int part2(char *fileName) {
     FILE *fp = fopen(fileName, "r");
     if (!fp) {
         return -1;
@@ -203,16 +202,21 @@ long long int part2() {
 }
 
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nSum of version numbers: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    long long int p2 = part2();
+    long long int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nPacket Value: %lld\nRan in %f seconds\n", p2, t_p2);

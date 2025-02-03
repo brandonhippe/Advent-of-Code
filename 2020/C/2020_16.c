@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_16.txt"
+#define defaultInput "../../Inputs/2020_16.txt"
 #define dataLine 150
 #define nameLen 25
 
@@ -39,7 +39,7 @@ void printField(struct field *f, bool printPos, int numFields) {
     return;
 }
 
-int findAmts(int *arr) {
+int findAmts(int *arr, char *fileName) {
     int numLines = 0, arrIndex = 0;
 	char textRead[dataLine];
 
@@ -130,7 +130,7 @@ void eliminateOptions(struct field **fieldPtrs, int numFields) {
     return;
 }
 
-int readData(int *amts, bool *tickets, struct field **fieldPtrs, int *myTicket) {
+int readData(int *amts, bool *tickets, struct field **fieldPtrs, int *myTicket, char *fileName) {
     int count = 0, arrIndex = 0, index = 0, lineNum = 0;
 	char textRead[dataLine], *p;
 	struct field *fields;
@@ -221,14 +221,14 @@ int readData(int *amts, bool *tickets, struct field **fieldPtrs, int *myTicket) 
     return count;
 }
 
-int part1(int *amts, bool *valid, struct field **fields, int *ticket) {
+int part1(int *amts, bool *valid, struct field **fields, int *ticket, char *fileName) {
 
     for (int i = 0; i < amts[0]; i++) {
         struct field *temp = NULL;
         fields[i] = createField(temp, amts[0]);
     }
 
-    return readData(amts, valid, fields, ticket);
+    return readData(amts, valid, fields, ticket, fileName);
 }
 
 unsigned long long int part2(int *amts, bool *valid, struct field **fields, int *ticket) {
@@ -253,9 +253,14 @@ unsigned long long int part2(int *amts, bool *valid, struct field **fields, int 
 }
 
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     int *amts = (int *)calloc(3, sizeof(int));
-    findAmts(amts);
+    findAmts(amts, inputPath);
 
     bool *valid = (bool *)calloc(amts[2], sizeof(bool));
     struct field **fields = (struct field **)calloc(amts[0], sizeof(struct field *));
@@ -263,7 +268,7 @@ int main() {
 
     clock_t t; 
     t = clock(); 
-    int p1 = part1(amts, valid, fields, ticket);
+    int p1 = part1(amts, valid, fields, ticket, inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nTicket scanning error rate: %d\nRan in %f seconds\n", p1, t_p1);

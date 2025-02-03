@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include "../../Modules/input.h"
+#define defaultInput "../../Inputs/2021_2.txt"
 #include "../../Modules/vector.h"
-#define fileName "../../Inputs/2021_2.txt"
 
 
 struct dataline {
@@ -29,7 +29,7 @@ void *copy_dataline(void *e, size_t size) {
     return new;
 }
 
-int part1() {
+int part1(char *fileName) {
     struct vector *input_data = multiLine(fileName);
     struct vector *data = createVector(datalineSize, copy_dataline);
 
@@ -57,7 +57,7 @@ int part1() {
     return x * y;
 }
 
-int part2() {
+int part2(char *fileName) {
     struct vector *input_data = multiLine(fileName);
     struct vector *data = createVector(datalineSize, copy_dataline);
 
@@ -87,16 +87,21 @@ int part2() {
     return x * y;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nAnswer: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nAnswer: %d\nRan in %f seconds\n", p2, t_p2);

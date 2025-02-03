@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_19.txt"
+#define defaultInput "../../Inputs/2020_19.txt"
 #define dataLine 200
 
 
@@ -233,7 +233,7 @@ void setSubRules(struct rule *r, int numRules, struct rule **rules, int i, char 
     }
 }
 
-int part1(int numRules, struct rule **rules) {
+int part1(int numRules, struct rule **rules, char *fileName) {
     struct rule *r0;
 
 	for (int i = 0; i < numRules; i++) {
@@ -280,7 +280,7 @@ int part1(int numRules, struct rule **rules) {
 	return count;
 }
 
-int part2(int numRules, struct rule **rules) {
+int part2(int numRules, struct rule **rules, char *fileName) {
 	struct rule *r0;
 
 	for (int i = 0; i < numRules; i++) {
@@ -349,12 +349,17 @@ int part2(int numRules, struct rule **rules) {
     return count;
 }
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     int numRules = 0;
     bool inRules = true;
     char *textRead = (char*)calloc(dataLine, sizeof(char));
     // Open the file
-	FILE *inFile = fopen(fileName, "r");
+	FILE *inFile = fopen(inputPath, "r");
 
 	// Check if the file exists or not
     if (inFile == NULL) {
@@ -379,7 +384,7 @@ int main() {
 	struct rule **rules = (struct rule **)calloc(numRules, sizeof(struct rule *));
 
 
-    inFile = fopen(fileName, "r");
+    inFile = fopen(inputPath, "r");
     inRules = true;
     textRead = (char*)calloc(dataLine, sizeof(char));
     int index = 0;
@@ -419,13 +424,13 @@ int main() {
 
     clock_t t;
     t = clock(); 
-    int p1 = part1(numRules, rules);
+    int p1 = part1(numRules, rules, inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nMessages that match rule 0: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    int p2 = part2(numRules, rules);
+    int p2 = part2(numRules, rules, inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nMessages that match rule 0: %d\nRan in %f seconds\n", p2, t_p2);

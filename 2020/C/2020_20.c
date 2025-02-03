@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_20.txt"
+#define defaultInput "../../Inputs/2020_20.txt"
 #define outputFile "input2.txt"
 #define monsterFile "monster.txt"
 #define monsterLen 21
@@ -63,7 +63,7 @@ void printTile(struct tile *t) {
     return;
 }
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine + 2];
 
@@ -86,7 +86,7 @@ int findLines() {
 	return numLines;
 }
 
-void readData(struct tile **tiles) {
+void readData(struct tile **tiles, char *fileName) {
     int tNum = -1, id_;
 	char textRead[dataLine + 2], *img = (char*)calloc((dataLine * dataLine) + 2, sizeof(char));
 
@@ -541,16 +541,21 @@ int part2(struct tile **tiles) {
     return roughness(img);
 }
 
-int main() {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     dataLine = 10;
-    size = findLines(), side = sqrt(size);
+    size = findLines(inputPath), side = sqrt(size);
 
     struct tile **tiles = (struct tile **)calloc(size, sizeof(struct tile *));
     for (int i = 0; i < size; i++) {
         tiles[i] = (struct tile *)calloc(1, sizeof(struct tile));
     }
 
-    readData(tiles);
+    readData(tiles, inputPath);
 
     clock_t t;
     t = clock(); 

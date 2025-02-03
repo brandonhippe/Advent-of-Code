@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
-#define fileName "../../Inputs/2020_4.txt"
+#define defaultInput "../../Inputs/2020_4.txt"
 #define dataLine 100
 
 
@@ -18,7 +18,7 @@ typedef struct passport_p2 {
 	char pid[20], height[20], hair[20], eyes[20];
 } Passport_p2;
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 1;
 	char textRead[dataLine];
 
@@ -127,7 +127,7 @@ bool valid_p2(struct passport_p2 *passports, int i) {
     return true;
 }
 
-int part1(int numLines) {
+int part1(int numLines, char *fileName) {
     int count = 0;
 
     struct passport_p1 *passports;
@@ -205,7 +205,7 @@ int part1(int numLines) {
     return count;
 }
 
-int part2(int numLines) {
+int part2(int numLines, char *fileName) {
     int count = 0;
 
     struct passport_p2 *passports;
@@ -283,11 +283,16 @@ int part2(int numLines) {
     return count;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
 	int numLines, count = 0;
 	struct passport *passports;
 
-	numLines = findLines();
+	numLines = findLines(inputPath);
 
     if (numLines == -1) {
 		printf("Error: could not open file. Quitting\n");
@@ -296,17 +301,16 @@ int main () {
 
     clock_t t; 
     t = clock(); 
-    int p1 = part1(numLines);
+    int p1 = part1(numLines, inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nValid passports: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock();
-    int p2 = part2(numLines);
+    int p2 = part2(numLines, inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nValid passports: %d\nRan in %f seconds\n", p2, t_p2);
 
 	return 0;
 }
-

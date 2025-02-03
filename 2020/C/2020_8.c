@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
-#define fileName "../../Inputs/2020_8.txt"
+#define defaultInput "../../Inputs/2020_8.txt"
 #define dataLine 15
 
 typedef struct code {
@@ -12,7 +12,7 @@ typedef struct code {
 	bool visited;
 } Code;
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -33,7 +33,7 @@ int findLines() {
 	return numLines;
 }
 
-void readData(struct code *codeLines) {
+void readData(struct code *codeLines, char *fileName) {
     int lineNum = 0;
 	char textRead[dataLine], *p;
 
@@ -122,10 +122,15 @@ int part2(struct code *codeLines, int numLines) {
     return acc;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     int numLines;
     struct code *codeLines;
-	numLines = findLines();
+	numLines = findLines(inputPath);
 
 	if (numLines == -1) {
         printf("Error: Could not read input file. Quitting\n");
@@ -133,7 +138,7 @@ int main () {
 	}
 
 	codeLines = (Code *)calloc(numLines, sizeof(Code));
-    readData(codeLines);
+    readData(codeLines, inputPath);
 
     clock_t t; 
     t = clock(); 

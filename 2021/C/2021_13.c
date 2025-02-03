@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
+#define defaultInput "../../Inputs/2021_13.txt"
 #include "../../Modules/input.h"
 #include "../../Modules/set.h"
-#define fileName "../../Inputs/2021_13.txt"
 
 
 char *pointStr(int x, int y) {
@@ -17,7 +17,7 @@ char *pointStr(int x, int y) {
     return str;
 }
 
-int part1() {
+int part1(char *fileName) {
     struct vector *input_data = multiLine(fileName);
 
     struct set *points = createSet(stringsize, copyElement);
@@ -93,8 +93,7 @@ int part1() {
 }
 
 
-char *part2() {
-
+char *part2(char *fileName) {
     struct vector *input_data = multiLine(fileName);
 
     struct set *points = createSet(stringsize, copyElement);
@@ -181,16 +180,21 @@ char *part2() {
 }
 
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nNumber of dots after first fold: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    char *p2 = part2();
+    char *p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nMessage: %s\nRan in %f seconds\n", p2, t_p2);

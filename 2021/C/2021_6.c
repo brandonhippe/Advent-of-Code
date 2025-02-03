@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
+#define defaultInput "../../Inputs/2021_6.txt"
 #include "../../Modules/input.h"
-#define fileName "../../Inputs/2021_6.txt"
 
 
 unsigned long long countFish(struct vector *fish) {
@@ -18,7 +18,7 @@ unsigned long long countFish(struct vector *fish) {
     return count;
 }
 
-unsigned long long part1() {
+unsigned long long part1(char *fileName) {
     struct vector *input_data = singleLine(fileName, ",");
     struct vector *fish = createVector(ullsize, copyElement);
 
@@ -42,7 +42,7 @@ unsigned long long part1() {
     return countFish(fish);
 }
 
-unsigned long long part2() {
+unsigned long long part2(char *fileName) {
     struct vector *input_data = singleLine(fileName, ",");
     struct vector *fish = createVector(ullsize, copyElement);
 
@@ -66,16 +66,21 @@ unsigned long long part2() {
     return countFish(fish);
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    unsigned long long p1 = part1();
+    unsigned long long p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nNumber of fish after 80 days: %llu\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    unsigned long long p2 = part2();
+    unsigned long long p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nNumber of fish after 256 days: %llu\nRan in %f seconds\n", p2, t_p2);

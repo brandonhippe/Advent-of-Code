@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
+#define defaultInput "../../Inputs/2021_7.txt"
 #include "../../Modules/input.h"
-#define fileName "../../Inputs/2021_7.txt"
 
 
 bool compareInt(void *e1, void *e2) {
@@ -18,7 +18,7 @@ int triangle(int n) {
     return n * (n + 1) / 2;
 }
 
-int part1() {
+int part1(char *fileName) {
     struct vector *input_data = singleLine(fileName, ",");
 
     for (int i = 0; i < input_data->len; i++) {
@@ -47,7 +47,7 @@ int part1() {
     return minFuel;
 }
 
-int part2() {
+int part2(char *fileName) {
     struct vector *input_data = singleLine(fileName, ",");
 
     for (int i = 0; i < input_data->len; i++) {
@@ -76,16 +76,21 @@ int part2() {
     return minFuel;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nMinimum fuel: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nMinimum fuel: %d\nRan in %f seconds\n", p2, t_p2);

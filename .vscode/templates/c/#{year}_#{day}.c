@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/#{year}_#{day}.txt"
+#define defaultInput "../../Inputs/#{year}_#{day}.txt"
 
 int part1() {
     return 0;
@@ -15,7 +15,12 @@ int part2() {
     return 0;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
     int p1 = part1();

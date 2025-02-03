@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_12.txt"
+#define defaultInput "../../Inputs/2020_12.txt"
 #define dataLine 10
 #define PI 3.14159265
 
@@ -16,7 +16,7 @@ typedef struct instruction {
     int value;
 } Instruction;
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -37,7 +37,7 @@ int findLines() {
 	return numLines;
 }
 
-void readData(struct instruction *ins) {
+void readData(struct instruction *ins, char *fileName) {
     int lineNum = 0;
 	char textRead[dataLine];
 
@@ -183,11 +183,16 @@ int part2(Instruction *ins, int numLines) {
     return manhatDist(&shipLoc[0]);
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     int numLines;
     struct instruction *ins;
 
-	numLines = findLines();
+	numLines = findLines(inputPath);
 
 	if (numLines == -1) {
         printf("Error: Could not read input file. Quitting\n");
@@ -195,7 +200,7 @@ int main () {
 	}
 
 	ins = (Instruction *)calloc(numLines, sizeof(Instruction));
-    readData(ins);
+    readData(ins, inputPath);
 
     clock_t t; 
     t = clock(); 

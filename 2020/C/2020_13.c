@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-#define fileName "../../Inputs/2020_13.txt"
+#define defaultInput "../../Inputs/2020_13.txt"
 #define dataLine 200
 
-int findLines() {
+int findLines(char *fileName) {
 	int numLines = 0;
 	char textRead[dataLine];
 
@@ -29,7 +29,7 @@ int findLines() {
 	return numLines;
 }
 
-int readData(int *busses, int *bus_times) {
+int readData(int *busses, int *bus_times, char *fileName) {
     int lineNum = 0, start, index = 0, bus_time = 0;
 	char textRead[dataLine], *p;
 
@@ -124,13 +124,18 @@ long long part2(int numBusses, int *busses, int *bus_times) {
     return timestamp - step;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     int numBusses;
 
 	char textRead[dataLine];
 
 	// Open the file
-	FILE *inFile = fopen(fileName, "r");
+	FILE *inFile = fopen(inputPath, "r");
 
 	// Check if the file exists or not
     if (inFile == NULL) {
@@ -144,7 +149,7 @@ int main () {
 	fclose(inFile);
 
 	int busses[numBusses], bus_times[numBusses];
-    int start = readData(&busses[0], &bus_times[0]);
+    int start = readData(&busses[0], &bus_times[0], inputPath);
 
     clock_t t; 
     t = clock(); 

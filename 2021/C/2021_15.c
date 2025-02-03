@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
+#define defaultInput "../../Inputs/2021_15.txt"
 #include "../../Modules/input.h"
 #include "../../Modules/vector.h"
 #include "../../Modules/heapq.h"
-#define fileName "../../Inputs/2021_15.txt"
 
 char *pos_to_str(int x, int y) {
     double x_len = ceil(log10(abs(x) + 1) + 2), y_len = ceil(log10(abs(y) + 1) + 2);
@@ -130,7 +130,7 @@ int bfs(int x_dim, int y_dim, int *area) {
     return -1;
 }
 
-int part1() {
+int part1(char *fileName) {
     struct vector *input_data = multiLine(fileName);
     int x_dim = strlen((char*)input_data->arr[0]), y_dim = input_data->len;
     int *area = (int*)calloc(x_dim * y_dim, sizeof(int));
@@ -144,7 +144,7 @@ int part1() {
     return bfs(x_dim, y_dim, area);
 }
 
-int part2() {
+int part2(char *fileName) {
     struct vector *input_data = multiLine(fileName);
     int y_size = input_data->len, x_size = strlen((char*)input_data->arr[0]);
     int x_dim = x_size * 5, y_dim = y_size * 5;
@@ -167,16 +167,21 @@ int part2() {
     return bfs(x_dim, y_dim, area);
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nShortest Path: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nShortest Path: %d\nRan in %f seconds\n", p2, t_p2);

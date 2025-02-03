@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
+#define defaultInput "../../Inputs/2021_7.txt"
 #include "../../Modules/input.h"
 #include "../../Modules/dict.h"
-#define fileName "../../Inputs/2021_8.txt"
 
 
 bool charcmp(void *a, void *b) {
@@ -52,7 +52,7 @@ int getOutput(struct dict *pairs, char *outputStr) {
 }
 
 
-int part1() {
+int part1(char *fileName) {
     struct vector *input_data = multiLine(fileName);
     struct dict *occurrances = createDict(intsize, stringsize, copyElement);
     
@@ -140,7 +140,7 @@ int part1() {
     return easyCount;
 }
 
-int part2() {
+int part2(char *fileName) {
     struct vector *input_data = multiLine(fileName);
     struct dict *occurrances = createDict(intsize, stringsize, copyElement);
     
@@ -229,16 +229,21 @@ int part2() {
 }
 
 
-int main () {
+int main (int argc, char *argv[]) {
+    char *inputPath = defaultInput;
+    if (argc > 1) {
+        inputPath = argv[1];
+    }
+
     clock_t t;
     t = clock(); 
-    int p1 = part1();
+    int p1 = part1(inputPath);
     t = clock() - t; 
     double t_p1 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 1:\nOccurances of 1, 4, 7, and 8: %d\nRan in %f seconds\n", p1, t_p1);
 
     t = clock(); 
-    int p2 = part2();
+    int p2 = part2(inputPath);
     t = clock() - t;
     double t_p2 = ((double)t) / CLOCKS_PER_SEC;
     printf("\nPart 2:\nSum of Output Values: %d\nRan in %f seconds\n", p2, t_p2);
