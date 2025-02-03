@@ -66,14 +66,14 @@ fn main() {
     let part1_timer = Instant::now();
     println!(
         "\nPart 1:\nResult after running program: {}\nRan in {:.5?}",
-        part1(contents.clone()),
+        part1(contents.clone().lines().next().unwrap().to_string()),
         part1_timer.elapsed()
     );
 
     let part2_timer = Instant::now();
     println!(
         "\nPart 2:\n100 * noun + verb: {}\nRan in {:.5?}",
-        part2(contents.clone()),
+        part2(contents.clone().lines().next().unwrap().to_string()),
         part2_timer.elapsed()
     );
 }

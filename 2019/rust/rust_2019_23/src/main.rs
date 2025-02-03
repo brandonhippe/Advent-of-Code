@@ -190,14 +190,14 @@ fn main() {
     let part1_timer = Instant::now();
     println!(
         "\nPart 1:\nY value of first packet sent to address 255: {}\nRan in {:.5?}",
-        part1(contents.clone()),
+        part1(contents.clone().lines().next().unwrap().to_string()),
         part1_timer.elapsed()
     );
 
     let part2_timer = Instant::now();
     println!(
         "\nPart 2:\nFirst Y value delivered to address 0 twice in a row: {}\nRan in {:.5?}",
-        part2(contents.clone()),
+        part2(contents.clone().lines().next().unwrap().to_string()),
         part2_timer.elapsed()
     );
 }
