@@ -33,6 +33,7 @@ fn part1(contents: String) -> i32 {
                     this_connections.insert((x + 1, y), vec![(x, y - 1)]);
                     this_connections.insert((x, y - 1), vec![(x + 1, y)]);
                 },
+
                 '|' => {
                     this_connections.insert((x, y - 1), vec![(x, y + 1)]);
                     this_connections.insert((x, y + 1), vec![(x, y - 1)]);
@@ -235,16 +236,20 @@ mod tests {
         assert_eq!(part2(contents), 51)
     }
 }
-
 fn main() {
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2023_16") {
-        RelativePath::new("../../../Inputs/2023_16.txt")
-    } else {
-        RelativePath::new("/Inputs/2023_16.txt")
-    };
-
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let args: Vec<String> = env::args().collect();
+	let year = "2023".to_string();
+	let day = "16".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

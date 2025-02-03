@@ -33,6 +33,7 @@ fn part1(contents: String) -> i32 {
             .captures_iter(&game.cubes)
             .map(|caps| {
                 let (_, [num, color]) = caps.extract();
+
                 (color, num.parse::<i32>().unwrap())
             })
             .collect();
@@ -116,16 +117,20 @@ mod tests {
         assert_eq!(part2(contents), 2286);
     }
 }
-
 fn main() {
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2023_2") {
-        RelativePath::new("../../../Inputs/2023_2.txt")
-    } else {
-        RelativePath::new("/Inputs/2023_2.txt")
-    };
-
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let args: Vec<String> = env::args().collect();
+	let year = "2023".to_string();
+	let day = "2".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

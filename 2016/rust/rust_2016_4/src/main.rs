@@ -33,6 +33,7 @@ fn part1(contents: String) -> i64 {
 fn part2(contents: String) -> i64 {
     for line in contents.lines() {
         let encrypted_name = line.split("[").next().unwrap().chars().filter(|c| c.is_alphabetic() || *c == '-').collect::<String>();
+
         let sector_id = line.split("[").next().unwrap().split("-").last().unwrap().parse::<i64>().unwrap();
 
         let decrypted_name = encrypted_name.chars().map(|c| {
@@ -49,21 +50,22 @@ fn part2(contents: String) -> i64 {
 
     return -1;
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2016".to_string();
     let day = "4".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

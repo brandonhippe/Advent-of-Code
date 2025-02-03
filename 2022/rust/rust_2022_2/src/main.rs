@@ -33,6 +33,7 @@ fn part2(contents: String) -> i32 {
 
     return games
         .iter()
+
         .map(|(other, res)| {
             let you = (other + res + 2) % 3;
             ((you - other + 4) % 3) * 3 + (you + 1)
@@ -60,17 +61,21 @@ mod tests {
         assert_eq!(part2(contents), 12);
     }
 }
-
 fn main() {
-    // main_repeat();
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2022_2") {
-        RelativePath::new("../../../Inputs/2022_2.txt")
-    } else {
-        RelativePath::new("/Inputs/2022_2.txt")
-    };
+    let args: Vec<String> = env::args().collect();
+	let year = "2022".to_string();
+	let day = "2".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

@@ -34,6 +34,7 @@ fn part1(contents: String) -> i64 {
         tiles.get_mut(&tile_num).unwrap().push(line.to_string());
     }
 
+
     let mut edge_occurrances: HashMap<String, Vec<i64>> = HashMap::new();
     for (tile_num, tile) in tiles.iter() {
         let top = tile[0].to_string();
@@ -472,21 +473,22 @@ mod tests {
         assert_eq!(part2(contents), 273);
     }
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2020".to_string();
     let day = "20".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

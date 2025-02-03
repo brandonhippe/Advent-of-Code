@@ -34,6 +34,7 @@ fn determine_height(contents: String, total_rocks: i64) -> i64 {
     let mut max_height: i64 = 0;
     let mut rock_num: i64 = 0;
 
+
     while rock_num < total_rocks {
         let mut rock = rock_templates[rock_ix]
             .clone()
@@ -128,16 +129,20 @@ mod tests {
         assert_eq!(part2(contents), 1514285714288);
     }
 }
-
 fn main() {
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2022_17") {
-        RelativePath::new("../../../Inputs/2022_17.txt")
-    } else {
-        RelativePath::new("/Inputs/2022_17.txt")
-    };
-
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let args: Vec<String> = env::args().collect();
+	let year = "2022".to_string();
+	let day = "17".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

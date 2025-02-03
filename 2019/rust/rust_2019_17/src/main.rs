@@ -33,6 +33,7 @@ fn part2(contents: String) -> i64 {
         panic!("Instruction sequence failed");
     }
 
+
     let input_string = format!("{}\n{}\n{}\n{}\nn\n", m, a, b, c);
     intcode = Intcode::new(contents.split(",").map(|x| x.parse().unwrap()).collect());
     intcode.insert(0, 2);
@@ -183,21 +184,22 @@ mod tests {
         assert_eq!(alignment_params(contents), 76);
     }
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2019".to_string();
     let day = "17".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

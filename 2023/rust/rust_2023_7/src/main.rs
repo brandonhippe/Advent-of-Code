@@ -33,6 +33,7 @@ fn part1(contents: String) -> i32 {
         Vec::from([5]),
     ]);
 
+
     let hand_regex = Regex::new(r"(.{5}) (\d+)").unwrap();
     let mut hands: HashMap<String, i32> = HashMap::from_iter(contents.lines().map(|line| {
         let hand: (String, i32) = hand_regex
@@ -217,17 +218,21 @@ mod tests {
         assert_eq!(part2(contents), 5905);
     }
 }
-
 fn main() {
-    // main_repeat();
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2023_7") {
-        RelativePath::new("../../../Inputs/2023_7.txt")
-    } else {
-        RelativePath::new("/Inputs/2023_7.txt")
-    };
+    let args: Vec<String> = env::args().collect();
+	let year = "2023".to_string();
+	let day = "7".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

@@ -33,6 +33,7 @@ fn redistribute(mut banks: Vec<i64>) -> (i64, i64) {
 
         let mut max = 0;
         let mut ix = 0;
+
         for i in 0..bank_len {
             if banks[i] > max {
                 max = banks[i];
@@ -77,21 +78,22 @@ mod tests {
         assert_eq!(part2(contents), 4);
     }
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2017".to_string();
     let day = "6".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

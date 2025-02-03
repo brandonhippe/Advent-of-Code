@@ -33,6 +33,7 @@ fn determine_allergens(contents: String) -> (i64, String) {
             if allergen_map.contains_key(&allergen) {
                 let current_ingredients = allergen_map.get_mut(&allergen).unwrap();
                 let new_ingredients = current_ingredients
+
                     .intersection(&ingredients)
                     .cloned()
                     .collect();
@@ -104,21 +105,22 @@ mod tests {
         assert_eq!(part2(contents), "mxmxvkd,sqjhc,fvjkl".to_string());
     }
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2020".to_string();
     let day = "21".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

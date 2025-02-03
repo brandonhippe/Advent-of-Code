@@ -34,6 +34,7 @@ fn part1(contents: String) -> i32 {
                 .cloned(),
         );
 
+
         for j in 0..5 {
             let row_win: i32 = lines[i + j]
                 .iter()
@@ -183,17 +184,21 @@ mod tests {
         assert_eq!(part2(contents), 1924);
     }
 }
-
 fn main() {
-    // main_repeat();
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2021_4") {
-        RelativePath::new("../../../Inputs/2021_4.txt")
-    } else {
-        RelativePath::new("/Inputs/2021_4.txt")
-    };
+    let args: Vec<String> = env::args().collect();
+	let year = "2021".to_string();
+	let day = "4".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

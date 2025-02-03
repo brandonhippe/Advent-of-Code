@@ -33,6 +33,7 @@ fn part2(contents: String) -> i32 {
                 .iter()
                 .position(|x| x.0 == lens[..lens.find('=').unwrap()].to_string())
                 .unwrap_or(usize::MAX);
+
             let f_len: i32 = lens[lens.find('=').unwrap() + 1..].parse().unwrap();
 
             if ix == usize::MAX {
@@ -87,17 +88,21 @@ mod tests {
         assert_eq!(part2(contents), 145)
     }
 }
-
 fn main() {
-    // main_repeat();
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2023_15") {
-        RelativePath::new("../../../Inputs/2023_15.txt")
-    } else {
-        RelativePath::new("/Inputs/2023_15.txt")
-    };
+    let args: Vec<String> = env::args().collect();
+	let year = "2023".to_string();
+	let day = "15".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

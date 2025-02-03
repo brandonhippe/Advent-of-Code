@@ -33,6 +33,7 @@ fn part2(contents: String) -> i64 {
         recipes = gen_recipes(recipes, &mut elf1, &mut elf2);
 
         if recipes.len() >= goal_vec.len()
+
             && recipes[recipes.len() - goal_vec.len()..] == goal_vec[..]
         {
             return recipes.len() as i64 - goal_vec.len() as i64;
@@ -60,21 +61,22 @@ fn gen_recipes(existing: Vec<u8>, elf1: &mut usize, elf2: &mut usize) -> Vec<u8>
 
     recipes
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2018".to_string();
     let day = "14".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

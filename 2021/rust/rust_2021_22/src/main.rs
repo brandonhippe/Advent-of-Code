@@ -33,6 +33,7 @@ fn part2(contents: String) -> i64 {
     let mut cubes_instructions: Vec<(i64, i64, i64, i64, i64, i64, bool)> = vec![];
     for line in contents.lines() {
         let nums = num_re
+
             .captures_iter(line)
             .map(|x| x[0].parse::<i64>().unwrap())
             .collect::<Vec<i64>>();
@@ -123,16 +124,20 @@ mod tests {
         assert_eq!(part2(contents), 2758514936282235);
     }
 }
-
 fn main() {
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2021_22") {
-        RelativePath::new("../../../Inputs/2021_22.txt")
-    } else {
-        RelativePath::new("/Inputs/2021_22.txt")
-    };
-
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let args: Vec<String> = env::args().collect();
+	let year = "2021".to_string();
+	let day = "22".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

@@ -33,6 +33,7 @@ fn part1(contents: String, min_c: f64, max_c: f64) -> i64 {
 
             (-1.0 / vx, 1.0 / vy, py / vy, -px / vx)
         })
+
         .collect();
 
     let mut intersections: i64 = 0;
@@ -169,16 +170,20 @@ mod tests {
         assert_eq!(part2(contents), 47);
     }
 }
-
 fn main() {
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2023_24") {
-        RelativePath::new("../../../Inputs/2023_24.txt")
-    } else {
-        RelativePath::new("/Inputs/2023_24.txt")
-    };
-
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let args: Vec<String> = env::args().collect();
+	let year = "2023".to_string();
+	let day = "24".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

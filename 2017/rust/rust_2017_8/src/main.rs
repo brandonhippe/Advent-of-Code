@@ -33,6 +33,7 @@ fn run_instructions(instructions: Vec<Instruction>) -> (i64, i64) {
     for instr in instructions {
         let test_register = registers.entry(instr.test_register).or_insert(0);
         let test_amt = instr.test_amt;
+
         let test_op = instr.test_op;
 
         let test = match test_op.as_str() {
@@ -105,21 +106,22 @@ mod tests {
         assert_eq!(part2(contents), 10);
     }
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2017".to_string();
     let day = "8".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

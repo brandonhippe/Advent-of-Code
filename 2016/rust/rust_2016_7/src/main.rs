@@ -33,6 +33,7 @@ fn part1(contents: String) -> i64 {
                         past_cs.remove(0);
                     }
                 },
+
             }
         }
 
@@ -76,21 +77,22 @@ fn part2(contents: String) -> i64 {
         hypernets.intersection(&supernets).count() > 0
     }).filter(|&x| x).count() as i64;
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2016".to_string();
     let day = "7".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

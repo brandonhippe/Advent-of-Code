@@ -33,6 +33,7 @@ fn part2(contents: String) -> String {
     let mut result = String::new();
     for y in 0..6 {
         result.push('\n');
+
         for x in 0..25 {
             result.push(if *pixels.get(&(x, y)).unwrap() {
                 '█'
@@ -44,21 +45,22 @@ fn part2(contents: String) -> String {
 
     return result;
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2019".to_string();
     let day = "8".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

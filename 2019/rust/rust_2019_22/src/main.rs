@@ -33,6 +33,7 @@ fn part2(contents: String) -> i128 {
 
     for line in contents.lines() {
         let (c, d): (i128, i128) = if line.contains("stack") {
+
             (-1, -1)
         } else if line.contains("increment") {
             (line.split(" ").last().unwrap().parse::<i128>().unwrap(), 0)
@@ -77,21 +78,22 @@ fn mod_exp(mut base: i128, mut exp: i128, m: i128) -> i128 {
 fn mod_inverse(n: i128, m: i128) -> i128 {
     return mod_exp(n, m - 2, m);
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2019".to_string();
     let day = "22".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

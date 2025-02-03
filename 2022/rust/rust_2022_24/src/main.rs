@@ -33,6 +33,7 @@ fn part1(contents: String) -> i64 {
                 '<' => {
                     blizzards
                         .entry((x as i64, y as i64))
+
                         .or_insert(vec![])
                         .push((-1, 0));
                     area.insert((x as i64, y as i64));
@@ -204,16 +205,20 @@ mod tests {
         assert_eq!(part2(contents), 54);
     }
 }
-
 fn main() {
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2022_24") {
-        RelativePath::new("../../../Inputs/2022_24.txt")
-    } else {
-        RelativePath::new("/Inputs/2022_24.txt")
-    };
-
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let args: Vec<String> = env::args().collect();
+	let year = "2022".to_string();
+	let day = "24".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

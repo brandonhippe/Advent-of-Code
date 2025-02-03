@@ -33,6 +33,7 @@ fn part2(contents: String) -> i64 {
     let mut program = Intcode::new(contents.split(",").map(|x| x.parse().unwrap()).collect());
     let input_string = "NOT B J\nNOT C T\nOR T J\nAND D J\nAND H J\nNOT A T\nOR T J\nRUN\n".to_string();
 
+
     for c in input_string.chars() {
         program.run();
         program.set_input(c as i64);
@@ -53,21 +54,22 @@ fn part2(contents: String) -> i64 {
 
     return -1;
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2019".to_string();
     let day = "21".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

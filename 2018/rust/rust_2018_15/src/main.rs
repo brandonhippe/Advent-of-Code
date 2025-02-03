@@ -34,6 +34,7 @@ fn game_result(game: &str, increase_elf_strength: bool) -> i64 {
         let mut area: HashSet<(i64, i64)> = HashSet::new();
         let mut units: Vec<Unit> = Vec::new();
 
+
         for (y, line) in game.lines().enumerate() {
             for (x, c) in line.chars().enumerate() {
                 match c {
@@ -307,21 +308,22 @@ mod tests {
         assert_eq!(part2(contents), 47364);
     }
 }
-
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let year = "2018".to_string();
     let day = "15".to_string();
 
     let root = env::current_dir().unwrap();
-    let path_str = if root.ends_with(format!("rust_{}_{}", year, day)) {
+    let path_str = if args.len() > 1 {
+        args[1].clone()
+    } else if root.ends_with(format!("rust_{}_{}", year, day)) {
         format!("../../../Inputs/{}_{}.txt", year, day)
     } else {
         format!("/Inputs/{}_{}.txt", year, day)
     };
 
-    let relative_path = RelativePath::new(&path_str);
 
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();

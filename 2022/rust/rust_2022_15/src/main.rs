@@ -33,6 +33,7 @@ fn part1(contents: String, row: i32) -> i32 {
             .filter(|((_, y), d)| **d >= (y - row).abs())
             .map(|((x, y), d)| (x - (d - (y - row).abs()), x + (d - (y - row).abs())))
             .collect::<Vec<(i32, i32)>>(),
+
     );
     row_ranges.sort();
 
@@ -130,16 +131,20 @@ mod tests {
         assert_eq!(part2(contents, 10), 56000011);
     }
 }
-
 fn main() {
-    let root = env::current_dir().unwrap();
-    let relative_path = if root.ends_with("rust_2022_15") {
-        RelativePath::new("../../../Inputs/2022_15.txt")
-    } else {
-        RelativePath::new("/Inputs/2022_15.txt")
-    };
-
-    let contents = fs::read_to_string(relative_path.to_path(&root))
+    let args: Vec<String> = env::args().collect();
+	let year = "2022".to_string();
+	let day = "15".to_string();
+	
+	let root = env::current_dir().unwrap();
+	let path_str = if args.len() > 1 {
+	    args[1].clone()
+	} else if root.ends_with(format!("rust_{}_{}", year, day)) {
+	    format!("../../../Inputs/{}_{}.txt", year, day)
+	} else {
+	    format!("/Inputs/{}_{}.txt", year, day)
+	};
+    let contents = fs::read_to_string(if args.len() > 1 {path_str} else {RelativePath::new(&path_str).to_path(&root).display().to_string()})
         .expect("Should have been able to read the file");
 
     let part1_timer = Instant::now();
