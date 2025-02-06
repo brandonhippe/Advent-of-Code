@@ -9,7 +9,7 @@
 				"-fdiagnostics-color=always",
 				"-g3",
 				"-Wall",
-				"-std=c99",
+				// "-std=c99",
 				"${file}",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",

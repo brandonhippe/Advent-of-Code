@@ -16,6 +16,15 @@ typedef struct rule {
     bool selfReferential;
 } Rule;
 
+void removeChar(char *str, char charToRemove) {
+    char *src, *dst;
+    for (src = dst = str; *src != '\0'; src++) {
+        *dst = *src;
+        if (*dst != charToRemove) dst++;
+    }
+    *dst = '\0';
+}
+
 int countChar(char *str, char search) {
     int i = 0, count = 0;
     while (i < strlen(str)) {
@@ -28,9 +37,15 @@ int countChar(char *str, char search) {
 
 struct rule *createRule(int ruleNum, char *otherRules) {
     struct rule *r = (struct rule *)calloc(1, sizeof(struct rule));
+    if (r == NULL) {
+        fprintf(stderr, "Memory allocation failed for rule %d\n", ruleNum);
+        exit(EXIT_FAILURE);
+    }
     r->num = ruleNum;
     r->selfReferential = false;
-    strncpy(r->text, otherRules, strlen(otherRules) - 1);
+    int len = strlen(otherRules) - 1;
+    removeChar(otherRules, '"');
+    strncpy(r->text, otherRules, len);
 
     for (int i = 0; i < 6; i++) {
         r->subRules[i] = 0;
@@ -48,6 +63,11 @@ struct rule *createRule(int ruleNum, char *otherRules) {
 }
 
 int getLength(struct rule *r) {
+    if (r == NULL) {
+        fprintf(stderr, "getLength called with NULL rule\n");
+        return -1;
+    }
+    
     if (r->len[0] == 0 && r->len[1] == 0) {
         if (isalpha(r->text[0]) != 0) {
             r->len[0] = 1;
@@ -83,6 +103,10 @@ int getLength(struct rule *r) {
 }
 
 bool fits_p1(struct rule *r, char *check) {
+    if (r == NULL) {
+        fprintf(stderr, "fits_p1 called with NULL rule\n");
+        return false;
+    }
     if (r->len[0] != strlen(check)) {
         return false;
     } else if (isalpha(r->text[0]) != 0) {
@@ -98,6 +122,10 @@ bool fits_p1(struct rule *r, char *check) {
             length = r1->len[i >= r->pipe ? 1 : 0];
 
             temp = (char*)calloc(length + 1, sizeof(char));
+            if (temp == NULL) {
+                fprintf(stderr, "Memory allocation failed in fits_p1\n");
+                exit(EXIT_FAILURE);
+            }
             strncpy(temp, p, length);
 
             if (!fits_p1(r1, temp)) {
@@ -105,6 +133,7 @@ bool fits_p1(struct rule *r, char *check) {
                     i = r->pipe - 1;
                     fit = false;
                 } else {
+                    free(temp);
                     return false;
                 }
             }
@@ -115,12 +144,14 @@ bool fits_p1(struct rule *r, char *check) {
 
             if (i >= r->pipe && !reset) {
                 if (fit) {
+                    free(temp);
                     return true;
                 } else {
                     charIndex = 0;
                     reset = true;
                 }
             }
+            free(temp);
         }
     }
 
@@ -184,25 +215,31 @@ bool fits_p2(struct rule *r, char *check) {
 }
 
 bool fitsR0(struct rule *r, char *check) {
-    struct rule *s0, *s1;
-    s0 = r->subRules[0];
-    s1 = r->subRules[1];
+    struct rule *s0 = r->subRules[0];
+    struct rule *s1 = r->subRules[1];
+
+    if (s0 == NULL || s1 == NULL) {
+        return false;
+    }
 
     for (int i = s0->len[0]; i < strlen(check); i += s0->len[0]) {
         if ((strlen(check) - i) % s1->len[0] == 0) {
-            char *p0, *p1;
-            p0 = (char*)calloc(i + 1, sizeof(char));
-            p1 = (char*)calloc((strlen(check) - i) + 1, sizeof(char));
+            char *p0 = (char*)calloc(i + 1, sizeof(char));
+            char *p1 = (char*)calloc((strlen(check) - i) + 1, sizeof(char));
 
             strncpy(p0, check, i);
             strncpy(p1, check + i, strlen(check) - i);
 
-            if (fits_p2(s0, p0) && fits_p2(s1, p1)) {
+            bool fits = fits_p2(s0, p0) && fits_p2(s1, p1);
+
+            free(p0);
+            free(p1);
+
+            if (fits) {
                 return true;
             }
         }
     }
-
 
     return false;
 }
@@ -233,6 +270,7 @@ void setSubRules(struct rule *r, int numRules, struct rule **rules, int i, char 
     }
 }
 
+
 int part1(int numRules, struct rule **rules, char *fileName) {
     struct rule *r0;
 
@@ -240,6 +278,7 @@ int part1(int numRules, struct rule **rules, char *fileName) {
         struct rule *r = rules[i];
         if (r->num == 0) {
             r0 = r;
+            break;
         }
 	}
 
@@ -266,7 +305,7 @@ int part1(int numRules, struct rule **rules, char *fileName) {
         if (textRead[0] == '\n') {
             inRules = false;
         } else if (!inRules) {
-            textRead[strlen(textRead) - 1] = 0;
+            textRead[strlen(textRead) - 1] = '\0';
             bool stringFits = fits_p1(r0, textRead);
             count += stringFits ? 1 : 0;
         }
@@ -281,9 +320,9 @@ int part1(int numRules, struct rule **rules, char *fileName) {
 }
 
 int part2(int numRules, struct rule **rules, char *fileName) {
-	struct rule *r0;
+    struct rule *r0 = NULL;
 
-	for (int i = 0; i < numRules; i++) {
+    for (int i = 0; i < numRules; i++) {
         struct rule *r = rules[i];
         if (r->num == 0) {
             r0 = r;
@@ -310,28 +349,33 @@ int part2(int numRules, struct rule **rules, char *fileName) {
                 r->pipe = countChar(p, ' ');
             }
         }
-	}
+    }
 
-	getLength(r0);
+    if (r0 == NULL) {
+        fprintf(stderr, "Rule 0 not found\n");
+        return -1;
+    }
 
-	for (int i = 0; i < numRules; i++) {
+    getLength(r0);
+
+    for (int i = 0; i < numRules; i++) {
         struct rule *temp = rules[i];
         if (temp->len[0] == -1 && temp->num != 0) {
             return -1;
         }
-	}
+    }
 
-	FILE *inFile = fopen(fileName, "r");
+    FILE *inFile = fopen(fileName, "r");
     bool inRules = true;
     char *textRead = (char*)calloc(dataLine, sizeof(char));
     int count = 0;
 
-	// Check if the file exists or not
+    // Check if the file exists or not
     if (inFile == NULL) {
         return -1;
     }
 
-	while(fgets(textRead, dataLine, inFile)) {
+    while(fgets(textRead, dataLine, inFile)) {
         if (textRead[0] == '\n') {
             inRules = false;
         } else if (!inRules) {
@@ -342,9 +386,9 @@ int part2(int numRules, struct rule **rules, char *fileName) {
 
         free(textRead);
         textRead = (char*)calloc(dataLine, sizeof(char));
-	}
+    }
 
-	fclose(inFile);
+    fclose(inFile);
 
     return count;
 }

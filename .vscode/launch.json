@@ -11,27 +11,28 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd":"${workspaceFolder}/${relativeFileDirname}",
+            "args": ["--no-run", "-r", "--rerun", "--connect"]
         },
-        // {
-        //     "name": "C: Current File",
-        //     "type": "cppdbg",
-        //     "request": "launch",
-        //     "stopAtEntry": false,
-        //     "customLaunchSetupCommands": [
-        //         { "text": "target-run", "description": "run target", "ignoreFailures": false }
-        //     ],
-        //     "launchCompleteCommand": "exec-run",
-        //     "linux": {
-        //         "program": "${fileDirname}/${fileBasenameNoExtension}",
-        //         "MIMode": "gdb",
-        //         "miDebuggerPath": "/usr/bin/gdb"
-        //     },
-        //     "windows": {
-        //         "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
-        //         "MIMode": "gdb",
-        //         "miDebuggerPath": "C:\\MinGw\\bin\\gdb.exe"
-        //     }
-        // },
+        {
+            "name": "C: Current File",
+            "type": "cppdbg",
+            "program": "${workspaceRoot}/${fileDirname}/${fileBasenameNoExtension}",
+            "cwd": ".",
+            "targetArchitecture": "x64",
+            "request": "launch",
+            "stopAtEntry": true,
+            "launchCompleteCommand": "exec-run",
+            "linux": {
+                "program": "${fileDirname}/${fileBasenameNoExtension}",
+                "MIMode": "gdb",
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "windows": {
+                "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
+                "MIMode": "gdb",
+                "miDebuggerPath": "C:\\MinGw\\bin\\gdb.exe"
+            }
+        },
         {
             "type": "lldb",
             "request": "launch",
