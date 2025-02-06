@@ -190,12 +190,12 @@ class AnswerLogger(Logger):
                     for i, ans in filter(lambda ans: len(ans[1]), enumerate(v.split(";"), 1))
                 }
 
-        # for year in get_released():
-        #     for day in get_released(year):
-        #         if any((year, day, i) not in self.correct_answers for i in ([1] if day == 25 else [1, 2])):
-        #             for part, ans in get_answers(year, day).items():
-        #                 self.correct_answers[(year, day, part)] = ans
-        #                 self.correct_changed = True
+        for year in get_released():
+            for day in get_released(year):
+                if any((year, day, i) not in self.correct_answers for i in ([1] if day == 25 else [1, 2])):
+                    for part, ans in get_answers(year, day).items():
+                        self.correct_answers[(year, day, part)] = ans
+                        self.correct_changed = True
 
         super().__enter__()
         self.changed_data = AnswerTracker(False)
