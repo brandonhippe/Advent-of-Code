@@ -187,8 +187,7 @@ class AnswerLogger(Logger):
                     tuple([*map(int, k.split("-")), i]): ans
                     for line in f.readlines()
                     for k, v in [line.strip().split(": ")]
-                    for i, ans in enumerate(v.split(";"), 1)
-                    # for i, ans in filter(lambda ans: len(ans[1]), enumerate(v.split(";"), 1))
+                    for i, ans in filter(lambda ans: len(ans[1]), enumerate(v.split(";"), 1))
                 }
 
         # for year in get_released():
@@ -330,6 +329,9 @@ class AnswerLogger(Logger):
         for year, day in self.runtime_days(new_only):
             for lang in filter(lambda l: l in self.data, LANGS):
                 for part, correct in enumerate(self.correct_answers[(year, day)], 1):
+                    if (day, part) == (25, 2):
+                        continue
+
                     if [year, day, part] in self.data[
                         lang
                     ] and self.data[lang, year, day, part] != correct:

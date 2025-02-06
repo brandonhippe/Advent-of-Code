@@ -32,11 +32,6 @@ class RecordingWithInitialized:
         self.recording = rr.script_setup(
             self.args, application_id=self.application_id, recording_id=self.uuid
         )
-        spawn = self.args.serve or (not self.args.connect and not self.args.headless)
-        rr.init(application_id=self.application_id, recording_id=self.uuid, spawn=spawn)
-
-        if self.args.connect:
-            rr.connect_tcp(self.args.addr)
 
     def __call__(self, entity_path: str | List[Any]) -> bool:
         """
