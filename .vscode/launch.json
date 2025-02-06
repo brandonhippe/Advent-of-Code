@@ -11,7 +11,6 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd":"${workspaceFolder}/${relativeFileDirname}",
-            "args": ["--no-run", "-r", "--rerun", "--connect"]
         },
         {
             "name": "C: Current File",

@@ -22,14 +22,21 @@ class RecordingWithInitialized:
     """
     Recording stream with initialized entities
     """
+    args: argparse.Namespace
+    application_id: str
+    uuid: uuid4 = field(default_factory=uuid4)
+    initialized_entities: set[str] = field(default_factory=set)
+    recording: rr.RecordingStream = field(init=False)
 
-    def __init__(self, args: argparse.Namespace, application_id: str):
-        self.uuid = uuid4()
-        self.initialized_entities = set()
+    def __post_init__(self):
         self.recording = rr.script_setup(
-            args, application_id=application_id, recording_id=self.uuid
+            self.args, application_id=self.application_id, recording_id=self.uuid
         )
-        rr.init(application_id=application_id, recording_id=self.uuid)
+        spawn = self.args.serve or (not self.args.connect and not self.args.headless)
+        rr.init(application_id=self.application_id, recording_id=self.uuid, spawn=spawn)
+
+        if self.args.connect:
+            rr.connect_tcp(self.args.addr)
 
     def __call__(self, entity_path: str | List[Any]) -> bool:
         """
@@ -52,7 +59,6 @@ class RerunViewer(Viewer):
     """
     Displays Advent of Code solutions in a rerun viewer
     """
-
     application_id: str = "Advent of Code"
     bar_graph_data: Dict = field(
         default_factory=lambda: defaultdict(
