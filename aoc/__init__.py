@@ -39,7 +39,7 @@ class aoc:
         self.viewers = VIEWERS(self.args)
 
     def __enter__(self):
-        for mod in self.loggers + self.viewers:
+        for mod in self.viewers + self.loggers:
             mod.__enter__()
         return self
 

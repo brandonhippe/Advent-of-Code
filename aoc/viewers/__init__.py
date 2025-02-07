@@ -60,7 +60,6 @@ class Viewer(ABC):
         self.started = True
         if isinstance(self.args, argparse.Namespace):
             self.verbose = vars(self.args).get("verbose", False)
-            self.attach_viewer()
 
     # Default methods
     def __enter__(self) -> "Viewer":
@@ -68,6 +67,7 @@ class Viewer(ABC):
         Context manager entry point
         """
         self.print(f"Setting up")
+        self.attach_viewer()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:

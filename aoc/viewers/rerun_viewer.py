@@ -66,12 +66,6 @@ class RerunViewer(Viewer):
     name: str = "rerun"
     last_start_event: str = None
 
-    def __post_init__(self):
-        super().__post_init__()
-        if isinstance(self.args, argparse.Namespace):
-            self.blueprint_maker.no_load = self.args.no_blueprint
-            self.start_viewer()
-
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser):
         """
@@ -116,6 +110,12 @@ class RerunViewer(Viewer):
             self.last_start_event = event
 
     ### Context manager functions
+    def __enter__(self):
+        super().__enter__()
+        self.blueprint_maker.no_load = self.args.no_blueprint
+        self.start_viewer()
+        return self
+
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
         """
         Exit, spawning the rerun viewer if no errors occurred
