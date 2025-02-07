@@ -47,4 +47,4 @@ class Python(Language):
         return ""
 
     def run_str(self, year: int, day: int) -> str:
-        return f"python {year}_{day}{self.ext}"
+        return f"python .{os.sep}{day}{self.ext}"

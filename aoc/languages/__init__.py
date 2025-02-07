@@ -4,6 +4,7 @@ Language classes for Advent of Code.
 
 import datetime
 import os
+import platform
 import re
 import subprocess
 from abc import ABC, abstractmethod
@@ -13,7 +14,7 @@ from typing import Any, List, Optional, Set, Tuple
 from zoneinfo import ZoneInfo
 
 from ..subclass_container import SubclassContainer
-from ..utils.aoc_web import get_input, AOC_COOKIE
+from ..utils.aoc_web import AOC_COOKIE, get_input
 
 __all__ = ["Language", "LANGS", "get_released"]
 
@@ -92,13 +93,23 @@ class Language(ABC):
         """
         thisDir = os.getcwd()
         os.chdir(self.parent_dir(year, day))
-        output = subprocess.run(
-            self.compile_str(year, day), shell=True, capture_output=True
-        )
-        if output.returncode:
-            raise ValueError(
-                f"Failed to compile {self.lang.title()} program: {year} day {day}: {output.stderr}"
+
+        if compile_str := self.compile_str(year, day):
+            git_status = subprocess.run(
+                "git status --porcelain", shell=True, capture_output=True
             )
+
+            executable_exists = self.executable_path(year, day).exists()
+
+            if not executable_exists or re.search(rf"(M|A|D|R|C|U)\s+{year}.*[.\/]{day}[.\/].*\{self.ext}$", git_status.stdout.decode(), re.MULTILINE):
+                output = subprocess.run(
+                    compile_str, shell=True, capture_output=True
+                )
+
+                if output.returncode:
+                    raise ValueError(
+                        f"Failed to compile {self.lang.title()} program: {year} day {day}: {output.stderr}"
+                    )
 
         output = subprocess.run(
             self.run_str(year, day), shell=True, capture_output=True, text=True
@@ -207,6 +218,13 @@ class Language(ABC):
             return Path(Path(__file__).parent.parent, "Inputs", AOC_COOKIE, f"{year}_{day}.txt")
         else:
             return Path(Path(__file__).parent.parent.parent, "Inputs", f"{year}_{day}.txt")
+        
+    def executable_path(self, year: int, day: int) -> Path:
+        """
+        Get the executable path for the given year and day.
+        Is a relative path to the parent directory.
+        """
+        return Path(f"{day}{'.exe' if platform.system() == 'Windows' else ''}")
 
     @abstractmethod
     def parent_dir(self, year: int, day: int) -> Path:
@@ -219,6 +237,7 @@ class Language(ABC):
     def compile_str(self, year: int, day: int) -> str:
         """
         Get the compile string for the given year and day.
+        Return an empty string if no compilation is needed.
         """
         pass
 
