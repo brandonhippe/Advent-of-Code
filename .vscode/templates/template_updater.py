@@ -58,7 +58,7 @@ def main():
         for day in get_released(year):
             expected_filename = filled_in(template_path.name, **locals())
 
-            match_files = list(filter(lambda w: expected_filename in w[-1] and re.search(rf"{year}_{day}[.\/]", str(Path(w[0], expected_filename))), os.walk(Path(BASE_DIR, f"{year}"))))
+            match_files = list(filter(lambda w: expected_filename in w[-1] and re.search(rf"{day}[.\/]", str(Path(w[0], expected_filename))), os.walk(Path(BASE_DIR, f"{year}"))))
             if len(match_files) != 1:
                 continue
 
@@ -105,11 +105,12 @@ def main():
 
             while additions:
                 addition = additions.popleft()
-                new_file_lines.insert(addition[0] + insert_offset, addition[1][1:])
+                new_file_lines.insert(addition[0] + match_offset, addition[1][1:])
 
             # print("-" * os.get_terminal_size().columns)
             # print("\n".join(new_file_lines))
             # print("-" * os.get_terminal_size().columns)
+            # return
             with open(filepath, "w") as f:
                 f.write("\n".join(new_file_lines))
 

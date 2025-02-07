@@ -196,7 +196,7 @@ class Language(ABC):
         """
         pardir = self.parent_dir(year, day)
         if not self.folder:
-            pardir = Path(pardir, f"{year}_{day}{self.ext}")
+            pardir = Path(pardir, f"{day}{self.ext}")
         return self.parent_dir(year, day).exists()
 
     def input_loc(self, year: int, day: int) -> Path:

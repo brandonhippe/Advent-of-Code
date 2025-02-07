@@ -15,7 +15,7 @@ class Rust(Language):
         self.ext = ".rs"
 
     def parent_dir(self, year: int, day: int) -> Path:
-        return Path(os.getcwd(), f"{year}", "rust", f"rust_{year}_{day}")
+        return Path(os.getcwd(), f"{year}", "rust", f"{day}")
 
     def compile_str(self, year: int, day: int) -> str:
         return "cargo build --release"
