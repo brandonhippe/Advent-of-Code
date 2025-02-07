@@ -21,19 +21,21 @@ class Python(Language):
     ) -> Tuple[Tuple[Any, float], Tuple[Any, float]]:
         thisDir = os.getcwd()
         pardir = self.parent_dir(year, day)
+        mod_name = f"{day}"
 
         sys.path.insert(0, str(pardir))
-        code = importlib.import_module(f"{year}_{day}")
+        code = importlib.import_module(mod_name)
         os.chdir(pardir)
 
         if verbose:
-            print(f"\n{self.lang.title()} {year} day {day} output:", end="")
+            print('\n' + os.get_terminal_size().columns * "-")
+            print(f"{self.lang.title()} {year} day {day} output:", end="")
 
         (p1, p1_elapsed), (p2, p2_elapsed) = code.main(input_path=self.input_loc(year, day), verbose=verbose)
 
         os.chdir(thisDir)
         sys.path.pop()
-        del sys.modules[f"{year}_{day}"]
+        del sys.modules[mod_name]
         del code
 
         return (p1, p1_elapsed), (p2, p2_elapsed)

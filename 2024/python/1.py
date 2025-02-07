@@ -5,7 +5,6 @@ from typing import Any, List, Optional, Tuple
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from Modules.timer import Timer
-import re
 from collections import defaultdict
 
 
@@ -46,7 +45,6 @@ def part2(data: List[str]) -> Any:
     return sum(l * right_counts[l] for l in left_list)
 
 
-    import os, sys, re
 def main(input_path: Optional[Path | str]=None, verbose: bool=False) -> Tuple[Tuple[Any, float]]:
     if not input_path:
         if not (input_path := sys.argv[1] if len(sys.argv) > 1 else None):
