@@ -27,6 +27,9 @@ def part1(data):
             k, v = re.split(':', field)
             currPassport[k] = v
 
+    if currPassport:
+        passports.append(currPassport)
+
     valid = 0
     for i, p in enumerate(passports):
         if len(p) == 8 or (len(p) == 7 and 'cid' not in p):
@@ -53,6 +56,9 @@ def part2(data):
         for field in re.split(' ', line):
             k, v = re.split(':', field)
             currPassport[k] = v
+
+    if currPassport:
+        passports.append(currPassport)
 
     valid = 0
     for p in passports:

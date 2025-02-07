@@ -44,8 +44,9 @@ void groupSize(int *groups, char *fileName) {
             group++;
         }
 	}
-
+    
 	fclose(inFile);
+    groups[i] = group;
 
     return;
 }
@@ -71,7 +72,6 @@ int part1(char *fileName) {
 	FILE *inFile = fopen(fileName, "r");
 
 	while(fgets(textRead, dataLine, inFile)) {
-
         if (textRead[0] == '\n') {
             int i = 0;
             while (ans[i] != '\n') {
@@ -108,6 +108,11 @@ int part1(char *fileName) {
 
 	fclose(inFile);
 
+    int i = 0;
+    while (ans[i] != '\n') {
+        count++;
+        i++;
+    }
     return count;
 }
 
@@ -143,6 +148,11 @@ int part2(int *groups, char *fileName) {
 	}
 
 	fclose(inFile);
+    for (int i = 97; i<= 122; i++) {
+        if (charCount(ans, i) == groups[lineNum]) {
+            count++;
+        }
+    }
 
     return count;
 }

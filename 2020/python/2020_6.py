@@ -30,6 +30,8 @@ def part1(data):
         for c in line:
             group[c] += 1
 
+    count += len(group)
+
     return count
 
 
@@ -54,6 +56,8 @@ def part2(data):
         inGroup += 1
         for c in line:
             group[c] += 1
+    
+    count += len([g for g in list(group.keys()) if group[g] == inGroup])
 
     return count
 

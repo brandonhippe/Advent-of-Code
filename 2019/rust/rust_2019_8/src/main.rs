@@ -66,14 +66,14 @@ fn main() {
     let part1_timer = Instant::now();
     println!(
         "\nPart 1:\n1's * 2's on layer with fewest 0's: {}\nRan in {:.5?}",
-        part1(contents.clone()),
+        part1(contents.clone().lines().next().unwrap().to_string()),
         part1_timer.elapsed()
     );
 
     let part2_timer = Instant::now();
     println!(
         "\nPart 2:\nMessage: {}\nRan in {:.5?}",
-        part2(contents.clone()),
+        part2(contents.clone().lines().next().unwrap().to_string()),
         part2_timer.elapsed()
     );
 }
