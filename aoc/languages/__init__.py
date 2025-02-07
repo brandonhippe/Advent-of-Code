@@ -125,6 +125,7 @@ class Language(ABC):
         output = output[output_start:]
 
         if verbose:
+            print(os.get_terminal_size().columns * "-")
             print(f"{self.lang.title()} {year} day {day} output:", end="")
             print("\n".join(output))
 
@@ -173,15 +174,19 @@ class Language(ABC):
         Discover all files for the given language.
         """
         if self.folder:
-            filename_regex = re.compile(f"^{self.lang}_\d+_\d+$")
+            filename_regex = re.compile(f"^(\d+)$")
         else:
-            filename_regex = re.compile(f"^\d+_\d+{self.ext}$")
+            filename_regex = re.compile(f"^(\d+){self.ext}$")
 
         scripts = []
-        for file in os.walk(p):
-            for f in file[1 + (not self.folder)]:
-                if filename_regex.match(f):
-                    scripts.append(tuple(map(int, re.findall(r"\d+", f))))
+        for year in get_released():
+            par_dir = Path(p, str(year), self.lang)
+            if not par_dir.exists():
+                continue
+
+            for f in os.listdir(par_dir):
+                if fnum := filename_regex.match(f):
+                    scripts.append((year, int(fnum.group(1))))
 
         return scripts
 
