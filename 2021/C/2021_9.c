@@ -156,11 +156,12 @@ int part2(char *fileName) {
     for (int i = 0; i < lowP->len; i++) {
         int *bSize = (int*)calloc(1, sizeof(int));
         *bSize = basinSize((char*)lowP->arr[i], createSet(stringsize, copyElement), area);
+        *bSize += 1;
         appendVector(basins, bSize);
     }
 
     basins = sortVector(basins, intcmp);
-    return *(int*)basins->arr[basins->len - 2], *(int*)basins->arr[basins->len - 3], *(int*)basins->arr[basins->len - 1] * *(int*)basins->arr[basins->len - 2] * *(int*)basins->arr[basins->len - 3];
+    return *(int*)basins->arr[basins->len - 1] * *(int*)basins->arr[basins->len - 2] * *(int*)basins->arr[basins->len - 3];
 }
 
 

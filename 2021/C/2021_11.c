@@ -87,6 +87,14 @@ int part1(char *fileName) {
                 flashes += flashOcto(octopi, x, y);
             }
         }
+
+        for (int i = 0; i < locs->len; i++) {
+            int *octo = (int*)getDictVal(octopi, locs->arr[i]);
+
+            if (*octo >= 10) {
+                *octo = 0;
+            }
+        }
     }
 
     return flashes;

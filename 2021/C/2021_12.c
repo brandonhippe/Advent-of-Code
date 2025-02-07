@@ -24,33 +24,27 @@ int maxVal(struct dict *d) {
 
 
 int findPaths(struct dict *neighborData, struct dict *visitedData, char *node, bool p2) {
-    if (strcmp(node, "end") == 0) {
+    if (strncmp(node, "end", 3) == 0) {
         return 1;
     }
 
-    if (!inDict(visitedData, node)) {
-        int *times = (int*)calloc(1, sizeof(int));
-        addDict(visitedData, node, times);
-    }
-
-    int *nodeVisitTimes = (int*)getDictVal(visitedData, node), paths = 0;
+    int *nodeVisitTimes = (int*)getDictVal(visitedData, node);
     if (node[0] == tolower(node[0])) {
         *nodeVisitTimes = *nodeVisitTimes + 1;
     }
 
     struct vector *neighbors = (struct vector *)getDictVal(neighborData, node);
+    int paths = 0;
     for (int i = 0; i < neighbors->len; i++) {
         char *n = (char*)neighbors->arr[i];
-        if (strcmp(n, "start") == 0) {
+        if (strncmp(n, "start", 5) == 0) {
             continue;
         }
 
-        if (!inDict(visitedData, n)) {
-            int *times = (int*)calloc(1, sizeof(int));
-            addDict(visitedData, n, times);
-        }
+        int *neighborVisitTimes = (int*)getDictVal(visitedData, n);
+        bool canVisit = (*neighborVisitTimes == 0) || (p2 && maxVal(visitedData) == 1);
 
-        if (*(int*)getDictVal(visitedData, n) == 0 || (p2 && maxVal(visitedData) == 1)) {
+        if (canVisit) {
             paths += findPaths(neighborData, visitedData, n, p2);
         }
     }
@@ -65,11 +59,11 @@ int findPaths(struct dict *neighborData, struct dict *visitedData, char *node, b
 int part1(char *fileName) {
     struct vector *input_data = multiLine(fileName);
     struct dict *neighborData = createDict(stringsize, sizeofVector, createCopyVector), *visitedData = createDict(stringsize, intsize, copyElement);
-
+    
     for (int i = 0; i < input_data->len; i++) {
         char *line = (char*)calloc(strlen((char*)input_data->arr[i]), sizeof(char));
         strcpy(line, input_data->arr[i]);
-
+        
         char *p1 = strtok(line, "-"), *p2 = strtok(NULL, "-");
         
         if (!inDict(neighborData, p1)) {
@@ -86,6 +80,13 @@ int part1(char *fileName) {
         
         appendVector(p1Vec, p2);
         appendVector(p2Vec, p1);
+    }
+
+    struct vector *key_vec = keys2vector(neighborData);
+    for (int i = 0; i < key_vec->len; i++) {
+        char *key = (char*)key_vec->arr[i];
+        int *times = (int*)calloc(1, sizeof(int));
+        addDict(visitedData, key, times);
     }
 
     return findPaths(neighborData, visitedData, "start", false);
@@ -115,6 +116,13 @@ int part2(char *fileName) {
         
         appendVector(p1Vec, p2);
         appendVector(p2Vec, p1);
+    }
+
+    struct vector *key_vec = keys2vector(neighborData);
+    for (int i = 0; i < key_vec->len; i++) {
+        char *key = (char*)key_vec->arr[i];
+        int *times = (int*)calloc(1, sizeof(int));
+        addDict(visitedData, key, times);
     }
 
     return findPaths(neighborData, visitedData, "start", true);
