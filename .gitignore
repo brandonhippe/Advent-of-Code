@@ -58,6 +58,7 @@ dkms.conf
 *__pycache__
 **/Modules
 !/Modules
+.venv
 
 # Rust Things
 *example*.txt
@@ -70,7 +71,7 @@ Cargo.lock
 **/Inputs/*
 !**/Inputs/.gitkeep
 *answers.txt
-**/*_data.yml
+*_data.yml
 *.env
 
 # Other random things
