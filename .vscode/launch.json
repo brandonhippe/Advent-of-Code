@@ -40,5 +40,14 @@
                 "args": ["build", "--manifest-path", "${fileDirname}/../Cargo.toml"]
             }
         },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Rust: Test",
+            "cargo": {
+                "args": ["test", "--no-run", "--manifest-path", "${fileDirname}/../Cargo.toml"]
+            },
+            "cwd": "${fileDirname}/..",
+        },
     ]
 }
