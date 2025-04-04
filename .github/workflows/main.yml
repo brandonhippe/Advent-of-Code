@@ -25,23 +25,37 @@ jobs:
           cache: 'pip' # caching pip dependencies
 
       # Install dependencies for the runner submodule & submodules
-      - run: |
+      - name: setup
+        run: |
           git submodule foreach --recursive python -m pip install -r requirements.txt
           git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
           cd runner
           git submodule update --init --recursive
           python -m pip install -e .
           sudo apt install tesseract-ocr libtesseract-dev
-        name: Setup
 
-      - run: |
+      - name: Configure git username
+        run: |
           git config user.name ${{ github.actor }}
-        name:
-          Git config Username
 
       # Run the `aoc` command to update readmes
-      - run: |
+      - name: Run Code
+        run: |
           aoc -r -a --readme --no-progressbar
         env:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
-        name: Run Code
+
+      # Commit & push changes
+      - name: Commit files
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git submodule foreach --recursive git commit -a -m "Auto-update READMEs"
+          git commit -a -m "Auto-update READMEs"
+
+      # Push changes
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
