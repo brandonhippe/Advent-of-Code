@@ -2,38 +2,57 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 permissions:
   contents: write
 
-jobs:  
-  update-readmes:
+jobs:
+  runner-setup:
     runs-on: ubuntu-latest
+    defaults:
+        run:
+          shell: bash
     steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip' # caching pip dependencies
-      - shell: bash
-        env:
-          AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
+      - run: |
           git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
           cd runner
           git submodule update --init --recursive
           python -m pip install -e .
           sudo apt install tesseract-ocr libtesseract-dev
-          cd ..
-          git submodule update --init --recursive
-          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then cd $l && python -m pip install -r requirements.txt && cd ..; fi; done
-          git config --global user.name "brandonhippe"
-          git config --global user.email "bhippe@pdx.edu"
-          aoc -r -a --readme --no-progressbar
-          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then cd $l && git add -A && git commit -m "Automated README update" && git push origin HEAD:master && cd ..; fi; done
-          git add -A
-          git commit -m "Automated README update"
-          git push origin HEAD:master
+
+  submodule-setup:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip' # caching pip dependencies
+      - run: |
+          git submodule foreach --recursive python -m pip install -r requirements.txt
+
+  update-readmes:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          shell: bash
+    needs:
+      - runner-setup
+      - submodule-setup
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - env:
+          AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
+      - run: |
+          git config user.name ${{ github.actor }}
