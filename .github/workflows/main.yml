@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  clone-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: 
+          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git
+
+  install-runner:
+    runs-on: ubuntu-latest
+    needs: clone-runner
+    steps:
+      - shell: bash
+        run:
+          pip install -e Advent-of-Code-Runner
+
+  aoc-cookie:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        env:
+          COOKIE: ${{ secrets.AOC_COOKIE }}
+        run:
+          echo "AOC_COOKIE=$COOKIE" > .env
+    
+  readme-update:
+    runs-on: ubuntu-latest
+    needs: 
+      - install-runner
+      - aoc-cookie
+    steps:
+      - run: aoc -r -a --readme
