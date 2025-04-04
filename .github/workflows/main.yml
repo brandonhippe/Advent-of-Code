@@ -26,7 +26,7 @@ jobs:
 
       # Install dependencies for the runner submodule & submodules
       - run: |
-          git submodule foreach --recursive python -m pip install requirements.txt
+          git submodule foreach --recursive python -m pip install -r requirements.txt
           git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
           cd runner
           git submodule update --init --recursive
