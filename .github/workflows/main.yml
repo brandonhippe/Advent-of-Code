@@ -21,4 +21,5 @@ jobs:
           git submodule update --init --recursive
           python -m pip install -e .
           cd ..
+          git submodule update --init --recursive
           aoc -r -a --readme
