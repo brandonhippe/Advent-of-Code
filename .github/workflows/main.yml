@@ -28,8 +28,6 @@ jobs:
     defaults:
         run:
           shell: bash
-    needs:
-      - submodule-setup
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,7 +36,10 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip' # caching pip dependencies
-      - run: |
+      - shell: bash
+        env:
+          AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
+        run: |
           git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
           cd runner
           git submodule update --init --recursive
@@ -54,6 +55,7 @@ jobs:
           shell: bash
     needs:
       - runner-setup
+      - submodule-setup
     steps:
       - uses: actions/checkout@v4
         with:
