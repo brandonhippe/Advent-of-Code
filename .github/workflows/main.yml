@@ -65,4 +65,5 @@ jobs:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
         run: |
           git config user.name ${{ github.actor }}
+          aoc -r -a --readme --no-progressbar
           
