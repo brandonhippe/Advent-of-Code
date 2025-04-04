@@ -4,24 +4,8 @@ on:
       - master
 
 jobs:
-  install-runner:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.13'
-        cache: 'pip' # caching pip dependencies
-    - shell: bash
-      run: |
-          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
-          cd runner
-          git submodule update --init --recursive
-          python -m pip install -e .
-
   update-readmes:
     runs-on: ubuntu-latest
-    needs:
-      - install-runner
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,4 +16,9 @@ jobs:
         env:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
         run: |
+          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
+          cd runner
+          git submodule update --init --recursive
+          python -m pip install -e .
+          cd ..
           aoc -r -a --readme
