@@ -31,7 +31,7 @@ jobs:
           git config --global user.name "brandonhippe"
           git config --global user.email "bhippe@pdx.edu"
           aoc -r -a --readme --no-progressbar
-          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then cd $l && git add -A && git commit -m "Automated README update" && git push origin && cd ..; fi; done
+          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then cd $l && git add -A && git commit -m "Automated README update" && git push origin HEAD:master && cd ..; fi; done
           git add -A
           git commit -m "Automated README update"
-          git push origin
+          git push origin HEAD:master
