@@ -29,9 +29,8 @@ jobs:
       - name: setup
         run: |
           git submodule foreach --recursive python -m pip install -r requirements.txt
-          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
+          git clone --recursive -b readme-viewer --single-branch https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
           cd runner
-          git submodule update --init --recursive
           python -m pip install -e .
           sudo apt install tesseract-ocr libtesseract-dev
 
@@ -51,7 +50,7 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git submodule foreach --recursive git commit -a -m "Auto-update READMEs"
+          git submodule foreach --recursive git checkout main && git commit -a -m "Auto-update READMEs"
           git commit -a -m "Auto-update READMEs"
 
       # Push changes
