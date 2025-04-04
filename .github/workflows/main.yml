@@ -7,23 +7,6 @@ permissions:
   contents: write
 
 jobs:
-  runner-setup:
-    runs-on: ubuntu-latest
-    defaults:
-        run:
-          shell: bash
-    steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip' # caching pip dependencies
-      - run: |
-          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
-          cd runner
-          git submodule update --init --recursive
-          python -m pip install -e .
-          sudo apt install tesseract-ocr libtesseract-dev
-
   submodule-setup:
     runs-on: ubuntu-latest
     defaults:
@@ -40,6 +23,27 @@ jobs:
       - run: |
           git submodule foreach --recursive python -m pip install -r requirements.txt
 
+  runner-setup:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          shell: bash
+    needs:
+      - submodule-setup
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip' # caching pip dependencies
+      - run: |
+          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
+          cd runner
+          git submodule update --init --recursive
+          python -m pip install -e .
+          sudo apt install tesseract-ocr libtesseract-dev
+          cd ..
+          aoc --no-run
+
   update-readmes:
     runs-on: ubuntu-latest
     defaults:
@@ -47,7 +51,6 @@ jobs:
           shell: bash
     needs:
       - runner-setup
-      - submodule-setup
     steps:
       - uses: actions/checkout@v4
         with:
