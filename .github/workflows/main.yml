@@ -22,4 +22,5 @@ jobs:
           python -m pip install -e .
           cd ..
           git submodule update --init --recursive
-          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then echo "$i: $l"; fi; done
+          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then cd $l && python -m pip install -r requirements.txt && cd ..; fi; done
+          aoc -r -a --readme --no-progressbar
