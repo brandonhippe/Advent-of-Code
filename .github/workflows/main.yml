@@ -2,12 +2,16 @@ on:
   push:
     branches:
       - master
+permissions:
+  contents: write
 
 jobs:  
   update-readmes:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -24,4 +28,10 @@ jobs:
           cd ..
           git submodule update --init --recursive
           for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then cd $l && python -m pip install -r requirements.txt && cd ..; fi; done
+          git config --global user.name "brandonhippe"
+          git config --global user.email "bhippe@pdx.edu"
           aoc -r -a --readme --no-progressbar
+          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if [ -d $l ]; then cd $l && git add -A && git commit -m "Automated README update" && git push && cd ..; fi; done
+          git add -A
+          git commit -m "Automated README update"
+          git push
