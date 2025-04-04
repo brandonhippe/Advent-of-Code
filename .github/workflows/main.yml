@@ -22,4 +22,4 @@ jobs:
           python -m pip install -e .
           cd ..
           git submodule update --init --recursive
-          aoc -r -a --readme --no-progress-bar
+          aoc -r -a --readme --no-progressbar
