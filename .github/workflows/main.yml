@@ -4,15 +4,6 @@ on:
       - master
 
 jobs:
-  install-runner:
-    runs-on: ubuntu-latest
-    steps:
-      - shell: bash
-        run: |
-          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git
-          cd Advent-of-Code-Runner
-          python -m pip install -e .
-
   aoc-cookie:
     runs-on: ubuntu-latest
     steps:
@@ -24,8 +15,13 @@ jobs:
     
   readme-update:
     runs-on: ubuntu-latest
-    needs: 
-      - install-runner
+    needs:
       - aoc-cookie
     steps:
-      - run: aoc -r -a --readme
+      - shell: bash
+        run: |
+            git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git
+            cd Advent-of-Code-Runner
+            python -m pip install -e .
+            cd ..
+            aoc -r -a --readme
