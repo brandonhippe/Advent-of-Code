@@ -11,7 +11,7 @@ jobs:
         run: |
           git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git
           cd Advent-of-Code-Runner
-          pip install -e .
+          python -m pip install -e .
 
   aoc-cookie:
     runs-on: ubuntu-latest
