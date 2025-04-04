@@ -22,4 +22,4 @@ jobs:
           python -m pip install -e .
           cd ..
           git submodule update --init --recursive
-          for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do echo "$l"; done
+          i=0; for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do echo "$i: $l"; ((i++)); done
