@@ -7,67 +7,41 @@ permissions:
   contents: write
 
 jobs:
-  submodule-setup:
-    runs-on: ubuntu-latest
-    defaults:
-        run:
-          shell: bash
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip' # caching pip dependencies
-      - run: |
-          git submodule foreach --recursive python -m pip install -r requirements.txt
-
-  runner-setup:
-    runs-on: ubuntu-latest
-    defaults:
-        run:
-          shell: bash
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip' # caching pip dependencies
-      - shell: bash
-        env:
-          AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
-        run: |
-          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
-          cd runner
-          git submodule update --init --recursive
-          python -m pip install -e .
-          sudo apt install tesseract-ocr libtesseract-dev
-          cd ..
-          aoc --no-run
-
   update-readmes:
     runs-on: ubuntu-latest
     defaults:
         run:
           shell: bash
-    needs:
-      - runner-setup
-      - submodule-setup
     steps:
+      # Checkout the repository with submodules
       - uses: actions/checkout@v4
         with:
           submodules: true
+
+      # Set up Python environment
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip' # caching pip dependencies
-      - shell: bash
+
+      # Install dependencies for the runner submodule & submodules
+      - run: |
+          git submodule foreach --recursive python -m pip install requirements.txt
+          git clone https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
+          cd runner
+          git submodule update --init --recursive
+          python -m pip install -e .
+          sudo apt install tesseract-ocr libtesseract-dev
+        name: Setup
+
+      - run: |
+          git config user.name ${{ github.actor }}
+        name:
+          Git config Username
+
+      # Run the `aoc` command to update readmes
+      - run: |
+          aoc -r -a --readme --no-progressbar
         env:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
-        run: |
-          git config user.name ${{ github.actor }}
-          aoc -r -a --readme --no-progressbar
-          
+        name: Run Code
