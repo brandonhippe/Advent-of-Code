@@ -22,4 +22,4 @@ jobs:
           python -m pip install -e .
           cd ..
           git submodule update --init --recursive
-          i=0; for l in $(git submodule | grep -o "\s*\S*\s*\S*\s*\S*"); do if (( i % 3 == 1 )); then echo "$l"; fi; ((i++)); done
+          git submodule | grep -o "\s*\S*\s*\S*\s*\S*"
