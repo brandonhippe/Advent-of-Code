@@ -21,16 +21,15 @@ jobs:
           shell: bash
     needs: runner-setup
     steps:
-      # Load the docker image created in runner-setup
-      - uses: actions/download-artifact@v4
+      # Load the cached docker image created in runner-setup
+      - uses: actions/cache/restore@v4
         with:
-          name: docker-artifact
           path: artifacts
+          key: artifacts-key
 
       - name: Docker Load
         run: |
-          cd artifacts
-          docker load < docker-image.tar
+          docker load < artifacts/docker-image.tgz
           # docker_build_push.sh
       
       # Checkout the repository with submodules
