@@ -1,6 +1,12 @@
 name: Update Readmes
 
 on:
+  push:
+    branches: 
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - '**/.tiles/**'
   workflow_dispatch:
 permissions:
   contents: write
