@@ -10,7 +10,7 @@ jobs:
   runner-setup:
     uses: brandonhippe/Advent-of-Code-Runner/.github/workflows/setup.yml@main
     with:
-      ref: "readme-viewer"
+      ref: "readme-viewer-v1.0.0"
       
   update-readmes:
     runs-on: ubuntu-latest
