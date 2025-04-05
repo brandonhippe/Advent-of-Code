@@ -43,11 +43,13 @@ jobs:
 
       - name: Configure git username
         run: |
+          cd aoc
           git config user.name ${{ github.actor }}
 
       # Run the `aoc` command to update readmes
       - name: Run Code
         run: |
+          cd aoc
           aoc --help
           # aoc -r -a --readme --no-progressbar
         env:
@@ -56,6 +58,7 @@ jobs:
       # Commit & push changes
       - name: Commit changes
         run: |
+          cd aoc
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           
@@ -75,4 +78,5 @@ jobs:
         with:
           github_token: ${{ secrets.AOC_PAT }}
           branch: ${{ github.ref }}
+          path: aoc
           force: true
