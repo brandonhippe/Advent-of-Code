@@ -1,3 +1,5 @@
+name: Update Readmes
+
 on:
   push:
     branches:
