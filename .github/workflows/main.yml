@@ -16,7 +16,8 @@ jobs:
       # Checkout the repository with submodules
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
+          token: ${{ secrets.AOC_PAT }}
           ref: main
 
       # Set up Python environment
@@ -58,7 +59,7 @@ jobs:
           git submodule foreach --recursive 'git add . && git commit -m "Auto-update READMEs" --allow-empty'
           
           # Push changes in submodules
-          git submodule foreach --recursive 'git push origin main'
+          git submodule foreach --recursive 'git push https://x-access-token:${{ secrets.AOC_PAT }}@github.com/$GITHUB_REPOSITORY.git main'
           
           # Commit changes in the main repository
           git add .
