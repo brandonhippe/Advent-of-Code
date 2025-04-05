@@ -27,6 +27,7 @@ jobs:
           submodules: recursive
           token: ${{ secrets.AOC_PAT }}
           ref: main
+          path: aoc
 
       # Set up Python environment
       - uses: actions/setup-python@v5
@@ -37,6 +38,7 @@ jobs:
       # Install dependencies for the runner submodule & submodules
       - name: Submodule setup
         run: |
+          cd aoc
           git submodule foreach --recursive python -m pip install -r requirements.txt
 
       - name: Configure git username
