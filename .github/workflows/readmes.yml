@@ -22,7 +22,7 @@ jobs:
     needs: runner-setup
     steps:
       # Load the docker image created in runner-setup
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: docker-artifact
           path: artifacts
