@@ -29,11 +29,11 @@ jobs:
           ref: main
           path: aoc
 
-      # Set up Python environment
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip' # caching pip dependencies
+      # # Set up Python environment
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      #     cache: 'pip' # caching pip dependencies
 
       # Install dependencies for the runner submodule & submodules
       - name: Submodule setup
