@@ -26,16 +26,15 @@ jobs:
           python-version: '3.12'
           cache: 'pip' # caching pip dependencies
 
+      # Setup Advent of Code Runner
+      - uses: brandonhippe/Advent-of-Code-Runner/.github/workflows/setup.yml@d886b5b0eba05786ef7c2a0034534439a1a955d1
+        with:
+          ref: readme-viewer
+
       # Install dependencies for the runner submodule & submodules
-      - name: setup
+      - name: Submodule setup
         run: |
-          git submodule foreach --recursive git fetch
           git submodule foreach --recursive python -m pip install -r requirements.txt
-          git clone --recursive -b readme-viewer --single-branch https://github.com/brandonhippe/Advent-of-Code-Runner.git runner
-          cd runner
-          python -m pip install -e .
-          sudo apt-get update
-          sudo apt install tesseract-ocr libtesseract-dev
 
       - name: Configure git username
         run: |
@@ -49,7 +48,7 @@ jobs:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
 
       # Commit & push changes
-      - name: Commit and push submodule changes
+      - name: Commit changes
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
@@ -59,12 +58,6 @@ jobs:
           
           # Commit changes in submodules
           git submodule foreach --recursive 'git add . && git commit -m "Auto-update READMEs" --allow-empty'
-          
-          # Push changes in submodules
-          # git submodule foreach --recursive 'git push https://x-access-token:${{ secrets.AOC_PAT }}@github.com/$GITHUB_REPOSITORY.git main'
-          
-          # Pull latest changes in the main repository
-          # git pull origin main --rebase || true
           
           # Commit changes in the main repository
           git add .
