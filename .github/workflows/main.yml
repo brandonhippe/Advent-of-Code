@@ -46,12 +46,23 @@ jobs:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
 
       # Commit & push changes
-      - name: Commit files
+      - name: Commit and push submodule changes
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git submodule foreach --recursive git checkout main && git commit -a -m "Auto-update READMEs" --allow-empty
-          git commit -a -m "Auto-update READMEs" --allow-empty
+          
+          # Ensure submodules are on the correct branch
+          git submodule foreach --recursive 'git checkout main || git checkout -b main'
+          
+          # Commit changes in submodules
+          git submodule foreach --recursive 'git add . && git commit -m "Auto-update READMEs" --allow-empty'
+          
+          # Push changes in submodules
+          git submodule foreach --recursive 'git push origin main'
+          
+          # Commit changes in the main repository
+          git add .
+          git commit -m "Auto-update READMEs" --allow-empty
 
       # Push changes
       - name: Push changes
