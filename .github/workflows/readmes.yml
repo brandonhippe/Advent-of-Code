@@ -14,7 +14,6 @@ jobs:
     defaults:
         run:
           shell: bash
-    needs: runner-setup
     steps:
       # Set up the Advent of Code Runner
       - name: Checkout Advent-of-Code-Runner
