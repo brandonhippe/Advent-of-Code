@@ -43,7 +43,7 @@ jobs:
       # Run the `aoc` command to update readmes
       - name: Run Code
         run: |
-          aoc -r -a --readme --no-progressbar
+          # aoc -r -a --readme --no-progressbar
         env:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
 
