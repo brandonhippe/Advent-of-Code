@@ -11,6 +11,7 @@ jobs:
     uses: brandonhippe/Advent-of-Code-Runner/.github/workflows/setup.yml@main
     with:
       release: readme-viewer-v1.0.0
+      token: ${{ github.token }}
       
   update-readmes:
     runs-on: ubuntu-latest
