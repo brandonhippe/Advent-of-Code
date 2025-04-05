@@ -4,9 +4,6 @@ on:
   push:
     branches: 
       - main
-    paths-ignore:
-      - '**/README.md'
-      - '**/.tiles/**'
   workflow_dispatch:
 permissions:
   contents: write
@@ -79,11 +76,11 @@ jobs:
           git submodule foreach --recursive 'git checkout main || git checkout -b main'
           
           # Commit changes in submodules
-          git submodule foreach --recursive 'git add . && git commit -m "Auto-update READMEs" --allow-empty'
+          git submodule foreach --recursive 'git add . && git commit -m "Auto-update READMEs [skip actions]" --allow-empty'
           
           # Commit changes in the main repository
           git add .
-          git commit -m "Auto-update READMEs" --allow-empty
+          git commit -m "Auto-update READMEs [skip actions]" --allow-empty
         working-directory: aoc
 
       # Push changes
