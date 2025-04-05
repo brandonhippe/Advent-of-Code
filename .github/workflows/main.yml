@@ -61,10 +61,10 @@ jobs:
           git submodule foreach --recursive 'git add . && git commit -m "Auto-update READMEs" --allow-empty'
           
           # Push changes in submodules
-          git submodule foreach --recursive 'git push https://x-access-token:${{ secrets.AOC_PAT }}@github.com/$GITHUB_REPOSITORY.git main'
+          # git submodule foreach --recursive 'git push https://x-access-token:${{ secrets.AOC_PAT }}@github.com/$GITHUB_REPOSITORY.git main'
           
           # Pull latest changes in the main repository
-          git pull origin main --rebase || true
+          # git pull origin main --rebase || true
           
           # Commit changes in the main repository
           git add .
