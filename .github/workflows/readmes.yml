@@ -8,12 +8,7 @@ on:
 permissions:
   contents: write
 
-jobs:
-  runner-setup:
-    uses: brandonhippe/Advent-of-Code-Runner/.github/workflows/setup.yml@main
-    with:
-      release: readme-viewer-v1.0.0
-      
+jobs:      
   update-readmes:
     runs-on: ubuntu-latest
     defaults:
@@ -21,6 +16,30 @@ jobs:
           shell: bash
     needs: runner-setup
     steps:
+      # Set up the Advent of Code Runner
+      - name: Checkout Advent-of-Code-Runner
+        uses: actions/checkout@v4
+        with:
+          repository: brandonhippe/Advent-of-Code-Runner
+          submodules: recursive
+          path: runner
+          ref: readme-viewer-v1.0.0
+
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # Install dependencies for the runner submodule & submodules
+      - name: Setup Runner
+        id: set-runner-path
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr libtesseract-dev
+          cd runner && python -m pip install -e . && cd ${{ github.workspace }}
+          
       # Checkout the repository with submodules
       - uses: actions/checkout@v4
         with:
@@ -29,36 +48,29 @@ jobs:
           ref: main
           path: aoc
 
-      # # Set up Python environment
-      # - uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.12'
-      #     cache: 'pip' # caching pip dependencies
-
       # Install dependencies for the runner submodule & submodules
       - name: Submodule setup
         run: |
-          cd aoc
           git submodule foreach --recursive python -m pip install -r requirements.txt
+        working-directory: aoc
 
       - name: Configure git username
         run: |
-          cd aoc
           git config user.name ${{ github.actor }}
+        working-directory: aoc
 
       # Run the `aoc` command to update readmes
       - name: Run Code
         run: |
-          cd aoc
           aoc --help
           # aoc -r -a --readme --no-progressbar
         env:
           AOC_COOKIE: ${{ secrets.AOC_COOKIE }}
+        working-directory: aoc
 
       # Commit & push changes
       - name: Commit changes
         run: |
-          cd aoc
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           
@@ -71,6 +83,7 @@ jobs:
           # Commit changes in the main repository
           git add .
           git commit -m "Auto-update READMEs" --allow-empty
+        working-directory: aoc
 
       # Push changes
       - name: Push changes
