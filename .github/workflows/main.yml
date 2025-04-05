@@ -7,11 +7,18 @@ permissions:
   contents: write
 
 jobs:
+  runner-setup:
+    # Setup Advent of Code Runner
+    uses: brandonhippe/Advent-of-Code-Runner/.github/workflows/setup.yml@main
+    with:
+      ref: readme-viewer
+      
   update-readmes:
     runs-on: ubuntu-latest
     defaults:
         run:
           shell: bash
+    needs: runner-setup
     steps:
       # Checkout the repository with submodules
       - uses: actions/checkout@v4
@@ -25,11 +32,6 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip' # caching pip dependencies
-
-      # Setup Advent of Code Runner
-      - uses: brandonhippe/Advent-of-Code-Runner/.github/workflows/setup.yml@d886b5b0eba05786ef7c2a0034534439a1a955d1
-        with:
-          ref: readme-viewer
 
       # Install dependencies for the runner submodule & submodules
       - name: Submodule setup
