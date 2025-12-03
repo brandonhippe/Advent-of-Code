@@ -30,4 +30,4 @@
 	url = https://github.com/brandonhippe/Advent-of-Code-2024.git
 [submodule "2025"]
 	path = 2025
-	url = ./2025
+	url = https://github.com/brandonhippe/Advent-of-Code-2025
