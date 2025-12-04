@@ -16,4 +16,5 @@ This repository contains all of brandonhippe's code for Advent of Code. Each yea
 - [2022](https://github.com/brandonhippe/Advent-of-Code-2022.git)
 - [2023](https://github.com/brandonhippe/Advent-of-Code-2023.git)
 - [2024](https://github.com/brandonhippe/Advent-of-Code-2024.git)
+- [2025](https://github.com/brandonhippe/Advent-of-Code-2025.git)
 
