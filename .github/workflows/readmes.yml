@@ -22,7 +22,7 @@ jobs:
           repository: brandonhippe/Advent-of-Code-Runner
           submodules: recursive
           path: runner
-          ref: readme-viewer-v1.1.0
+          ref: readme-viewer-v1.1.1
 
       # Set up Python environment
       - name: Set up Python
