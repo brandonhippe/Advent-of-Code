@@ -9,11 +9,10 @@
 				"-fdiagnostics-color=always",
 				"-g3",
 				"-Wall",
-				// "-std=c99",
 				"${file}",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
-				"-lm",
+				"-lm"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
@@ -26,6 +25,17 @@
 				"isDefault": true
 			},
 			"detail": "compiler: gcc"
+		},
+		{
+			"type": "shell",
+			"label": "Fetch All",
+			"command": "git fetch && git submodule --quiet foreach git pull && git pull",
+			"detail": "Fetches all changes from remote and updates submodules",
+			"problemMatcher": [],
+			"runOptions": {
+				"runOn": "folderOpen",
+				"instanceLimit": 1,
+			}
 		}
 	]
 }
